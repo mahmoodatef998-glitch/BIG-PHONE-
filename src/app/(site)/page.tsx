@@ -9,7 +9,7 @@ import { getBrands, getProducts } from '@/lib/data';
 export default async function HomePage() {
   const [brands, featuredProducts] = await Promise.all([
     getBrands(),
-    getProducts({ featured: true, limit: 8 }),
+    getProducts({ featured: true, limit: 16 }),
   ]);
 
   return (

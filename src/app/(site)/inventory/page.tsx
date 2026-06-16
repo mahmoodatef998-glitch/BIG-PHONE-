@@ -12,17 +12,19 @@ export const metadata: Metadata = {
 };
 
 export default async function InventoryPage(props: {
-  searchParams: Promise<{ search?: string; brand?: string; condition?: string; storage?: string; sort?: string }>;
+  searchParams: Promise<{ search?: string; brand?: string; condition?: string; storage?: string; sort?: string; category?: string }>;
 }) {
   const sp = await props.searchParams;
   const search = sp.search ?? '';
   const brand = sp.brand ?? '';
   const condition = sp.condition ?? '';
+  const category = sp.category ?? '';
 
   const products = await getProducts({
     ...(brand && { brand }),
     ...(condition && { condition }),
     ...(search && { search }),
+    ...(category && { category }),
   });
 
   return (
@@ -58,6 +60,7 @@ export default async function InventoryPage(props: {
               />
               {brand && <input type="hidden" name="brand" value={brand} />}
               {condition && <input type="hidden" name="condition" value={condition} />}
+              {category && <input type="hidden" name="category" value={category} />}
             </form>
           </div>
         </div>

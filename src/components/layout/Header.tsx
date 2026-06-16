@@ -22,6 +22,16 @@ const brandLinks = [
   { href: '/brands/vivo', label: 'Vivo' },
 ];
 
+const categoryPills = [
+  { label: 'Smartphones', emoji: '📱', href: '/inventory?category=smartphone' },
+  { label: 'Tablets', emoji: '📋', href: '/inventory?category=tablet' },
+  { label: 'Accessories', emoji: '🎧', href: '/inventory?category=accessory' },
+  { label: 'Apple', emoji: '🍎', href: '/inventory?brand=apple' },
+  { label: 'Samsung', emoji: '📟', href: '/inventory?brand=samsung' },
+  { label: 'Xiaomi', emoji: '📲', href: '/inventory?brand=xiaomi' },
+  { label: 'Huawei', emoji: '🔷', href: '/inventory?brand=huawei' },
+];
+
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function Header() {
@@ -48,6 +58,8 @@ export default function Header() {
     return pathname.startsWith(href);
   };
 
+  const isCategoryActive = (href: string) => pathname + (typeof window !== 'undefined' ? window.location.search : '') === href;
+
   return (
     <>
       <header
@@ -56,11 +68,12 @@ export default function Header() {
           top: 0,
           zIndex: 50,
           background: '#fff',
-          borderBottom: '1px solid #E2E8F0',
-          boxShadow: scrolled ? '0 1px 8px 0 rgb(0 0 0 / 0.08)' : 'none',
+          borderBottom: '1px solid #DDE3EA',
+          boxShadow: scrolled ? '0 2px 12px 0 rgba(13,27,42,0.1)' : 'none',
           transition: 'box-shadow 0.2s',
         }}
       >
+        {/* Main header bar */}
         <div className="container-site">
           <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
             {/* Logo */}
@@ -75,20 +88,20 @@ export default function Header() {
               }}
             >
               <div style={{
-                width: '32px', height: '32px',
-                background: '#0F172A',
+                width: '34px', height: '34px',
+                background: '#0B1829',
                 borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <span style={{ color: '#F59E0B', fontWeight: 800, fontSize: '14px' }}>B</span>
+                <span style={{ color: '#0066FF', fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>B</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>BIG PHONE</span>
+                <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
               </div>
             </Link>
 
             {/* Desktop Nav */}
-            <nav style={{ alignItems: 'center', gap: '0.25rem', flex: 1, display: 'none' }} className="md-nav">
+            <nav style={{ alignItems: 'center', gap: '0.125rem', flex: 1, display: 'none' }} className="md-nav">
               {navLinks.map((link) => (
                 link.hasDropdown ? (
                   <div key={link.href} style={{ position: 'relative' }}
@@ -103,7 +116,7 @@ export default function Header() {
                       background: 'transparent',
                       fontSize: '0.875rem',
                       fontWeight: 500,
-                      color: isActive(link.href) ? '#2563EB' : '#374151',
+                      color: isActive(link.href) ? '#0066FF' : '#4B5563',
                       cursor: 'pointer',
                       transition: 'color 0.15s',
                     }}>
@@ -114,9 +127,9 @@ export default function Header() {
                       <div style={{
                         position: 'absolute', top: '100%', left: 0,
                         background: '#fff',
-                        border: '1px solid #E2E8F0',
+                        border: '1px solid #DDE3EA',
                         borderRadius: '0.5rem',
-                        boxShadow: '0 8px 24px -4px rgb(0 0 0 / 0.12)',
+                        boxShadow: '0 8px 24px -4px rgba(13,27,42,0.15)',
                         padding: '0.5rem',
                         minWidth: '160px',
                         zIndex: 100,
@@ -126,12 +139,18 @@ export default function Header() {
                             display: 'block',
                             padding: '0.5rem 0.75rem',
                             fontSize: '0.875rem',
-                            color: '#374151',
+                            color: '#4B5563',
                             borderRadius: '0.375rem',
-                            transition: 'background 0.1s',
+                            transition: 'background 0.1s, color 0.1s',
                           }}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
-                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = '#E5F0FF';
+                            e.currentTarget.style.color = '#0066FF';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.color = '#4B5563';
+                          }}
                           >
                             {b.label}
                           </Link>
@@ -145,7 +164,7 @@ export default function Header() {
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
                     fontWeight: 500,
-                    color: isActive(link.href) ? '#2563EB' : '#374151',
+                    color: isActive(link.href) ? '#0066FF' : '#4B5563',
                     transition: 'color 0.15s, background 0.15s',
                     textDecoration: 'none',
                   }}>
@@ -164,9 +183,9 @@ export default function Header() {
                   width: '36px', height: '36px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   borderRadius: '0.375rem',
-                  border: '1px solid #E2E8F0',
+                  border: '1px solid #DDE3EA',
                   background: '#fff',
-                  color: '#374151',
+                  color: '#4B5563',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
@@ -175,21 +194,30 @@ export default function Header() {
                 <Search size={16} />
               </button>
 
-              {/* WhatsApp button - hidden on very small screens */}
+              {/* WhatsApp button */}
               <a
                 href={`https://wa.me/${WHATSAPP}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-whatsapp btn-sm"
-                style={{ display: 'none' }}
+                className="btn btn-sm"
+                style={{
+                  display: 'none',
+                  background: '#00A850',
+                  color: '#fff',
+                  gap: '0.375rem',
+                }}
               >
                 <MessageCircle size={14} />
                 <span>WhatsApp</span>
               </a>
 
-              {/* Request Quote */}
-              <Link href="/rfq" className="btn btn-primary btn-sm" style={{ display: 'none' }}>
-                Request Quote
+              {/* Get Quote */}
+              <Link
+                href="/rfq"
+                className="btn btn-primary btn-sm"
+                style={{ display: 'none' }}
+              >
+                Get Quote
               </Link>
 
               {/* Mobile menu toggle */}
@@ -199,8 +227,9 @@ export default function Header() {
                   width: '36px', height: '36px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   borderRadius: '0.375rem',
-                  border: '1px solid #E2E8F0',
+                  border: '1px solid #DDE3EA',
                   background: '#fff',
+                  color: '#4B5563',
                   cursor: 'pointer',
                 }}
                 aria-label="Menu"
@@ -214,7 +243,7 @@ export default function Header() {
           {searchOpen && (
             <div style={{ paddingBottom: '0.75rem' }}>
               <form action="/inventory" method="get" style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#8B9DB5' }} />
                 <input
                   autoFocus
                   type="search"
@@ -230,11 +259,65 @@ export default function Header() {
           )}
         </div>
 
+        {/* Category strip — desktop only */}
+        <div className="category-strip cat-strip-desktop">
+          <div className="container-site">
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              padding: '0.5rem 0',
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+            }}>
+              {categoryPills.map((pill) => (
+                <Link
+                  key={pill.href}
+                  href={pill.href}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    padding: '0.375rem 0.875rem',
+                    borderRadius: '9999px',
+                    border: `1.5px solid ${isCategoryActive(pill.href) ? '#0066FF' : '#DDE3EA'}`,
+                    background: isCategoryActive(pill.href) ? '#E5F0FF' : '#fff',
+                    color: isCategoryActive(pill.href) ? '#0066FF' : '#4B5563',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s',
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={e => {
+                    if (!isCategoryActive(pill.href)) {
+                      e.currentTarget.style.borderColor = '#0066FF';
+                      e.currentTarget.style.color = '#0066FF';
+                      e.currentTarget.style.background = '#E5F0FF';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isCategoryActive(pill.href)) {
+                      e.currentTarget.style.borderColor = '#DDE3EA';
+                      e.currentTarget.style.color = '#4B5563';
+                      e.currentTarget.style.background = '#fff';
+                    }
+                  }}
+                >
+                  <span>{pill.emoji}</span>
+                  <span>{pill.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Mobile Menu */}
         {menuOpen && (
           <div style={{
             background: '#fff',
-            borderTop: '1px solid #E2E8F0',
+            borderTop: '1px solid #DDE3EA',
             padding: '1rem',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -245,14 +328,14 @@ export default function Header() {
                   borderRadius: '0.5rem',
                   fontSize: '0.9375rem',
                   fontWeight: 500,
-                  color: isActive(link.href) ? '#2563EB' : '#111827',
-                  background: isActive(link.href) ? '#eff6ff' : 'transparent',
+                  color: isActive(link.href) ? '#0066FF' : '#1A2332',
+                  background: isActive(link.href) ? '#E5F0FF' : 'transparent',
                   textDecoration: 'none',
                 }}>
                   {link.label}
                 </Link>
               ))}
-              <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #E2E8F0' }} />
+              <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #DDE3EA' }} />
               <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center' }}>
                 Request a Quote
               </Link>
@@ -271,14 +354,16 @@ export default function Header() {
         )}
       </header>
 
-      {/* Desktop nav visibility — inline responsive via style tags */}
       <style>{`
+        .cat-strip-desktop { display: none; }
         @media (min-width: 768px) {
           .md-nav { display: flex !important; }
           header button[aria-label="Menu"] { display: none !important; }
           header a.btn-whatsapp { display: inline-flex !important; }
           header a.btn-primary { display: inline-flex !important; }
+          .cat-strip-desktop { display: block; }
         }
+        .cat-strip-desktop div::-webkit-scrollbar { display: none; }
       `}</style>
     </>
   );

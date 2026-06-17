@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Search, MessageCircle, ChevronDown } from 'lucide-react';
+import { Menu, X, Search, MessageCircle, ChevronDown, Globe } from 'lucide-react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -14,22 +14,22 @@ const navLinks = [
 ];
 
 const brandLinks = [
-  { href: '/brands/apple', label: 'Apple' },
+  { href: '/brands/apple',   label: 'Apple' },
   { href: '/brands/samsung', label: 'Samsung' },
-  { href: '/brands/xiaomi', label: 'Xiaomi' },
-  { href: '/brands/huawei', label: 'Huawei' },
-  { href: '/brands/oppo', label: 'Oppo' },
-  { href: '/brands/vivo', label: 'Vivo' },
+  { href: '/brands/xiaomi',  label: 'Xiaomi' },
+  { href: '/brands/huawei',  label: 'Huawei' },
+  { href: '/brands/oppo',    label: 'Oppo' },
+  { href: '/brands/vivo',    label: 'Vivo' },
 ];
 
 const categoryPills = [
-  { label: 'Smartphones', href: '/inventory?category=smartphone' },
-  { label: 'Tablets', href: '/inventory?category=tablet' },
-  { label: 'Accessories', href: '/inventory?category=accessory' },
-  { label: 'Apple', href: '/inventory?brand=apple' },
-  { label: 'Samsung', href: '/inventory?brand=samsung' },
-  { label: 'Xiaomi', href: '/inventory?brand=xiaomi' },
-  { label: 'Huawei', href: '/inventory?brand=huawei' },
+  { label: 'Smartphones',  href: '/inventory?category=smartphone' },
+  { label: 'Tablets',      href: '/inventory?category=tablet' },
+  { label: 'Accessories',  href: '/inventory?category=accessory' },
+  { label: 'Apple',        href: '/inventory?brand=apple' },
+  { label: 'Samsung',      href: '/inventory?brand=samsung' },
+  { label: 'Xiaomi',       href: '/inventory?brand=xiaomi' },
+  { label: 'Huawei',       href: '/inventory?brand=huawei' },
 ];
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -58,7 +58,8 @@ export default function Header() {
     return pathname.startsWith(href);
   };
 
-  const isCategoryActive = (href: string) => pathname + (typeof window !== 'undefined' ? window.location.search : '') === href;
+  const isCategoryActive = (href: string) =>
+    pathname + (typeof window !== 'undefined' ? window.location.search : '') === href;
 
   return (
     <>
@@ -70,18 +71,52 @@ export default function Header() {
           transition: 'box-shadow 0.2s',
         }}
       >
+        {/* Announcement bar */}
+        <div style={{ background: '#0B1829', padding: '7px 0' }}>
+          <div className="container-site">
+            <p style={{
+              fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8',
+              textAlign: 'center', margin: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+              flexWrap: 'wrap',
+            }}>
+              <Globe size={12} style={{ color: '#0066FF', flexShrink: 0 }} />
+              <span style={{ color: '#fff' }}>Global Export</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>50+ Countries</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>MOQ from 5 Units</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>WhatsApp 24/7</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Main header bar */}
         <div className="container-site">
-          <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '1.5rem' }}>
+
+            {/* Logo */}
+            <Link
+              href="/"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                textDecoration: 'none', flexShrink: 0,
+              }}
+            >
               <div style={{
-                width: '34px', height: '34px', background: '#0B1829', borderRadius: '8px',
+                width: '34px', height: '34px', background: '#0B1829',
+                borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <span style={{ color: '#0066FF', fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>B</span>
               </div>
-              <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
+              <div>
+                <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
+              </div>
             </Link>
 
+            {/* Desktop Nav */}
             <nav style={{ alignItems: 'center', gap: '0.125rem', flex: 1, display: 'none' }} className="md-nav">
               {navLinks.map((link) => (
                 link.hasDropdown ? (
@@ -121,7 +156,8 @@ export default function Header() {
                     padding: '0.5rem 0.75rem', borderRadius: '0.375rem',
                     fontSize: '0.875rem', fontWeight: 500,
                     color: isActive(link.href) ? '#0066FF' : '#4B5563',
-                    transition: 'color 0.15s, background 0.15s', textDecoration: 'none',
+                    transition: 'color 0.15s, background 0.15s',
+                    textDecoration: 'none',
                   }}>
                     {link.label}
                   </Link>
@@ -129,6 +165,7 @@ export default function Header() {
               ))}
             </nav>
 
+            {/* Right side actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
@@ -136,7 +173,8 @@ export default function Header() {
                   width: '36px', height: '36px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   borderRadius: '0.375rem', border: '1px solid #DDE3EA',
-                  background: '#fff', color: '#4B5563', cursor: 'pointer', transition: 'all 0.15s',
+                  background: '#fff', color: '#4B5563',
+                  cursor: 'pointer', transition: 'all 0.15s',
                 }}
                 aria-label="Search"
               >
@@ -146,14 +184,18 @@ export default function Header() {
               <a
                 href={`https://wa.me/${WHATSAPP}`}
                 target="_blank" rel="noopener noreferrer"
-                className="btn btn-sm"
-                style={{ display: 'none', background: '#00A850', color: '#fff', gap: '0.375rem' }}
+                className="btn btn-sm header-wa-btn"
+                style={{ background: '#00A850', color: '#fff', gap: '0.375rem', display: 'none' }}
               >
                 <MessageCircle size={14} />
                 <span>WhatsApp</span>
               </a>
 
-              <Link href="/rfq" className="btn btn-primary btn-sm" style={{ display: 'none' }}>
+              <Link
+                href="/rfq"
+                className="btn btn-primary btn-sm header-quote-btn"
+                style={{ display: 'none' }}
+              >
                 Get Quote
               </Link>
 
@@ -172,13 +214,18 @@ export default function Header() {
             </div>
           </div>
 
+          {/* Search bar (expandable) */}
           {searchOpen && (
             <div style={{ paddingBottom: '0.75rem' }}>
               <form action="/inventory" method="get" style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#8B9DB5' }} />
+                <Search size={16} style={{
+                  position: 'absolute', left: '0.75rem', top: '50%',
+                  transform: 'translateY(-50%)', color: '#8B9DB5',
+                }} />
                 <input
                   autoFocus
-                  type="search" name="search"
+                  type="search"
+                  name="search"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search iPhone 15, Samsung S24, iPad..."
@@ -190,6 +237,7 @@ export default function Header() {
           )}
         </div>
 
+        {/* Category strip — desktop only */}
         <div className="category-strip cat-strip-desktop">
           <div className="container-site">
             <div style={{
@@ -209,8 +257,11 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {menuOpen && (
-          <div style={{ background: '#fff', borderTop: '1px solid #DDE3EA', padding: '1rem' }}>
+          <div style={{
+            background: '#fff', borderTop: '1px solid #DDE3EA', padding: '1rem',
+          }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href} style={{
@@ -230,7 +281,8 @@ export default function Header() {
               <a
                 href={`https://wa.me/${WHATSAPP}`}
                 target="_blank" rel="noopener noreferrer"
-                className="btn btn-whatsapp" style={{ textAlign: 'center' }}
+                className="btn btn-whatsapp"
+                style={{ textAlign: 'center' }}
               >
                 <MessageCircle size={16} />
                 Chat on WhatsApp
@@ -245,8 +297,8 @@ export default function Header() {
         @media (min-width: 768px) {
           .md-nav { display: flex !important; }
           header button[aria-label="Menu"] { display: none !important; }
-          header a.btn-whatsapp { display: inline-flex !important; }
-          header a.btn-primary { display: inline-flex !important; }
+          .header-wa-btn { display: inline-flex !important; }
+          .header-quote-btn { display: inline-flex !important; }
           .cat-strip-desktop { display: block; }
         }
         .cat-strip-desktop div::-webkit-scrollbar { display: none; }

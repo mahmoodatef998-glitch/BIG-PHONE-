@@ -1,25 +1,22 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import type { Product, Brand, Condition, Category } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-async function uploadToCloudinary(file: File): Promise<string | null> {
-  if (!CLOUD_NAME || !UPLOAD_PRESET) return null;
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-    const data = await res.json();
-    return (data.secure_url as string) ?? null;
-  } catch { return null; }
+async function uploadToStorage(file: File): Promise<string | null> {
+  const supabase = createClient();
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) { console.error('[upload]', error.message); return null; }
+  const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+  return data.publicUrl;
 }
 
 type FormState = {
@@ -96,12 +93,14 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState | null>(null);
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [syncVariants, setSyncVariants] = useState(false);
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadProgress, setUploadProgress] = useState('');
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (product) { setForm(field(product)); setNewFiles([]); setStatus('idle'); }
+    if (product) { setForm(field(product)); setNewFiles([]); setStatus('idle'); setSyncVariants(false); setUploadProgress(''); }
   }, [product]);
 
   useEffect(() => {
@@ -122,12 +121,20 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
 
     let finalImages = [...form.images];
 
-    if (newFiles.length > 0 && CLOUD_NAME && UPLOAD_PRESET) {
-      const uploads = await Promise.all(newFiles.map(uploadToCloudinary));
-      finalImages = [...finalImages, ...uploads.filter(Boolean) as string[]];
+    if (newFiles.length > 0) {
+      setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
+      const uploads = await Promise.all(newFiles.map(uploadToStorage));
+      const uploaded = uploads.filter(Boolean) as string[];
+      finalImages = [...finalImages, ...uploaded];
+      if (uploaded.length < newFiles.length) {
+        const failed = newFiles.length - uploaded.length;
+        setErrorMsg(`${failed} image${failed > 1 ? 's' : ''} failed to upload. Others were saved.`);
+      }
+      setUploadProgress('');
     }
 
     const supabase = createClient();
+
     const { error } = await supabase.from('products').update({
       name: form.name, model: form.model, color: form.color || null,
       brand_id: form.brand_id, category: form.category, condition: form.condition,
@@ -146,16 +153,24 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
     if (error) {
       setStatus('error');
       setErrorMsg(error.message);
-    } else {
-      setStatus('success');
-      router.refresh();
-      setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
+      return;
     }
+
+    if (syncVariants && finalImages.length > 0) {
+      await supabase
+        .from('products')
+        .update({ images: finalImages, updated_at: new Date().toISOString() })
+        .eq('model', product.model)
+        .neq('id', product.id);
+    }
+
+    setStatus('success');
+    router.refresh();
+    setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
   };
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -165,7 +180,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
         aria-hidden="true"
       />
 
-      {/* Drawer */}
       <div
         ref={drawerRef}
         role="dialog"
@@ -179,7 +193,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}
       >
-        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem', background: '#0F172A',
           display: 'flex', alignItems: 'center', gap: '0.875rem',
@@ -203,7 +216,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
               {product.model}
             </div>
             <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>
-              {product.brand?.name} · {product.id}
+              {product.brand?.name} · {product.condition}
             </div>
           </div>
           <button
@@ -222,11 +235,10 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           >
             {status === 'saving' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
             {status === 'success' && <CheckCircle2 size={14} />}
-            {status === 'saving' ? 'Saving…' : status === 'success' ? 'Saved!' : 'Save Changes'}
+            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : 'Save Changes'}
           </button>
         </div>
 
-        {/* Error banner */}
         {status === 'error' && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -238,24 +250,19 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           </div>
         )}
 
-        {/* Cloudinary note */}
-        {newFiles.length > 0 && (!CLOUD_NAME || !UPLOAD_PRESET) && (
+        {status === 'success' && errorMsg && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
             background: '#fff7ed', borderBottom: '1px solid #fed7aa',
             padding: '0.625rem 1.5rem', flexShrink: 0,
           }}>
             <AlertCircle size={13} style={{ color: '#c2410c', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>
-              Set <code style={{ fontFamily: 'monospace', background: '#fed7aa', padding: '0 3px', borderRadius: '3px' }}>NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code> + <code style={{ fontFamily: 'monospace', background: '#fed7aa', padding: '0 3px', borderRadius: '3px' }}>NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET</code> to upload new images.
-            </span>
+            <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>{errorMsg}</span>
           </div>
         )}
 
-        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
-          {/* ── SECTION 1: Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -263,9 +270,45 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
               onNewFiles={setNewFiles}
               uploading={status === 'saving'}
             />
+
+            <div style={{
+              marginTop: '1rem',
+              padding: '0.75rem 1rem',
+              background: syncVariants ? '#eff6ff' : '#F8FAFC',
+              border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
+              borderRadius: '0.5rem',
+              display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+              transition: 'all 0.15s',
+              cursor: 'pointer',
+            }}
+              onClick={() => setSyncVariants(v => !v)}
+            >
+              <div style={{
+                width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
+                borderRadius: '4px',
+                border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
+                background: syncVariants ? '#2563EB' : '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s',
+              }}>
+                {syncVariants && (
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
+                  Apply images to all &ldquo;{product.model}&rdquo; variants
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                  Same images will be copied to every product with this model name (different storage, color, condition).
+                </div>
+              </div>
+              <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
+            </div>
           </SectionCard>
 
-          {/* ── SECTION 2: Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -301,7 +344,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
-          {/* ── SECTION 3: Inventory */}
           <SectionCard icon={Package} title="Inventory">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -325,7 +367,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
-          {/* ── SECTION 4: Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -358,7 +399,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
-          {/* ── SECTION 5: Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />

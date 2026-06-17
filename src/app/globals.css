@@ -225,6 +225,7 @@ input, textarea, select { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   padding: 0.3125rem 0.875rem;
+  min-height: 44px;
   font-size: 0.8125rem;
   font-weight: 600;
   border-radius: 9999px;
@@ -233,12 +234,16 @@ input, textarea, select { font-family: inherit; }
   color: #4B5563;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 .filter-chip:hover { border-color: #0066FF; color: #0066FF; background: #E5F0FF; }
 .filter-chip-active {
   background: #0066FF;
   border-color: #0066FF;
   color: #fff;
+}
+@media (min-width: 768px) {
+  .filter-chip { min-height: unset; }
 }
 
 /* ─── Layout helpers ───────────────────────────────────────────────────────────────────────── */

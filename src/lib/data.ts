@@ -9,7 +9,6 @@ function db() {
   return createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
-// ─── Mock Brands ──────────────────────────────────────────────────────────────
 const MOCK_BRANDS: Brand[] = [
   { id: "1", name: "Apple",   slug: "apple",    logo_url: null, banner_url: null, description: "Premium iPhones, iPads, Apple Watch & AirPods",   product_count: 142, is_active: true, sort_order: 1, created_at: "2024-01-01" },
   { id: "2", name: "Samsung", slug: "samsung",  logo_url: null, banner_url: null, description: "Galaxy smartphones, tablets & audio devices",       product_count: 98,  is_active: true, sort_order: 2, created_at: "2024-01-01" },
@@ -22,283 +21,41 @@ const MOCK_BRANDS: Brand[] = [
 
 const AB = MOCK_BRANDS;
 
-// ─── Mock Products ────────────────────────────────────────────────────────────
-
 const MOCK_PRODUCTS: Product[] = [
-
-  // ── SMARTPHONES ────────────────────────────────────────────────────────────
-  {
-    id: "p1", brand_id: "1", name: "Apple iPhone 16 Pro Max 256GB Natural Titanium", slug: "apple-iphone-16-pro-max-256gb-natural-titanium",
-    model: "iPhone 16 Pro Max", category: "smartphone", subcategory: "iphone-16-series",
-    condition: "brand-new", storage: "256GB", color: "Natural Titanium", battery_health: null,
-    warranty: "12 Months", stock_quantity: 85, moq: 5, country_of_origin: "UAE",
-    description: "Brand new sealed iPhone 16 Pro Max with A18 Pro chip, 48MP camera system and ProMotion display.",
-    specifications: { "Display": "6.9\" Super Retina XDR", "Chip": "A18 Pro", "Camera": "48MP Triple", "Battery": "4685 mAh" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p2", brand_id: "1", name: "Apple iPhone 15 Pro 128GB Grade A Refurbished", slug: "apple-iphone-15-pro-128gb-grade-a",
-    model: "iPhone 15 Pro", category: "smartphone", subcategory: "iphone-15-series",
-    condition: "refurbished-grade-a", storage: "128GB", color: "Black Titanium", battery_health: 92,
-    warranty: "6 Months", stock_quantity: 230, moq: 10, country_of_origin: "UAE",
-    description: "Grade A refurbished iPhone 15 Pro. Excellent cosmetic and functional condition, titanium frame.",
-    specifications: { "Display": "6.1\" Super Retina XDR", "Chip": "A17 Pro", "Camera": "48MP Triple" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p9", brand_id: "1", name: "Apple iPhone 15 128GB Brand New", slug: "apple-iphone-15-128gb-brand-new",
-    model: "iPhone 15", category: "smartphone", subcategory: "iphone-15-series",
-    condition: "brand-new", storage: "128GB", color: "Pink", battery_health: null,
-    warranty: "12 Months", stock_quantity: 200, moq: 10, country_of_origin: "UAE",
-    description: "Brand new iPhone 15 with Dynamic Island and 48MP main camera.",
-    specifications: { "Display": "6.1\" Super Retina XDR", "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p10", brand_id: "1", name: "Apple iPhone 13 Pro 256GB Grade A Refurbished", slug: "apple-iphone-13-pro-256gb-grade-a",
-    model: "iPhone 13 Pro", category: "smartphone", subcategory: "iphone-13-series",
-    condition: "refurbished-grade-a", storage: "256GB", color: "Sierra Blue", battery_health: 89,
-    warranty: "6 Months", stock_quantity: 320, moq: 10, country_of_origin: "UAE",
-    description: "Grade A refurbished iPhone 13 Pro with ProMotion 120Hz display. Minor wear, fully tested.",
-    specifications: { "Display": "6.1\" Super Retina XDR 120Hz", "Chip": "A15 Bionic", "Camera": "12MP Triple Pro" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p3", brand_id: "1", name: "Apple iPhone 14 256GB Certified Refurbished", slug: "apple-iphone-14-256gb-certified-refurbished",
-    model: "iPhone 14", category: "smartphone", subcategory: "iphone-14-series",
-    condition: "certified-refurbished", storage: "256GB", color: "Purple", battery_health: 88,
-    warranty: "12 Months", stock_quantity: 190, moq: 10, country_of_origin: "UAE",
-    description: "Certified refurbished iPhone 14 — fully tested, reset and guaranteed to perform like new.",
-    specifications: { "Display": "6.1\" Super Retina XDR", "Chip": "A15 Bionic" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p11", brand_id: "1", name: "Apple iPhone 12 128GB Grade B Refurbished", slug: "apple-iphone-12-128gb-grade-b",
-    model: "iPhone 12", category: "smartphone", subcategory: "iphone-12-series",
-    condition: "refurbished-grade-b", storage: "128GB", color: "Black", battery_health: 82,
-    warranty: "3 Months", stock_quantity: 450, moq: 20, country_of_origin: "UAE",
-    description: "Grade B refurbished iPhone 12. Functional scratches/marks on body, screen in excellent condition.",
-    specifications: { "Display": "6.1\" Super Retina XDR", "Chip": "A14 Bionic" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p4", brand_id: "2", name: "Samsung Galaxy S25 Ultra 512GB Brand New", slug: "samsung-galaxy-s25-ultra-512gb",
-    model: "Galaxy S25 Ultra", category: "smartphone", subcategory: "galaxy-s25",
-    condition: "brand-new", storage: "512GB", color: "Titanium Black", battery_health: null,
-    warranty: "12 Months", stock_quantity: 65, moq: 5, country_of_origin: "UAE",
-    description: "Brand new Galaxy S25 Ultra with Galaxy AI, 200MP camera and built-in S Pen.",
-    specifications: { "Display": "6.9\" QHD+ Dynamic AMOLED", "Chip": "Snapdragon 8 Elite", "Camera": "200MP Quad", "S-Pen": "Built-in" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p12", brand_id: "2", name: "Samsung Galaxy S24 Ultra 256GB Brand New", slug: "samsung-galaxy-s24-ultra-256gb",
-    model: "Galaxy S24 Ultra", category: "smartphone", subcategory: "galaxy-s24",
-    condition: "brand-new", storage: "256GB", color: "Titanium Gray", battery_health: null,
-    warranty: "12 Months", stock_quantity: 80, moq: 5, country_of_origin: "UAE",
-    description: "Brand new Galaxy S24 Ultra with built-in S Pen, 200MP camera and Snapdragon 8 Gen 3.",
-    specifications: { "Display": "6.8\" QHD+ Dynamic AMOLED 120Hz", "Chip": "Snapdragon 8 Gen 3", "Camera": "200MP Quad", "S-Pen": "Included" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p13", brand_id: "2", name: "Samsung Galaxy A54 5G 128GB Brand New", slug: "samsung-galaxy-a54-5g-128gb",
-    model: "Galaxy A54 5G", category: "smartphone", subcategory: "galaxy-a-series",
-    condition: "brand-new", storage: "128GB", color: "Awesome Lime", battery_health: null,
-    warranty: "12 Months", stock_quantity: 380, moq: 20, country_of_origin: "UAE",
-    description: "Brand new Galaxy A54 5G — best-value 5G smartphone, ideal for retail stock.",
-    specifications: { "Display": "6.4\" Super AMOLED 120Hz", "Chip": "Exynos 1380", "Camera": "50MP Triple", "Battery": "5000 mAh" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p5", brand_id: "2", name: "Samsung Galaxy S24 256GB Grade A Refurbished", slug: "samsung-galaxy-s24-256gb-grade-a",
-    model: "Galaxy S24", category: "smartphone", subcategory: "galaxy-s24",
-    condition: "refurbished-grade-a", storage: "256GB", color: "Cobalt Violet", battery_health: 90,
-    warranty: "6 Months", stock_quantity: 150, moq: 10, country_of_origin: "UAE",
-    description: "Grade A refurbished Samsung Galaxy S24 with Galaxy AI features.",
-    specifications: { "Display": "6.2\" FHD+ Dynamic AMOLED", "Chip": "Exynos 2400" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p6", brand_id: "3", name: "Xiaomi 14 Ultra 512GB Brand New", slug: "xiaomi-14-ultra-512gb",
-    model: "Xiaomi 14 Ultra", category: "smartphone", subcategory: "xiaomi-14",
-    condition: "brand-new", storage: "512GB", color: "White", battery_health: null,
-    warranty: "12 Months", stock_quantity: 45, moq: 5, country_of_origin: "China",
-    description: "Brand new Xiaomi 14 Ultra with Leica quad-camera and Snapdragon 8 Gen 3.",
-    specifications: { "Display": "6.73\" AMOLED 120Hz", "Chip": "Snapdragon 8 Gen 3", "Camera": "50MP Leica Quad" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[2],
-  },
-  {
-    id: "p8", brand_id: "4", name: "Huawei Pura 70 Ultra 512GB Brand New", slug: "huawei-pura-70-ultra-512gb",
-    model: "Pura 70 Ultra", category: "smartphone", subcategory: "pura-series",
-    condition: "brand-new", storage: "512GB", color: "Black", battery_health: null,
-    warranty: "12 Months", stock_quantity: 25, moq: 5, country_of_origin: "China",
-    description: "Brand new Huawei Pura 70 Ultra with variable aperture Leica camera.",
-    specifications: { "Display": "6.8\" OLED", "Camera": "50MP Variable Aperture Leica" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[3],
-  },
-  {
-    id: "p14", brand_id: "5", name: "OPPO Find X7 Ultra 512GB Brand New", slug: "oppo-find-x7-ultra-512gb",
-    model: "Find X7 Ultra", category: "smartphone", subcategory: "find-x-series",
-    condition: "brand-new", storage: "512GB", color: "Burgundy", battery_health: null,
-    warranty: "12 Months", stock_quantity: 35, moq: 5, country_of_origin: "China",
-    description: "Brand new OPPO Find X7 Ultra with dual periscope Hasselblad cameras.",
-    specifications: { "Display": "6.82\" LTPO AMOLED 120Hz", "Chip": "Snapdragon 8 Gen 3", "Camera": "50MP Quad Hasselblad" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[4],
-  },
-  {
-    id: "p15", brand_id: "6", name: "Vivo X100 Pro 512GB Brand New", slug: "vivo-x100-pro-512gb",
-    model: "X100 Pro", category: "smartphone", subcategory: "x-series",
-    condition: "brand-new", storage: "512GB", color: "Asteroid Black", battery_health: null,
-    warranty: "12 Months", stock_quantity: 28, moq: 5, country_of_origin: "China",
-    description: "Brand new Vivo X100 Pro with Zeiss co-engineered triple camera and V3 chip.",
-    specifications: { "Display": "6.78\" AMOLED 120Hz", "Chip": "Dimensity 9300", "Camera": "50MP Triple Zeiss" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[5],
-  },
-
-  // ── ACCESSORIES & AUDIO ────────────────────────────────────────────────────
-  {
-    id: "p16", brand_id: "1", name: "Apple AirPods Pro 2nd Generation USB-C", slug: "apple-airpods-pro-2-usbc",
-    model: "AirPods Pro 2", category: "airpods", subcategory: "airpods-pro",
-    condition: "brand-new", storage: null, color: "White", battery_health: null,
-    warranty: "12 Months", stock_quantity: 250, moq: 10, country_of_origin: "UAE",
-    description: "Brand new AirPods Pro 2 with USB-C, Active Noise Cancellation & Adaptive Audio. Sealed retail boxes.",
-    specifications: { "ANC": "Active Noise Cancellation", "Chip": "H2", "Connectivity": "Bluetooth 5.3", "IP": "IPX4 Sweat Resistant", "Battery": "30h total with case" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p17", brand_id: "2", name: "Samsung Galaxy Buds2 Pro Graphite", slug: "samsung-galaxy-buds2-pro-graphite",
-    model: "Galaxy Buds2 Pro", category: "airpods", subcategory: "galaxy-buds",
-    condition: "brand-new", storage: null, color: "Graphite", battery_health: null,
-    warranty: "12 Months", stock_quantity: 180, moq: 10, country_of_origin: "UAE",
-    description: "Brand new Galaxy Buds2 Pro with 360 Audio, Intelligent ANC and 24-bit Hi-Fi sound.",
-    specifications: { "ANC": "Intelligent ANC", "Audio": "24bit Hi-Fi", "IP": "IPX7 Water Resistant", "Battery": "8h + 29h case", "Connectivity": "Bluetooth 5.3" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p18", brand_id: "7", name: "65W GaN USB-C Fast Charger Bulk Pack x10", slug: "65w-gan-usbc-charger-bulk-x10",
-    model: "65W GaN Charger", category: "accessory", subcategory: "chargers",
-    condition: "brand-new", storage: null, color: "White", battery_health: null,
-    warranty: "6 Months", stock_quantity: 1000, moq: 10, country_of_origin: "China",
-    description: "Bulk pack of 10x 65W GaN USB-C fast chargers. Universal compatibility — iPhone, Samsung, Xiaomi, laptops.",
-    specifications: { "Output": "65W USB-C PD", "Technology": "GaN III Foldable Plug", "Compatibility": "Universal PD 3.0", "Size": "Compact 40x40mm", "Certifications": "CE, FCC, RoHS" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[6],
-  },
-  {
-    id: "p19", brand_id: "7", name: "9H Tempered Glass Screen Protectors Bulk x50", slug: "tempered-glass-screen-protectors-bulk-x50",
-    model: "Tempered Glass Protectors", category: "accessory", subcategory: "screen-protectors",
-    condition: "brand-new", storage: null, color: "Clear", battery_health: null,
-    warranty: "3 Months", stock_quantity: 5000, moq: 50, country_of_origin: "China",
-    description: "Bulk 50pcs premium 9H tempered glass screen protectors with self-installation kit.",
-    specifications: { "Hardness": "9H Tempered Glass", "Thickness": "0.33mm", "Compatibility": "iPhone 12-16 / Galaxy S21-S25", "Clarity": "99.9% HD Transparency", "Kit": "Dust sticker + wipe included" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[6],
-  },
-  {
-    id: "p20", brand_id: "7", name: "Premium Liquid Silicone Phone Cases Bulk x50", slug: "silicone-phone-cases-bulk-x50",
-    model: "Silicone Cases Bulk", category: "accessory", subcategory: "cases",
-    condition: "brand-new", storage: null, color: "Assorted Colors", battery_health: null,
-    warranty: "3 Months", stock_quantity: 3000, moq: 50, country_of_origin: "China",
-    description: "Bulk 50pcs premium liquid silicone cases, assorted colors. iPhone 14/15 and Galaxy S24 series.",
-    specifications: { "Material": "Liquid Silicone", "Protection": "Military Grade Drop Tested", "Compatibility": "iPhone 14/15, Galaxy S24 series", "Colors": "20+ assorted colors", "Packaging": "Retail box per unit" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[6],
-  },
-  {
-    id: "p21", brand_id: "1", name: "Apple MagSafe Charger 15W USB-C 1m", slug: "apple-magsafe-charger-15w-usbc",
-    model: "MagSafe Charger", category: "accessory", subcategory: "chargers",
-    condition: "brand-new", storage: null, color: "White", battery_health: null,
-    warranty: "12 Months", stock_quantity: 420, moq: 10, country_of_origin: "UAE",
-    description: "Genuine Apple MagSafe Charger 15W with USB-C cable. Magnetic alignment for iPhone 12 and later.",
-    specifications: { "Output": "15W MagSafe", "Cable": "USB-C 1m included", "Compatibility": "iPhone 12-16 series", "Technology": "MagSafe Magnetic Alignment" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-
-  // ── TABLETS ────────────────────────────────────────────────────────────────
-  {
-    id: "p7", brand_id: "1", name: "Apple iPad Pro 12.9\" M4 256GB Wi-Fi", slug: "apple-ipad-pro-12-m4-256gb",
-    model: "iPad Pro 12.9\" M4", category: "tablet", subcategory: "ipad-pro",
-    condition: "brand-new", storage: "256GB", color: "Space Black", battery_health: null,
-    warranty: "12 Months", stock_quantity: 30, moq: 3, country_of_origin: "UAE",
-    description: "Brand new iPad Pro with M4 chip and Ultra Retina XDR tandem OLED display.",
-    specifications: { "Display": "12.9\" Ultra Retina XDR OLED", "Chip": "Apple M4", "Connectivity": "Wi-Fi 6E + Bluetooth 5.3", "Storage": "256GB" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p22", brand_id: "2", name: "Samsung Galaxy Tab S9 Ultra 512GB Wi-Fi", slug: "samsung-galaxy-tab-s9-ultra-512gb",
-    model: "Galaxy Tab S9 Ultra", category: "tablet", subcategory: "galaxy-tab-s9",
-    condition: "brand-new", storage: "512GB", color: "Graphite", battery_health: null,
-    warranty: "12 Months", stock_quantity: 40, moq: 3, country_of_origin: "UAE",
-    description: "Brand new Galaxy Tab S9 Ultra with 14.6\" Dynamic AMOLED display and included S Pen.",
-    specifications: { "Display": "14.6\" Dynamic AMOLED 2X 120Hz", "Chip": "Snapdragon 8 Gen 2", "S-Pen": "Included", "RAM": "12GB", "Battery": "11200 mAh" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p23", brand_id: "1", name: "Apple iPad Air 5 M1 256GB Wi-Fi", slug: "apple-ipad-air-5-m1-256gb",
-    model: "iPad Air 5 M1", category: "tablet", subcategory: "ipad-air",
-    condition: "brand-new", storage: "256GB", color: "Starlight", battery_health: null,
-    warranty: "12 Months", stock_quantity: 55, moq: 3, country_of_origin: "UAE",
-    description: "Brand new iPad Air 5 with M1 chip — powerful and portable for professionals.",
-    specifications: { "Display": "10.9\" Liquid Retina", "Chip": "Apple M1", "USB-C": "USB 3.0 Speed", "Connectivity": "Wi-Fi 6, Touch ID" },
-    images: [], is_featured: true, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p24", brand_id: "1", name: "Apple iPad mini 6 256GB Wi-Fi", slug: "apple-ipad-mini-6-256gb",
-    model: "iPad mini 6", category: "tablet", subcategory: "ipad-mini",
-    condition: "brand-new", storage: "256GB", color: "Purple", battery_health: null,
-    warranty: "12 Months", stock_quantity: 45, moq: 5, country_of_origin: "UAE",
-    description: "Brand new iPad mini 6 with A15 Bionic chip and compact 8.3\" Liquid Retina display.",
-    specifications: { "Display": "8.3\" Liquid Retina", "Chip": "A15 Bionic", "Connectivity": "Wi-Fi 6, USB-C", "Weight": "293g" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[0],
-  },
-  {
-    id: "p25", brand_id: "2", name: "Samsung Galaxy Tab A9+ 128GB Wi-Fi", slug: "samsung-galaxy-tab-a9-plus-128gb",
-    model: "Galaxy Tab A9+", category: "tablet", subcategory: "galaxy-tab-a",
-    condition: "brand-new", storage: "128GB", color: "Graphite", battery_health: null,
-    warranty: "12 Months", stock_quantity: 120, moq: 10, country_of_origin: "UAE",
-    description: "Brand new Galaxy Tab A9+ — best-value 11\" tablet ideal for retail distribution.",
-    specifications: { "Display": "11\" IPS TFT 90Hz", "Chip": "Snapdragon 695", "Battery": "7040 mAh", "Speakers": "Quad AKG speakers" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[1],
-  },
-  {
-    id: "p26", brand_id: "3", name: "Xiaomi Pad 6 Pro 256GB Wi-Fi", slug: "xiaomi-pad-6-pro-256gb",
-    model: "Pad 6 Pro", category: "tablet", subcategory: "xiaomi-pad",
-    condition: "brand-new", storage: "256GB", color: "Black", battery_health: null,
-    warranty: "12 Months", stock_quantity: 65, moq: 5, country_of_origin: "China",
-    description: "Brand new Xiaomi Pad 6 Pro with 11.47\" 144Hz display and Snapdragon 8+ Gen 1.",
-    specifications: { "Display": "11.47\" 2.8K IPS 144Hz", "Chip": "Snapdragon 8+ Gen 1", "Battery": "8600 mAh 67W", "Speakers": "Quad Dolby Atmos" },
-    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01",
-    brand: AB[2],
-  },
+  // SMARTPHONES
+  { id: "p1",  brand_id: "1", name: "Apple iPhone 16 Pro Max 256GB Natural Titanium",    slug: "apple-iphone-16-pro-max-256gb-natural-titanium", model: "iPhone 16 Pro Max",    category: "smartphone", subcategory: "iphone-16-series",  condition: "brand-new",              storage: "256GB", color: "Natural Titanium", battery_health: null, warranty: "12 Months", stock_quantity: 85,   moq: 5,  country_of_origin: "UAE",   description: "Brand new sealed iPhone 16 Pro Max with A18 Pro chip.",        specifications: { "Display": "6.9\" Super Retina XDR", "Chip": "A18 Pro" },           images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p2",  brand_id: "1", name: "Apple iPhone 15 Pro 128GB Grade A Refurbished",     slug: "apple-iphone-15-pro-128gb-grade-a",             model: "iPhone 15 Pro",        category: "smartphone", subcategory: "iphone-15-series",  condition: "refurbished-grade-a",    storage: "128GB", color: "Black Titanium",  battery_health: 92,   warranty: "6 Months",  stock_quantity: 230,  moq: 10, country_of_origin: "UAE",   description: "Grade A refurbished iPhone 15 Pro.",                          specifications: { "Chip": "A17 Pro", "Camera": "48MP Triple" },                    images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p9",  brand_id: "1", name: "Apple iPhone 15 128GB Brand New",                   slug: "apple-iphone-15-128gb-brand-new",               model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "128GB", color: "Pink",            battery_health: null, warranty: "12 Months", stock_quantity: 200,  moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p10", brand_id: "1", name: "Apple iPhone 13 Pro 256GB Grade A Refurbished",     slug: "apple-iphone-13-pro-256gb-grade-a",             model: "iPhone 13 Pro",        category: "smartphone", subcategory: "iphone-13-series",  condition: "refurbished-grade-a",    storage: "256GB", color: "Sierra Blue",     battery_health: 89,   warranty: "6 Months",  stock_quantity: 320,  moq: 10, country_of_origin: "UAE",   description: "Grade A refurbished iPhone 13 Pro.",                          specifications: { "Chip": "A15 Bionic" },                                          images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p3",  brand_id: "1", name: "Apple iPhone 14 256GB Certified Refurbished",       slug: "apple-iphone-14-256gb-certified-refurbished",   model: "iPhone 14",            category: "smartphone", subcategory: "iphone-14-series",  condition: "certified-refurbished", storage: "256GB", color: "Purple",          battery_health: 88,   warranty: "12 Months", stock_quantity: 190,  moq: 10, country_of_origin: "UAE",   description: "Certified refurbished iPhone 14.",                            specifications: { "Chip": "A15 Bionic" },                                          images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p11", brand_id: "1", name: "Apple iPhone 12 128GB Grade B Refurbished",         slug: "apple-iphone-12-128gb-grade-b",                 model: "iPhone 12",            category: "smartphone", subcategory: "iphone-12-series",  condition: "refurbished-grade-b",    storage: "128GB", color: "Black",           battery_health: 82,   warranty: "3 Months",  stock_quantity: 450,  moq: 20, country_of_origin: "UAE",   description: "Grade B refurbished iPhone 12.",                              specifications: { "Chip": "A14 Bionic" },                                          images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p4",  brand_id: "2", name: "Samsung Galaxy S25 Ultra 512GB Brand New",          slug: "samsung-galaxy-s25-ultra-512gb",                model: "Galaxy S25 Ultra",     category: "smartphone", subcategory: "galaxy-s25",        condition: "brand-new",              storage: "512GB", color: "Titanium Black",  battery_health: null, warranty: "12 Months", stock_quantity: 65,   moq: 5,  country_of_origin: "UAE",   description: "Brand new Galaxy S25 Ultra with Galaxy AI.",                  specifications: { "Chip": "Snapdragon 8 Elite", "Camera": "200MP" },               images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p12", brand_id: "2", name: "Samsung Galaxy S24 Ultra 256GB Brand New",          slug: "samsung-galaxy-s24-ultra-256gb",                model: "Galaxy S24 Ultra",     category: "smartphone", subcategory: "galaxy-s24",        condition: "brand-new",              storage: "256GB", color: "Titanium Gray",   battery_health: null, warranty: "12 Months", stock_quantity: 80,   moq: 5,  country_of_origin: "UAE",   description: "Brand new Galaxy S24 Ultra with built-in S Pen.",             specifications: { "Chip": "Snapdragon 8 Gen 3", "Camera": "200MP" },              images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p13", brand_id: "2", name: "Samsung Galaxy A54 5G 128GB Brand New",             slug: "samsung-galaxy-a54-5g-128gb",                  model: "Galaxy A54 5G",        category: "smartphone", subcategory: "galaxy-a-series",   condition: "brand-new",              storage: "128GB", color: "Awesome Lime",    battery_health: null, warranty: "12 Months", stock_quantity: 380,  moq: 20, country_of_origin: "UAE",   description: "Brand new Galaxy A54 5G.",                                    specifications: { "Chip": "Exynos 1380", "Camera": "50MP Triple" },              images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p5",  brand_id: "2", name: "Samsung Galaxy S24 256GB Grade A Refurbished",      slug: "samsung-galaxy-s24-256gb-grade-a",              model: "Galaxy S24",           category: "smartphone", subcategory: "galaxy-s24",        condition: "refurbished-grade-a",    storage: "256GB", color: "Cobalt Violet",   battery_health: 90,   warranty: "6 Months",  stock_quantity: 150,  moq: 10, country_of_origin: "UAE",   description: "Grade A refurbished Samsung Galaxy S24.",                     specifications: { "Chip": "Exynos 2400" },                                        images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p6",  brand_id: "3", name: "Xiaomi 14 Ultra 512GB Brand New",                   slug: "xiaomi-14-ultra-512gb",                         model: "Xiaomi 14 Ultra",      category: "smartphone", subcategory: "xiaomi-14",         condition: "brand-new",              storage: "512GB", color: "White",           battery_health: null, warranty: "12 Months", stock_quantity: 45,   moq: 5,  country_of_origin: "China",  description: "Brand new Xiaomi 14 Ultra with Leica cameras.",               specifications: { "Chip": "Snapdragon 8 Gen 3" },                                 images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[2] },
+  { id: "p8",  brand_id: "4", name: "Huawei Pura 70 Ultra 512GB Brand New",              slug: "huawei-pura-70-ultra-512gb",                    model: "Pura 70 Ultra",        category: "smartphone", subcategory: "pura-series",       condition: "brand-new",              storage: "512GB", color: "Black",           battery_health: null, warranty: "12 Months", stock_quantity: 25,   moq: 5,  country_of_origin: "China",  description: "Brand new Huawei Pura 70 Ultra.",                             specifications: { "Camera": "50MP Variable Aperture Leica" },                     images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[3] },
+  { id: "p14", brand_id: "5", name: "OPPO Find X7 Ultra 512GB Brand New",                slug: "oppo-find-x7-ultra-512gb",                      model: "Find X7 Ultra",        category: "smartphone", subcategory: "find-x-series",     condition: "brand-new",              storage: "512GB", color: "Burgundy",        battery_health: null, warranty: "12 Months", stock_quantity: 35,   moq: 5,  country_of_origin: "China",  description: "Brand new OPPO Find X7 Ultra.",                               specifications: { "Camera": "50MP Quad Hasselblad" },                             images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[4] },
+  { id: "p15", brand_id: "6", name: "Vivo X100 Pro 512GB Brand New",                     slug: "vivo-x100-pro-512gb",                           model: "X100 Pro",             category: "smartphone", subcategory: "x-series",          condition: "brand-new",              storage: "512GB", color: "Asteroid Black",  battery_health: null, warranty: "12 Months", stock_quantity: 28,   moq: 5,  country_of_origin: "China",  description: "Brand new Vivo X100 Pro with Zeiss cameras.",                 specifications: { "Camera": "50MP Triple Zeiss" },                               images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[5] },
+  // ACCESSORIES & AUDIO
+  { id: "p16", brand_id: "1", name: "Apple AirPods Pro 2nd Generation USB-C",            slug: "apple-airpods-pro-2-usbc",                      model: "AirPods Pro 2",        category: "airpods",    subcategory: "airpods-pro",       condition: "brand-new",              storage: null,    color: "White",           battery_health: null, warranty: "12 Months", stock_quantity: 250,  moq: 10, country_of_origin: "UAE",   description: "Brand new AirPods Pro 2 with USB-C and ANC.",                 specifications: { "Chip": "H2", "Battery": "30h total" },                         images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p17", brand_id: "2", name: "Samsung Galaxy Buds2 Pro Graphite",                 slug: "samsung-galaxy-buds2-pro-graphite",             model: "Galaxy Buds2 Pro",     category: "airpods",    subcategory: "galaxy-buds",       condition: "brand-new",              storage: null,    color: "Graphite",        battery_health: null, warranty: "12 Months", stock_quantity: 180,  moq: 10, country_of_origin: "UAE",   description: "Brand new Galaxy Buds2 Pro with 24-bit Hi-Fi.",               specifications: { "Audio": "24bit Hi-Fi", "IP": "IPX7" },                          images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p18", brand_id: "7", name: "65W GaN USB-C Fast Charger Bulk Pack x10",          slug: "65w-gan-usbc-charger-bulk-x10",                 model: "65W GaN Charger",      category: "accessory",  subcategory: "chargers",          condition: "brand-new",              storage: null,    color: "White",           battery_health: null, warranty: "6 Months",  stock_quantity: 1000, moq: 10, country_of_origin: "China",  description: "Bulk 10x 65W GaN USB-C chargers. Universal compatibility.",   specifications: { "Output": "65W USB-C PD", "Tech": "GaN III" },                  images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[6] },
+  { id: "p19", brand_id: "7", name: "9H Tempered Glass Screen Protectors Bulk x50",      slug: "tempered-glass-screen-protectors-bulk-x50",    model: "Tempered Glass Protectors", category: "accessory", subcategory: "screen-protectors", condition: "brand-new",             storage: null,    color: "Clear",           battery_health: null, warranty: "3 Months",  stock_quantity: 5000, moq: 50, country_of_origin: "China",  description: "Bulk 50pcs 9H tempered glass screen protectors.",             specifications: { "Hardness": "9H", "Thickness": "0.33mm" },                       images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[6] },
+  { id: "p20", brand_id: "7", name: "Premium Liquid Silicone Phone Cases Bulk x50",      slug: "silicone-phone-cases-bulk-x50",                model: "Silicone Cases Bulk",  category: "accessory",  subcategory: "cases",             condition: "brand-new",              storage: null,    color: "Assorted",        battery_health: null, warranty: "3 Months",  stock_quantity: 3000, moq: 50, country_of_origin: "China",  description: "Bulk 50pcs premium liquid silicone cases.",                   specifications: { "Material": "Liquid Silicone", "Colors": "20+ assorted" },       images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[6] },
+  { id: "p21", brand_id: "1", name: "Apple MagSafe Charger 15W USB-C 1m",               slug: "apple-magsafe-charger-15w-usbc",                model: "MagSafe Charger",      category: "accessory",  subcategory: "chargers",          condition: "brand-new",              storage: null,    color: "White",           battery_health: null, warranty: "12 Months", stock_quantity: 420,  moq: 10, country_of_origin: "UAE",   description: "Genuine Apple MagSafe Charger 15W with USB-C cable.",         specifications: { "Output": "15W MagSafe" },                                      images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  // TABLETS
+  { id: "p7",  brand_id: "1", name: "Apple iPad Pro 12.9\" M4 256GB Wi-Fi",             slug: "apple-ipad-pro-12-m4-256gb",                    model: "iPad Pro 12.9\" M4",   category: "tablet",     subcategory: "ipad-pro",          condition: "brand-new",              storage: "256GB", color: "Space Black",     battery_health: null, warranty: "12 Months", stock_quantity: 30,   moq: 3,  country_of_origin: "UAE",   description: "Brand new iPad Pro with M4 chip and OLED display.",           specifications: { "Chip": "Apple M4", "Display": "12.9\" OLED" },                  images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p22", brand_id: "2", name: "Samsung Galaxy Tab S9 Ultra 512GB Wi-Fi",           slug: "samsung-galaxy-tab-s9-ultra-512gb",             model: "Galaxy Tab S9 Ultra",  category: "tablet",     subcategory: "galaxy-tab-s9",     condition: "brand-new",              storage: "512GB", color: "Graphite",        battery_health: null, warranty: "12 Months", stock_quantity: 40,   moq: 3,  country_of_origin: "UAE",   description: "Brand new Galaxy Tab S9 Ultra, 14.6\" AMOLED, S Pen included.", specifications: { "Chip": "Snapdragon 8 Gen 2", "S-Pen": "Included" },           images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p23", brand_id: "1", name: "Apple iPad Air 5 M1 256GB Wi-Fi",                  slug: "apple-ipad-air-5-m1-256gb",                     model: "iPad Air 5 M1",        category: "tablet",     subcategory: "ipad-air",          condition: "brand-new",              storage: "256GB", color: "Starlight",       battery_health: null, warranty: "12 Months", stock_quantity: 55,   moq: 3,  country_of_origin: "UAE",   description: "Brand new iPad Air 5 with M1 chip.",                          specifications: { "Chip": "Apple M1", "Display": "10.9\" Liquid Retina" },         images: [], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p24", brand_id: "1", name: "Apple iPad mini 6 256GB Wi-Fi",                    slug: "apple-ipad-mini-6-256gb",                       model: "iPad mini 6",          category: "tablet",     subcategory: "ipad-mini",         condition: "brand-new",              storage: "256GB", color: "Purple",          battery_health: null, warranty: "12 Months", stock_quantity: 45,   moq: 5,  country_of_origin: "UAE",   description: "Brand new iPad mini 6 with A15 Bionic.",                      specifications: { "Chip": "A15 Bionic", "Display": "8.3\" Liquid Retina" },        images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0] },
+  { id: "p25", brand_id: "2", name: "Samsung Galaxy Tab A9+ 128GB Wi-Fi",               slug: "samsung-galaxy-tab-a9-plus-128gb",              model: "Galaxy Tab A9+",       category: "tablet",     subcategory: "galaxy-tab-a",      condition: "brand-new",              storage: "128GB", color: "Graphite",        battery_health: null, warranty: "12 Months", stock_quantity: 120,  moq: 10, country_of_origin: "UAE",   description: "Brand new Galaxy Tab A9+ best-value tablet.",                 specifications: { "Chip": "Snapdragon 695", "Battery": "7040 mAh" },               images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1] },
+  { id: "p26", brand_id: "3", name: "Xiaomi Pad 6 Pro 256GB Wi-Fi",                     slug: "xiaomi-pad-6-pro-256gb",                        model: "Pad 6 Pro",            category: "tablet",     subcategory: "xiaomi-pad",        condition: "brand-new",              storage: "256GB", color: "Black",           battery_health: null, warranty: "12 Months", stock_quantity: 65,   moq: 5,  country_of_origin: "China",  description: "Brand new Xiaomi Pad 6 Pro, 144Hz display.",                  specifications: { "Chip": "Snapdragon 8+ Gen 1", "Display": "11.47\" 144Hz" },    images: [], is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[2] },
 ];
-
-// ─── Data Functions ───────────────────────────────────────────────────────────
 
 export async function getProducts(filters?: Partial<{
   brand: string; condition: string; category: string; featured: boolean; search: string; limit: number;
 }>): Promise<Product[]> {
-
   if (!USE_SUPABASE) {
     let products = [...MOCK_PRODUCTS];
     if (filters?.brand)     products = products.filter(p => p.brand?.slug === filters.brand);
@@ -336,55 +93,27 @@ export async function getProducts(filters?: Partial<{
   if (error) { console.error('[getProducts]', error.message); return []; }
 
   let products = (data ?? []) as Product[];
-  if (filters?.brand) {
-    products = products.filter(p => (p.brand as Brand)?.slug === filters.brand);
-  }
+  if (filters?.brand) products = products.filter(p => (p.brand as Brand)?.slug === filters.brand);
   return products;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (!USE_SUPABASE) {
-    return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
-  }
-
-  const { data, error } = await db()
-    .from('products')
-    .select('*, brand:brands(*)')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single();
-
+  if (!USE_SUPABASE) return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
+  const { data, error } = await db().from('products').select('*, brand:brands(*)').eq('slug', slug).eq('is_active', true).single();
   if (error) { console.error('[getProductBySlug]', error.message); return null; }
   return (data as Product) ?? null;
 }
 
 export async function getBrands(): Promise<Brand[]> {
-  if (!USE_SUPABASE) {
-    return MOCK_BRANDS.filter(b => b.is_active).sort((a, b) => a.sort_order - b.sort_order);
-  }
-
-  const { data, error } = await db()
-    .from('brands')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true });
-
+  if (!USE_SUPABASE) return MOCK_BRANDS.filter(b => b.is_active).sort((a, b) => a.sort_order - b.sort_order);
+  const { data, error } = await db().from('brands').select('*').eq('is_active', true).order('sort_order', { ascending: true });
   if (error) { console.error('[getBrands]', error.message); return []; }
   return (data ?? []) as Brand[];
 }
 
 export async function getBrandBySlug(slug: string): Promise<Brand | null> {
-  if (!USE_SUPABASE) {
-    return MOCK_BRANDS.find(b => b.slug === slug) ?? null;
-  }
-
-  const { data, error } = await db()
-    .from('brands')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single();
-
+  if (!USE_SUPABASE) return MOCK_BRANDS.find(b => b.slug === slug) ?? null;
+  const { data, error } = await db().from('brands').select('*').eq('slug', slug).eq('is_active', true).single();
   if (error) { console.error('[getBrandBySlug]', error.message); return null; }
   return (data as Brand) ?? null;
 }
@@ -394,13 +123,7 @@ export async function submitRFQ(data: Omit<RFQ, 'id' | 'status' | 'created_at'>)
     console.log('[RFQ submitted - no Supabase]', data);
     return { success: true, id: Math.random().toString(36).slice(2) };
   }
-
-  const { data: row, error } = await db()
-    .from('rfqs')
-    .insert([{ ...data, status: 'new' }])
-    .select('id')
-    .single();
-
+  const { data: row, error } = await db().from('rfqs').insert([{ ...data, status: 'new' }]).select('id').single();
   if (error) { console.error('[submitRFQ]', error.message); return { success: false, error: error.message }; }
   return { success: true, id: row.id };
 }

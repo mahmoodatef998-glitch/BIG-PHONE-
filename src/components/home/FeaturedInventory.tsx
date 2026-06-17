@@ -35,8 +35,6 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
   return (
     <section className="section" style={{ background: '#F0F4F8' }}>
       <div className="container-site">
-
-        {/* Section header */}
         <div className="section-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>
@@ -46,14 +44,13 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                 border: '1px solid #A7F3D0',
                 fontSize: '0.6875rem', fontWeight: 700,
                 padding: '0.125rem 0.5rem', borderRadius: '9999px',
-                textTransform: 'uppercase', letterSpacing: '0.08em',
-                flexShrink: 0,
+                textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0,
               }}>
                 Daily Updated
               </span>
             </div>
             <p className="section-subtitle">
-              Handpicked wholesale stock &mdash; smartphones, tablets &amp; accessories
+              Handpicked wholesale stock — smartphones, tablets &amp; accessories
             </p>
           </div>
           <Link href="/inventory" style={{
@@ -65,7 +62,6 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
           </Link>
         </div>
 
-        {/* Category tabs */}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           {TABS.map(tab => {
             const count = tabCount(products, tab.value);
@@ -82,8 +78,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                   background: active ? '#0066FF' : '#fff',
                   color: active ? '#fff' : '#4B5563',
                   fontSize: '0.8125rem', fontWeight: 600,
-                  cursor: 'pointer', transition: 'all 0.15s',
-                  whiteSpace: 'nowrap',
+                  cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
                 }}
               >
                 <Icon size={14} />
@@ -102,23 +97,18 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
           })}
         </div>
 
-        {/* Product grid */}
         {filtered.length > 0 ? (
-          <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.875rem' }}
-            className="featured-grid"
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.875rem' }} className="featured-grid">
             {filtered.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B' }}>
-            No products in this category yet &mdash; check back soon.
+            No products in this category yet — check back soon.
           </div>
         )}
 
-        {/* View All CTA */}
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <Link href="/inventory" className="btn btn-outline btn-lg" style={{ gap: '0.5rem' }}>
             View Full Inventory

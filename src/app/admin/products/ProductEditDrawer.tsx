@@ -1,25 +1,22 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import type { Product, Brand, Condition, Category } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-async function uploadToCloudinary(file: File): Promise<string | null> {
-  if (!CLOUD_NAME || !UPLOAD_PRESET) return null;
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-    const data = await res.json();
-    return (data.secure_url as string) ?? null;
-  } catch { return null; }
+async function uploadToStorage(file: File): Promise<string | null> {
+  const supabase = createClient();
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) { console.error('[upload]', error.message); return null; }
+  const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+  return data.publicUrl;
 }
 
 type FormState = {
@@ -43,9 +40,20 @@ function field(product: Product): FormState {
   };
 }
 
+function generateSlug(form: FormState): string {
+  const parts = [form.model, form.condition, form.storage, form.color]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${parts}-${Date.now().toString(36)}`;
+}
+
 interface Props {
   product: Product | null;
   brands: Brand[];
+  isNew?: boolean;
   onClose: () => void;
 }
 
@@ -70,10 +78,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid #F1F5F9' }}>
       <span style={{ fontSize: '0.875rem', color: '#374151', fontWeight: 500 }}>{label}</span>
       <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
+        type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
         style={{
           width: '44px', height: '24px', borderRadius: '9999px',
           background: checked ? '#2563EB' : '#CBD5E1',
@@ -84,24 +89,32 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         <span style={{
           position: 'absolute', top: '2px', left: checked ? '22px' : '2px',
           width: '20px', height: '20px', background: '#fff', borderRadius: '50%',
-          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-          display: 'block',
+          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block',
         }} />
       </button>
     </div>
   );
 }
 
-export default function ProductEditDrawer({ product, brands, onClose }: Props) {
+export default function ProductEditDrawer({ product, brands, isNew, onClose }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState | null>(null);
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [syncVariants, setSyncVariants] = useState(false);
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadProgress, setUploadProgress] = useState('');
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (product) { setForm(field(product)); setNewFiles([]); setStatus('idle'); }
+    if (product) {
+      setForm(field(product));
+      setNewFiles([]);
+      setStatus('idle');
+      setSyncVariants(false);
+      setUploadProgress('');
+      setErrorMsg('');
+    }
   }, [product]);
 
   useEffect(() => {
@@ -120,57 +133,97 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
     setStatus('saving');
     setErrorMsg('');
 
+    if (isNew) {
+      if (!form.name.trim() || !form.model.trim()) {
+        setStatus('error');
+        setErrorMsg('Name and Model are required');
+        return;
+      }
+    }
+
     let finalImages = [...form.images];
 
-    if (newFiles.length > 0 && CLOUD_NAME && UPLOAD_PRESET) {
-      const uploads = await Promise.all(newFiles.map(uploadToCloudinary));
-      finalImages = [...finalImages, ...uploads.filter(Boolean) as string[]];
+    if (newFiles.length > 0) {
+      setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
+      const uploads = await Promise.all(newFiles.map(uploadToStorage));
+      const uploaded = uploads.filter(Boolean) as string[];
+      finalImages = [...finalImages, ...uploaded];
+      if (uploaded.length < newFiles.length) {
+        const failed = newFiles.length - uploaded.length;
+        setErrorMsg(`${failed} image${failed > 1 ? 's' : ''} failed to upload. Others were saved.`);
+      }
+      setUploadProgress('');
     }
 
     const supabase = createClient();
-    const { error } = await supabase.from('products').update({
-      name: form.name, model: form.model, color: form.color || null,
-      brand_id: form.brand_id, category: form.category, condition: form.condition,
-      storage: form.storage || null,
-      battery_health: form.battery_health ? parseInt(form.battery_health) : null,
-      stock_quantity: parseInt(form.stock_quantity) || 0,
-      moq: parseInt(form.moq) || 1,
-      country_of_origin: form.country_of_origin,
-      warranty: form.warranty || null,
-      description: form.description || null,
-      is_featured: form.is_featured, is_active: form.is_active,
-      images: finalImages,
-      updated_at: new Date().toISOString(),
-    }).eq('id', product.id);
 
-    if (error) {
-      setStatus('error');
-      setErrorMsg(error.message);
+    if (isNew) {
+      const { error } = await supabase.from('products').insert({
+        brand_id: form.brand_id,
+        name: form.name,
+        slug: generateSlug(form),
+        model: form.model,
+        category: form.category,
+        subcategory: null,
+        condition: form.condition,
+        storage: form.storage || null,
+        color: form.color || null,
+        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+        stock_quantity: parseInt(form.stock_quantity) || 0,
+        moq: parseInt(form.moq) || 1,
+        country_of_origin: form.country_of_origin,
+        warranty: form.warranty || null,
+        description: form.description || null,
+        is_featured: form.is_featured,
+        is_active: form.is_active,
+        images: finalImages,
+      });
+      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
     } else {
-      setStatus('success');
-      router.refresh();
-      setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
+      const { error } = await supabase.from('products').update({
+        name: form.name, model: form.model, color: form.color || null,
+        brand_id: form.brand_id, category: form.category, condition: form.condition,
+        storage: form.storage || null,
+        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+        stock_quantity: parseInt(form.stock_quantity) || 0,
+        moq: parseInt(form.moq) || 1,
+        country_of_origin: form.country_of_origin,
+        warranty: form.warranty || null,
+        description: form.description || null,
+        is_featured: form.is_featured, is_active: form.is_active,
+        images: finalImages,
+        updated_at: new Date().toISOString(),
+      }).eq('id', product.id);
+      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
+
+      if (syncVariants && finalImages.length > 0) {
+        await supabase
+          .from('products')
+          .update({ images: finalImages, updated_at: new Date().toISOString() })
+          .eq('model', product.model)
+          .neq('id', product.id);
+      }
     }
+
+    setStatus('success');
+    router.refresh();
+    setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
   };
+
+  const headerTitle = isNew ? 'Add Product' : product.model;
+  const headerSubtitle = isNew ? 'New product' : `${product.brand?.name} · ${product.condition}`;
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)',
-          zIndex: 40, backdropFilter: 'blur(2px)',
-        }}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 40, backdropFilter: 'blur(2px)' }}
         aria-hidden="true"
       />
 
-      {/* Drawer */}
       <div
         ref={drawerRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Edit ${product.model}`}
+        role="dialog" aria-modal="true" aria-label={headerTitle}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: '520px', maxWidth: '100vw',
@@ -179,83 +232,54 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}
       >
-        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem', background: '#0F172A',
           display: 'flex', alignItems: 'center', gap: '0.875rem',
           borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0,
         }}>
           <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close drawer"
-            style={{
-              width: '32px', height: '32px', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.1)', border: 'none',
-              borderRadius: '0.375rem', cursor: 'pointer', color: '#fff',
-            }}
+            type="button" onClick={onClose} aria-label="Close drawer"
+            style={{ width: '32px', height: '32px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', color: '#fff' }}
           >
             <X size={16} />
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {product.model}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>
-              {product.brand?.name} · {product.id}
-            </div>
+            <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{headerTitle}</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{headerSubtitle}</div>
           </div>
           <button
-            type="button"
-            onClick={handleSave}
-            disabled={status === 'saving'}
+            type="button" onClick={handleSave} disabled={status === 'saving'}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
               padding: '0.5rem 1rem', height: '36px',
               background: status === 'success' ? '#16a34a' : '#2563EB',
               color: '#fff', border: 'none', borderRadius: '0.5rem',
               fontSize: '0.875rem', fontWeight: 700, cursor: status === 'saving' ? 'not-allowed' : 'pointer',
-              transition: 'background 0.15s', flexShrink: 0,
-              opacity: status === 'saving' ? 0.8 : 1,
+              transition: 'background 0.15s', flexShrink: 0, opacity: status === 'saving' ? 0.8 : 1,
             }}
           >
             {status === 'saving' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
             {status === 'success' && <CheckCircle2 size={14} />}
-            {status === 'saving' ? 'Saving…' : status === 'success' ? 'Saved!' : 'Save Changes'}
+            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : isNew ? 'Create Product' : 'Save Changes'}
           </button>
         </div>
 
-        {/* Error banner */}
         {status === 'error' && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            background: '#fef2f2', borderBottom: '1px solid #fecaca',
-            padding: '0.75rem 1.5rem', flexShrink: 0,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
             <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0 }} />
             <span style={{ fontSize: '0.8125rem', color: '#991b1b' }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
           </div>
         )}
 
-        {/* Cloudinary note */}
-        {newFiles.length > 0 && (!CLOUD_NAME || !UPLOAD_PRESET) && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            background: '#fff7ed', borderBottom: '1px solid #fed7aa',
-            padding: '0.625rem 1.5rem', flexShrink: 0,
-          }}>
+        {status === 'success' && errorMsg && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fff7ed', borderBottom: '1px solid #fed7aa', padding: '0.625rem 1.5rem', flexShrink: 0 }}>
             <AlertCircle size={13} style={{ color: '#c2410c', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>
-              Set <code style={{ fontFamily: 'monospace', background: '#fed7aa', padding: '0 3px', borderRadius: '3px' }}>NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code> + <code style={{ fontFamily: 'monospace', background: '#fed7aa', padding: '0 3px', borderRadius: '3px' }}>NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET</code> to upload new images.
-            </span>
+            <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>{errorMsg}</span>
           </div>
         )}
 
-        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
-          {/* ── SECTION 1: Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -263,9 +287,42 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
               onNewFiles={setNewFiles}
               uploading={status === 'saving'}
             />
+            {!isNew && (
+              <div
+                style={{
+                  marginTop: '1rem', padding: '0.75rem 1rem',
+                  background: syncVariants ? '#eff6ff' : '#F8FAFC',
+                  border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
+                  borderRadius: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                  transition: 'all 0.15s', cursor: 'pointer',
+                }}
+                onClick={() => setSyncVariants(v => !v)}
+              >
+                <div style={{
+                  width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
+                  borderRadius: '4px', border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
+                  background: syncVariants ? '#2563EB' : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s',
+                }}>
+                  {syncVariants && (
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
+                    Apply images to all &ldquo;{product.model}&rdquo; variants
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    Same images will be copied to every product with this model name (different storage, color, condition).
+                  </div>
+                </div>
+                <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
+              </div>
+            )}
           </SectionCard>
 
-          {/* ── SECTION 2: Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -301,7 +358,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
-          {/* ── SECTION 3: Inventory */}
           <SectionCard icon={Package} title="Inventory">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -325,7 +381,6 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
-          {/* ── SECTION 4: Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -348,22 +403,14 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
             <div>
               <label htmlFor="edit-desc" style={labelStyle}>Description</label>
-              <textarea
-                id="edit-desc"
-                rows={3}
-                style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
-                value={form.description}
-                onChange={e => set('description', e.target.value)}
-              />
+              <textarea id="edit-desc" rows={3} style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }} value={form.description} onChange={e => set('description', e.target.value)} />
             </div>
           </SectionCard>
 
-          {/* ── SECTION 5: Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />
           </SectionCard>
-
         </div>
       </div>
 

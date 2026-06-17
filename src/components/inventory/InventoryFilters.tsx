@@ -58,7 +58,7 @@ export default function InventoryFilters({ count }: { count: number }) {
     <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA' }}>
       <div className="container-site">
 
-        {/* ── Main chip row ────────────────────────────────────────────────────── */}
+        {/* ── Main chip row ───────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 0' }}>
 
           {/* Scrollable chips area */}
@@ -128,7 +128,7 @@ export default function InventoryFilters({ count }: { count: number }) {
           </div>
         </div>
 
-        {/* ── Results meta row ─────────────────────────────────────────────────── */}
+        {/* ── Results meta row ────────────────────────────────── */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: '0.5rem',
           flexWrap: 'wrap',

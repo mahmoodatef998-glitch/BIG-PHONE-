@@ -41,7 +41,7 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ─── Base ──────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Base ────────────────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -71,7 +71,7 @@ a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
-/* ─── Buttons ─────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Buttons ────────────────────────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -121,7 +121,7 @@ input, textarea, select { font-family: inherit; }
 .btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; }
 .btn-xl { padding: 1rem 2rem; font-size: 1.0625rem; }
 
-/* ─── Badges ──────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Badges ─────────────────────────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -142,7 +142,7 @@ input, textarea, select { font-family: inherit; }
 .badge-low-stock { background: #FFEDD5; color: #C2410C; }
 .badge-out { background: #FEE2E2; color: #991B1B; }
 
-/* ─── Cards ──────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Cards ──────────────────────────────────────────────────────────────────────────── */
 .product-card {
   background: #fff;
   border-radius: 12px;
@@ -177,20 +177,20 @@ input, textarea, select { font-family: inherit; }
   transform: translateY(-2px);
 }
 
-/* ─── Trust bar ────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Trust bar ────────────────────────────────────────────────────────────────────────── */
 .trust-bar {
   background: #0B1829;
   color: rgba(255,255,255,0.85);
   font-size: 0.8125rem;
 }
 
-/* ─── Category strip ────────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Category strip ───────────────────────────────────────────────────────────────────────── */
 .category-strip {
   background: #fff;
   border-bottom: 1px solid #DDE3EA;
 }
 
-/* ─── Forms ──────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Forms ──────────────────────────────────────────────────────────────────────────── */
 .form-input {
   width: 100%;
   padding: 0.625rem 0.875rem;
@@ -220,7 +220,7 @@ input, textarea, select { font-family: inherit; }
 
 .form-group { display: flex; flex-direction: column; }
 
-/* ─── Filter chips ──────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Filter chips ───────────────────────────────────────────────────────────────────────── */
 .filter-chip {
   display: inline-flex;
   align-items: center;
@@ -246,7 +246,7 @@ input, textarea, select { font-family: inherit; }
   .filter-chip { min-height: unset; }
 }
 
-/* ─── Layout helpers ──────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Layout helpers ───────────────────────────────────────────────────────────────────────── */
 .container-site {
   width: 100%;
   max-width: 1280px;
@@ -280,7 +280,7 @@ input, textarea, select { font-family: inherit; }
   flex-wrap: wrap;
 }
 
-/* ─── Divider / Skeleton ──────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Divider / Skeleton ───────────────────────────────────────────────────────────────────────── */
 .divider { border: none; border-top: 1px solid #DDE3EA; }
 
 .skeleton {
@@ -294,16 +294,16 @@ input, textarea, select { font-family: inherit; }
   100% { background-position: -200% 0; }
 }
 
-/* ─── Scrollbar ────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Scrollbar ────────────────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #F0F4F8; }
 ::-webkit-scrollbar-thumb { background: #C5CDD8; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #8B9DB5; }
 
-/* ─── Focus ring ────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Focus ring ────────────────────────────────────────────────────────────────────────── */
 :focus-visible { outline: 2px solid #0066FF; outline-offset: 2px; }
 
-/* ─── Reduced motion ──────────────────────────────────────────────────────────────────────────────────────── */
+/* ─── Reduced motion ───────────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

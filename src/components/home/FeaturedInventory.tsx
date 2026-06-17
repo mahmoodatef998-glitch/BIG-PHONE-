@@ -50,7 +50,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
               </span>
             </div>
             <p className="section-subtitle">
-              Handpicked wholesale stock — smartphones, tablets &amp; accessories
+              Handpicked wholesale stock &mdash; smartphones, tablets &amp; accessories
             </p>
           </div>
           <Link href="/inventory" style={{
@@ -105,7 +105,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B' }}>
-            No products in this category yet — check back soon.
+            No products in this category yet &mdash; check back soon.
           </div>
         )}
 

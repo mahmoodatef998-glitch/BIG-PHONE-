@@ -163,7 +163,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <Link
             href={`/rfq?product=${encodeURIComponent(product.name)}`}
             className="btn btn-primary"
-            style={{ flex: 1, fontSize: '0.75rem', height: '34px', padding: '0 0.625rem' }}
+            style={{ flex: 1, fontSize: '0.75rem', minHeight: '44px', padding: '0 0.625rem' }}
           >
             Request Quote
           </Link>
@@ -171,10 +171,10 @@ export default function ProductCard({ product }: { product: Product }) {
             href={waLink}
             target="_blank" rel="noopener noreferrer"
             className="btn"
-            style={{ background: '#ECFDF5', color: '#00A850', border: '1.5px solid #BBF7D0', width: '34px', height: '34px', padding: 0, flexShrink: 0 }}
+            style={{ background: '#ECFDF5', color: '#00A850', border: '1.5px solid #BBF7D0', minWidth: '44px', minHeight: '44px', width: '44px', height: '44px', padding: 0, flexShrink: 0 }}
             aria-label="WhatsApp"
           >
-            <MessageCircle size={14} />
+            <MessageCircle size={16} />
           </a>
         </div>
       </div>

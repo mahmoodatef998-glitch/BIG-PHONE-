@@ -73,7 +73,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                 onClick={() => setActiveTab(tab.value)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-                  padding: '0.5rem 1rem', borderRadius: '9999px',
+                  padding: '0.5rem 1rem', minHeight: '44px', borderRadius: '9999px',
                   border: `1.5px solid ${active ? '#0066FF' : '#DDE3EA'}`,
                   background: active ? '#0066FF' : '#fff',
                   color: active ? '#fff' : '#4B5563',

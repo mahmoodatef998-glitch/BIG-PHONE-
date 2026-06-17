@@ -23,13 +23,13 @@ const brandLinks = [
 ];
 
 const categoryPills = [
-  { label: 'Smartphones', emoji: '📱', href: '/inventory?category=smartphone' },
-  { label: 'Tablets', emoji: '📋', href: '/inventory?category=tablet' },
-  { label: 'Accessories', emoji: '🎧', href: '/inventory?category=accessory' },
-  { label: 'Apple', emoji: '🍎', href: '/inventory?brand=apple' },
-  { label: 'Samsung', emoji: '📟', href: '/inventory?brand=samsung' },
-  { label: 'Xiaomi', emoji: '📲', href: '/inventory?brand=xiaomi' },
-  { label: 'Huawei', emoji: '🔷', href: '/inventory?brand=huawei' },
+  { label: 'Smartphones', href: '/inventory?category=smartphone' },
+  { label: 'Tablets', href: '/inventory?category=tablet' },
+  { label: 'Accessories', href: '/inventory?category=accessory' },
+  { label: 'Apple', href: '/inventory?brand=apple' },
+  { label: 'Samsung', href: '/inventory?brand=samsung' },
+  { label: 'Xiaomi', href: '/inventory?brand=xiaomi' },
+  { label: 'Huawei', href: '/inventory?brand=huawei' },
 ];
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -64,43 +64,24 @@ export default function Header() {
     <>
       <header
         style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: '#fff',
-          borderBottom: '1px solid #DDE3EA',
+          position: 'sticky', top: 0, zIndex: 50,
+          background: '#fff', borderBottom: '1px solid #DDE3EA',
           boxShadow: scrolled ? '0 2px 12px 0 rgba(13,27,42,0.1)' : 'none',
           transition: 'box-shadow 0.2s',
         }}
       >
-        {/* Main header bar */}
         <div className="container-site">
           <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
-            {/* Logo */}
-            <Link
-              href="/"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                textDecoration: 'none',
-                flexShrink: 0,
-              }}
-            >
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', flexShrink: 0 }}>
               <div style={{
-                width: '34px', height: '34px',
-                background: '#0B1829',
-                borderRadius: '8px',
+                width: '34px', height: '34px', background: '#0B1829', borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <span style={{ color: '#0066FF', fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>B</span>
               </div>
-              <div>
-                <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
-              </div>
+              <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
             </Link>
 
-            {/* Desktop Nav */}
             <nav style={{ alignItems: 'center', gap: '0.125rem', flex: 1, display: 'none' }} className="md-nav">
               {navLinks.map((link) => (
                 link.hasDropdown ? (
@@ -110,15 +91,11 @@ export default function Header() {
                   >
                     <button style={{
                       display: 'flex', alignItems: 'center', gap: '0.25rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '0.375rem',
-                      border: 'none',
-                      background: 'transparent',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
+                      padding: '0.5rem 0.75rem', borderRadius: '0.375rem',
+                      border: 'none', background: 'transparent',
+                      fontSize: '0.875rem', fontWeight: 500,
                       color: isActive(link.href) ? '#0066FF' : '#4B5563',
-                      cursor: 'pointer',
-                      transition: 'color 0.15s',
+                      cursor: 'pointer', transition: 'color 0.15s',
                     }}>
                       {link.label}
                       <ChevronDown size={14} />
@@ -126,32 +103,13 @@ export default function Header() {
                     {brandsOpen && (
                       <div style={{
                         position: 'absolute', top: '100%', left: 0,
-                        background: '#fff',
-                        border: '1px solid #DDE3EA',
+                        background: '#fff', border: '1px solid #DDE3EA',
                         borderRadius: '0.5rem',
                         boxShadow: '0 8px 24px -4px rgba(13,27,42,0.15)',
-                        padding: '0.5rem',
-                        minWidth: '160px',
-                        zIndex: 100,
+                        padding: '0.5rem', minWidth: '160px', zIndex: 100,
                       }}>
                         {brandLinks.map(b => (
-                          <Link key={b.href} href={b.href} style={{
-                            display: 'block',
-                            padding: '0.5rem 0.75rem',
-                            fontSize: '0.875rem',
-                            color: '#4B5563',
-                            borderRadius: '0.375rem',
-                            transition: 'background 0.1s, color 0.1s',
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.background = '#E5F0FF';
-                            e.currentTarget.style.color = '#0066FF';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = '#4B5563';
-                          }}
-                          >
+                          <Link key={b.href} href={b.href} className="dropdown-link">
                             {b.label}
                           </Link>
                         ))}
@@ -160,13 +118,10 @@ export default function Header() {
                   </div>
                 ) : (
                   <Link key={link.href} href={link.href} style={{
-                    padding: '0.5rem 0.75rem',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
+                    padding: '0.5rem 0.75rem', borderRadius: '0.375rem',
+                    fontSize: '0.875rem', fontWeight: 500,
                     color: isActive(link.href) ? '#0066FF' : '#4B5563',
-                    transition: 'color 0.15s, background 0.15s',
-                    textDecoration: 'none',
+                    transition: 'color 0.15s, background 0.15s', textDecoration: 'none',
                   }}>
                     {link.label}
                   </Link>
@@ -174,63 +129,41 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right side actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-              {/* Search button */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 style={{
                   width: '36px', height: '36px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #DDE3EA',
-                  background: '#fff',
-                  color: '#4B5563',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  borderRadius: '0.375rem', border: '1px solid #DDE3EA',
+                  background: '#fff', color: '#4B5563', cursor: 'pointer', transition: 'all 0.15s',
                 }}
                 aria-label="Search"
               >
                 <Search size={16} />
               </button>
 
-              {/* WhatsApp button */}
               <a
                 href={`https://wa.me/${WHATSAPP}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
                 className="btn btn-sm"
-                style={{
-                  display: 'none',
-                  background: '#00A850',
-                  color: '#fff',
-                  gap: '0.375rem',
-                }}
+                style={{ display: 'none', background: '#00A850', color: '#fff', gap: '0.375rem' }}
               >
                 <MessageCircle size={14} />
                 <span>WhatsApp</span>
               </a>
 
-              {/* Get Quote */}
-              <Link
-                href="/rfq"
-                className="btn btn-primary btn-sm"
-                style={{ display: 'none' }}
-              >
+              <Link href="/rfq" className="btn btn-primary btn-sm" style={{ display: 'none' }}>
                 Get Quote
               </Link>
 
-              {/* Mobile menu toggle */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 style={{
                   width: '36px', height: '36px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #DDE3EA',
-                  background: '#fff',
-                  color: '#4B5563',
-                  cursor: 'pointer',
+                  borderRadius: '0.375rem', border: '1px solid #DDE3EA',
+                  background: '#fff', color: '#4B5563', cursor: 'pointer',
                 }}
                 aria-label="Menu"
               >
@@ -239,15 +172,13 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Search bar (expandable) */}
           {searchOpen && (
             <div style={{ paddingBottom: '0.75rem' }}>
               <form action="/inventory" method="get" style={{ position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#8B9DB5' }} />
                 <input
                   autoFocus
-                  type="search"
-                  name="search"
+                  type="search" name="search"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search iPhone 15, Samsung S24, iPad..."
@@ -259,75 +190,32 @@ export default function Header() {
           )}
         </div>
 
-        {/* Category strip — desktop only */}
         <div className="category-strip cat-strip-desktop">
           <div className="container-site">
             <div style={{
-              display: 'flex',
-              gap: '0.5rem',
-              padding: '0.5rem 0',
-              overflowX: 'auto',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
+              display: 'flex', gap: '0.5rem', padding: '0.5rem 0',
+              overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none',
             }}>
               {categoryPills.map((pill) => (
                 <Link
                   key={pill.href}
                   href={pill.href}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    padding: '0.375rem 0.875rem',
-                    borderRadius: '9999px',
-                    border: `1.5px solid ${isCategoryActive(pill.href) ? '#0066FF' : '#DDE3EA'}`,
-                    background: isCategoryActive(pill.href) ? '#E5F0FF' : '#fff',
-                    color: isCategoryActive(pill.href) ? '#0066FF' : '#4B5563',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s',
-                    flexShrink: 0,
-                  }}
-                  onMouseEnter={e => {
-                    if (!isCategoryActive(pill.href)) {
-                      e.currentTarget.style.borderColor = '#0066FF';
-                      e.currentTarget.style.color = '#0066FF';
-                      e.currentTarget.style.background = '#E5F0FF';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isCategoryActive(pill.href)) {
-                      e.currentTarget.style.borderColor = '#DDE3EA';
-                      e.currentTarget.style.color = '#4B5563';
-                      e.currentTarget.style.background = '#fff';
-                    }
-                  }}
+                  className={`cat-pill${isCategoryActive(pill.href) ? ' cat-pill-active' : ''}`}
                 >
-                  <span>{pill.emoji}</span>
-                  <span>{pill.label}</span>
+                  {pill.label}
                 </Link>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {menuOpen && (
-          <div style={{
-            background: '#fff',
-            borderTop: '1px solid #DDE3EA',
-            padding: '1rem',
-          }}>
+          <div style={{ background: '#fff', borderTop: '1px solid #DDE3EA', padding: '1rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href} style={{
-                  display: 'block',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.9375rem',
-                  fontWeight: 500,
+                  display: 'block', padding: '0.75rem 1rem', borderRadius: '0.5rem',
+                  fontSize: '0.9375rem', fontWeight: 500,
                   color: isActive(link.href) ? '#0066FF' : '#1A2332',
                   background: isActive(link.href) ? '#E5F0FF' : 'transparent',
                   textDecoration: 'none',
@@ -341,10 +229,8 @@ export default function Header() {
               </Link>
               <a
                 href={`https://wa.me/${WHATSAPP}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-whatsapp"
-                style={{ textAlign: 'center' }}
+                target="_blank" rel="noopener noreferrer"
+                className="btn btn-whatsapp" style={{ textAlign: 'center' }}
               >
                 <MessageCircle size={16} />
                 Chat on WhatsApp
@@ -364,6 +250,23 @@ export default function Header() {
           .cat-strip-desktop { display: block; }
         }
         .cat-strip-desktop div::-webkit-scrollbar { display: none; }
+        .cat-pill {
+          display: inline-flex; align-items: center;
+          padding: 0.375rem 0.875rem; border-radius: 9999px;
+          border: 1.5px solid #DDE3EA; background: #fff; color: #4B5563;
+          font-size: 0.8125rem; font-weight: 600;
+          white-space: nowrap; text-decoration: none;
+          transition: all 0.15s; flex-shrink: 0;
+        }
+        .cat-pill:hover { border-color: #0066FF; color: #0066FF; background: #E5F0FF; }
+        .cat-pill-active { border-color: #0066FF !important; color: #0066FF !important; background: #E5F0FF !important; }
+        .dropdown-link {
+          display: block; padding: 0.5rem 0.75rem;
+          font-size: 0.875rem; color: #4B5563;
+          border-radius: 0.375rem; text-decoration: none;
+          transition: background 0.1s, color 0.1s;
+        }
+        .dropdown-link:hover { background: #E5F0FF; color: #0066FF; }
       `}</style>
     </>
   );

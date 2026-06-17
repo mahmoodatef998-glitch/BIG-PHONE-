@@ -104,7 +104,6 @@ export default function HeroSection() {
               boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
               border: '2px solid rgba(77,148,255,0.2)',
             }}>
-              {/* Category select */}
               <select
                 name="category"
                 aria-label="Select category"
@@ -127,7 +126,6 @@ export default function HeroSection() {
                 ))}
               </select>
 
-              {/* Search input */}
               <input
                 type="search"
                 name="search"
@@ -145,7 +143,6 @@ export default function HeroSection() {
                 }}
               />
 
-              {/* Search button */}
               <button
                 type="submit"
                 style={{
@@ -183,18 +180,7 @@ export default function HeroSection() {
               <Link
                 key={p.label}
                 href={p.href}
-                style={{
-                  display: 'inline-block',
-                  background: 'rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.8)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '9999px',
-                  padding: '0.3125rem 0.875rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s',
-                }}
+                className="popular-pill"
               >
                 {p.label}
               </Link>
@@ -296,6 +282,23 @@ export default function HeroSection() {
           .stats-grid > div:nth-child(2n+1) { border-left: none !important; }
           .stats-grid > div:nth-child(3),
           .stats-grid > div:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.08); }
+        }
+        .popular-pill {
+          display: inline-block;
+          background: rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.8);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 9999px;
+          padding: 0.3125rem 0.875rem;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.15s;
+        }
+        .popular-pill:hover {
+          background: rgba(255,255,255,0.15);
+          border-color: rgba(255,255,255,0.3);
+          color: #fff;
         }
       `}</style>
     </section>

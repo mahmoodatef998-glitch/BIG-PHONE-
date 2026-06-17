@@ -22,15 +22,8 @@ export default function WhatsAppCTA() {
           alignItems: 'center',
         }} className="cta-grid">
 
-          {/* Left: text content */}
           <div>
-            {/* Stats row */}
-            <div style={{
-              display: 'flex',
-              gap: '1.5rem',
-              flexWrap: 'wrap',
-              marginBottom: '2rem',
-            }}>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
               {stats.map((stat) => (
                 <div key={stat.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <stat.icon size={16} style={{ color: 'rgba(255,255,255,0.7)' }} />
@@ -42,11 +35,8 @@ export default function WhatsAppCTA() {
 
             <h2 style={{
               fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
-              fontWeight: 800,
-              color: '#fff',
-              letterSpacing: '-0.025em',
-              marginBottom: '0.75rem',
-              lineHeight: 1.2,
+              fontWeight: 800, color: '#fff',
+              letterSpacing: '-0.025em', marginBottom: '0.75rem', lineHeight: 1.2,
             }}>
               Need Bulk Devices?<br />
               <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600, fontSize: '0.85em' }}>
@@ -58,40 +48,21 @@ export default function WhatsAppCTA() {
             </p>
           </div>
 
-          {/* Right: action buttons */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.75rem',
-            alignItems: 'flex-start',
-          }} className="cta-actions">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }} className="cta-actions">
             <a
               href={`https://wa.me/${WHATSAPP}?text=${waMessage}`}
               target="_blank"
               rel="noopener noreferrer"
+              className="cta-wa-btn"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.625rem',
-                background: '#fff',
-                color: '#00A850',
-                fontWeight: 700,
-                fontSize: '1rem',
-                padding: '0.875rem 1.75rem',
-                borderRadius: '0.5rem',
+                display: 'inline-flex', alignItems: 'center', gap: '0.625rem',
+                background: '#fff', color: '#00A850',
+                fontWeight: 700, fontSize: '1rem',
+                padding: '0.875rem 1.75rem', borderRadius: '0.5rem',
                 textDecoration: 'none',
                 transition: 'transform 0.15s, box-shadow 0.15s',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                width: '100%',
-                justifyContent: 'center',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 6px 24px rgba(0,0,0,0.2)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)';
+                width: '100%', justifyContent: 'center',
               }}
             >
               <MessageCircle size={20} />
@@ -99,29 +70,14 @@ export default function WhatsAppCTA() {
             </a>
             <Link
               href="/rfq"
+              className="cta-rfq-btn"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                background: 'transparent',
-                color: '#fff',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                background: 'transparent', color: '#fff',
                 border: '2px solid rgba(255,255,255,0.6)',
-                fontWeight: 600,
-                fontSize: '1rem',
-                padding: '0.875rem 1.75rem',
-                borderRadius: '0.5rem',
-                textDecoration: 'none',
-                transition: 'all 0.15s',
-                width: '100%',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.12)';
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = '#fff';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.6)';
+                fontWeight: 600, fontSize: '1rem',
+                padding: '0.875rem 1.75rem', borderRadius: '0.5rem',
+                textDecoration: 'none', transition: 'all 0.15s', width: '100%',
               }}
             >
               Request Quotation
@@ -136,6 +92,8 @@ export default function WhatsAppCTA() {
           .cta-grid { grid-template-columns: 1fr 1fr !important; }
           .cta-actions { align-items: stretch !important; }
         }
+        .cta-wa-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.2) !important; }
+        .cta-rfq-btn:hover { background: rgba(255,255,255,0.12) !important; border-color: #fff !important; }
       `}</style>
     </section>
   );

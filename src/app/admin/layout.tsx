@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Package,
@@ -10,7 +10,9 @@ import {
   Users,
   Settings,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -23,10 +25,17 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
+  };
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/admin/login');
   };
 
   return (
@@ -89,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Back to site */}
+        {/* Back to site + Logout */}
         <div style={{ padding: '1rem 0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <Link href="/" style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -100,6 +109,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }}>
             ← Back to Website
           </Link>
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.625rem',
+              width: '100%', padding: '0.625rem 0.75rem',
+              marginTop: '0.25rem',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '0.5rem',
+              fontSize: '0.8125rem', fontWeight: 600,
+              color: '#f87171',
+              cursor: 'pointer', textAlign: 'left',
+            }}
+          >
+            <LogOut size={14} />
+            Sign Out
+          </button>
         </div>
       </aside>
 

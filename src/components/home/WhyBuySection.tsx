@@ -83,53 +83,89 @@ export default function WhyBuySection() {
           </p>
         </div>
 
-        {/* Stats row */}
-        <div className="why-stats">
-          {STATS.map((s, i) => (
-            <div key={i} style={{ textAlign: 'center', padding: '1rem' }}>
-              <div style={{
-                fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
-                fontWeight: 800, color: '#fff',
-                letterSpacing: '-0.02em', lineHeight: 1,
-                marginBottom: '0.375rem',
-              }}>{s.value}</div>
-              <div style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+        <div className="why-outer">
 
-        <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '2rem 0' }} />
+          {/* Main content */}
+          <div className="why-main">
+            {/* Stats row */}
+            <div className="why-stats">
+              {STATS.map((s, i) => (
+                <div key={i} style={{ textAlign: 'center', padding: '1rem' }}>
+                  <div style={{
+                    fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
+                    fontWeight: 800, color: '#fff',
+                    letterSpacing: '-0.02em', lineHeight: 1,
+                    marginBottom: '0.375rem',
+                  }}>{s.value}</div>
+                  <div style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }} className="why-grid">
-          {features.map((f) => (
-            <div key={f.title} className="why-card" style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              display: 'flex',
-              gap: '1rem',
-              alignItems: 'flex-start',
-            }}>
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '2rem 0' }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }} className="why-grid">
+              {features.map((f) => (
+                <div key={f.title} className="why-card" style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.09)',
+                  borderRadius: '12px',
+                  padding: '1.5rem',
+                  display: 'flex',
+                  gap: '1rem',
+                  alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    width: '44px', height: '44px',
+                    borderRadius: '10px',
+                    background: f.bg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <f.icon size={22} style={{ color: f.color }} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.375rem' }}>
+                      {f.title}
+                    </h3>
+                    <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: 0 }}>
+                      {f.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quality photo — desktop only */}
+          <div className="why-image-col" aria-hidden="true">
+            <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', height: '100%', minHeight: '440px' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1512054502232-10a0a035d672?w=600&q=80"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
               <div style={{
-                width: '44px', height: '44px',
-                borderRadius: '10px',
-                background: f.bg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                <f.icon size={22} style={{ color: f.color }} aria-hidden="true" />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.375rem' }}>
-                  {f.title}
-                </h3>
-                <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: 0 }}>
-                  {f.description}
-                </p>
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, rgba(11,24,41,0.2) 0%, transparent 35%, transparent 50%, rgba(11,24,41,0.9) 100%)',
+              }} />
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '1.5rem' }}>
+                <div style={{
+                  fontSize: '0.6875rem', fontWeight: 700, color: '#4ADE80',
+                  textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem',
+                }}>
+                  Quality Certified
+                </div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#fff', lineHeight: 1.3 }}>
+                  100-Point Quality<br />Check on Every Device
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+
         </div>
       </div>
 
@@ -155,12 +191,18 @@ export default function WhyBuySection() {
           .why-stats > div:nth-child(2n) { border-right: 1px solid rgba(255,255,255,0.08); }
           .why-stats > div:last-child { border-right: none; }
         }
-        @media (min-width: 640px)  { .why-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-        @media (min-width: 1024px) { .why-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+        @media (min-width: 640px) { .why-grid { grid-template-columns: repeat(2, 1fr) !important; } }
         .why-card { transition: background 0.2s, border-color 0.2s; }
         .why-card:hover {
           background: rgba(255,255,255,0.08) !important;
           border-color: rgba(255,255,255,0.16) !important;
+        }
+        /* Desktop: split with quality photo */
+        .why-image-col { display: none; }
+        @media (min-width: 1024px) {
+          .why-outer { display: flex; gap: 2.5rem; align-items: stretch; }
+          .why-main { flex: 1; min-width: 0; }
+          .why-image-col { display: block; width: 290px; flex-shrink: 0; }
         }
       `}</style>
     </section>

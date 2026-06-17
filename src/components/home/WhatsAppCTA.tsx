@@ -15,12 +15,7 @@ export default function WhatsAppCTA() {
   return (
     <section style={{ background: '#0066FF', padding: '3.5rem 0' }}>
       <div className="container-site">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '2.5rem',
-          alignItems: 'center',
-        }} className="cta-grid">
+        <div className="cta-grid">
 
           <div>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
@@ -46,6 +41,37 @@ export default function WhatsAppCTA() {
             <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.75)', maxWidth: '440px', lineHeight: 1.65 }}>
               Chat directly with our wholesale team on WhatsApp or request a formal quotation from our B2B portal.
             </p>
+          </div>
+
+          {/* Center phone — desktop only */}
+          <div className="cta-phone" aria-hidden="true">
+            <div style={{ position: 'relative', width: '148px', margin: '0 auto' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&q=80"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                style={{
+                  width: '100%',
+                  borderRadius: '22px',
+                  boxShadow: '0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.18)',
+                  transform: 'rotate(-4deg)',
+                  display: 'block',
+                }}
+              />
+              {/* WhatsApp badge */}
+              <div style={{
+                position: 'absolute', bottom: '-12px', right: '-14px',
+                background: '#25D366',
+                borderRadius: '50%',
+                width: '40px', height: '40px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              }}>
+                <MessageCircle size={20} style={{ color: '#fff' }} />
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }} className="cta-actions">
@@ -88,8 +114,16 @@ export default function WhatsAppCTA() {
       </div>
 
       <style>{`
+        .cta-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+          align-items: center;
+        }
+        .cta-phone { display: none; }
         @media (min-width: 768px) {
-          .cta-grid { grid-template-columns: 1fr 1fr !important; }
+          .cta-grid { grid-template-columns: 1fr auto 1fr; }
+          .cta-phone { display: flex; align-items: center; justify-content: center; padding: 1.5rem 0; }
           .cta-actions { align-items: stretch !important; }
         }
         .cta-wa-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.2) !important; }

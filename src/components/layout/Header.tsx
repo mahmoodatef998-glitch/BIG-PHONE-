@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Search, MessageCircle, ChevronDown, Globe } from 'lucide-react';
+import { Menu, X, Search, MessageCircle, ChevronDown, Globe, LayoutDashboard } from 'lucide-react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -181,6 +181,21 @@ export default function Header() {
                 <Search size={16} />
               </button>
 
+              <Link
+                href="/admin"
+                title="Admin Dashboard"
+                style={{
+                  width: '36px', height: '36px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: '0.375rem', border: '1.5px solid #DDE3EA',
+                  background: '#fff', color: '#4B5563',
+                  transition: 'all 0.15s', textDecoration: 'none',
+                }}
+                className="admin-btn"
+              >
+                <LayoutDashboard size={16} />
+              </Link>
+
               <a
                 href={`https://wa.me/${WHATSAPP}`}
                 target="_blank" rel="noopener noreferrer"
@@ -275,6 +290,16 @@ export default function Header() {
                 </Link>
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #DDE3EA' }} />
+              <Link href="/admin" style={{
+                display: 'flex', alignItems: 'center', gap: '0.625rem',
+                padding: '0.75rem 1rem', borderRadius: '0.5rem',
+                fontSize: '0.9375rem', fontWeight: 500,
+                color: '#0B1829', background: '#F1F5F9',
+                textDecoration: 'none',
+              }}>
+                <LayoutDashboard size={17} style={{ color: '#0066FF' }} />
+                Admin Dashboard
+              </Link>
               <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center' }}>
                 Request a Quote
               </Link>
@@ -319,6 +344,7 @@ export default function Header() {
           transition: background 0.1s, color 0.1s;
         }
         .dropdown-link:hover { background: #E5F0FF; color: #0066FF; }
+        .admin-btn:hover { border-color: #0066FF !important; color: #0066FF !important; background: #E5F0FF !important; }
       `}</style>
     </>
   );

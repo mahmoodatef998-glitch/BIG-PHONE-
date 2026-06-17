@@ -58,7 +58,7 @@ export default function InventoryFilters({ count }: { count: number }) {
     <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA' }}>
       <div className="container-site">
 
-        {/* ── Main chip row ─────────────────────────────────────── */}
+        {/* ── Main chip row ────────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 0' }}>
 
           {/* Scrollable chips area */}
@@ -111,6 +111,7 @@ export default function InventoryFilters({ count }: { count: number }) {
                 border: '1.5px solid #DDE3EA',
                 borderRadius: '8px',
                 padding: '0.4rem 2.25rem 0.4rem 0.75rem',
+                minHeight: '44px',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
                 color: '#374151',
@@ -127,7 +128,7 @@ export default function InventoryFilters({ count }: { count: number }) {
           </div>
         </div>
 
-        {/* ── Results meta row ──────────────────────────────────── */}
+        {/* ── Results meta row ─────────────────────────────────────────────────── */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: '0.5rem',
           flexWrap: 'wrap',
@@ -190,6 +191,7 @@ export default function InventoryFilters({ count }: { count: number }) {
           display: inline-flex; align-items: center;
           white-space: nowrap;
           padding: 0.375rem 0.875rem;
+          min-height: 44px;
           border-radius: 9999px;
           border: 1.5px solid #DDE3EA;
           background: #fff; color: #4B5563;

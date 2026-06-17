@@ -107,6 +107,7 @@ export default function HeroSection() {
               <select
                 name="category"
                 aria-label="Select category"
+                className="hero-cat-select"
                 style={{
                   border: 'none',
                   borderRight: '1.5px solid #DDE3EA',
@@ -278,6 +279,7 @@ export default function HeroSection() {
       <style>{`
         @media (max-width: 480px) {
           .search-label { display: none; }
+          .hero-cat-select { min-width: 100px !important; }
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .stats-grid > div:nth-child(2n+1) { border-left: none !important; }
           .stats-grid > div:nth-child(3),

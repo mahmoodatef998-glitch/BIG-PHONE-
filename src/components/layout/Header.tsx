@@ -181,19 +181,9 @@ export default function Header() {
                 <Search size={16} />
               </button>
 
-              <Link
-                href="/admin"
-                title="Admin Dashboard"
-                style={{
-                  width: '36px', height: '36px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: '0.375rem', border: '1.5px solid #DDE3EA',
-                  background: '#fff', color: '#4B5563',
-                  transition: 'all 0.15s', textDecoration: 'none',
-                }}
-                className="admin-btn"
-              >
-                <LayoutDashboard size={16} />
+              <Link href="/admin" className="admin-btn">
+                <LayoutDashboard size={15} />
+                <span className="admin-btn-label">Admin</span>
               </Link>
 
               <a
@@ -344,7 +334,19 @@ export default function Header() {
           transition: background 0.1s, color 0.1s;
         }
         .dropdown-link:hover { background: #E5F0FF; color: #0066FF; }
-        .admin-btn:hover { border-color: #0066FF !important; color: #0066FF !important; background: #E5F0FF !important; }
+        .admin-btn {
+          display: inline-flex; align-items: center; gap: 0.375rem;
+          height: 36px; padding: 0 0.75rem;
+          border-radius: 0.375rem;
+          background: #0B1829; color: #fff;
+          font-size: 0.8125rem; font-weight: 700;
+          border: none; text-decoration: none;
+          transition: background 0.15s;
+          white-space: nowrap;
+        }
+        .admin-btn:hover { background: #0066FF !important; }
+        .admin-btn-label { display: none; }
+        @media (min-width: 768px) { .admin-btn-label { display: inline; } }
       `}</style>
     </>
   );

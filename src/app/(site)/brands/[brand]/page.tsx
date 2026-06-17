@@ -1,20 +1,23 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
 import { getBrandBySlug, getProducts } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
-type Props = { params: Promise<{ brand: string }> };
+type BrandPageProps = {
+  params: Promise<{ brand: string }>;
+};
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
+export async function generateMetadata(props: BrandPageProps): Promise<Metadata> {
   const { brand } = await props.params;
-  const b = await getBrandBySlug(brand);
-  if (!b) return { title: 'Brand Not Found' };
+  const brandData = await getBrandBySlug(brand);
+  if (!brandData) return { title: 'Brand Not Found' };
   return {
-    title: `${b.name} Wholesale Devices | BIG PHONE`,
-    description: `Buy ${b.name} smartphones and devices wholesale. ${b.description}`,
+    title: `${brandData.name} Wholesale Devices | BIG PHONE`,
+    description: `Buy ${brandData.name} smartphones and devices wholesale. ${brandData.description}`,
   };
 }
 
@@ -34,72 +37,84 @@ const APPLE_CATS = [
   { label: 'Accessories', href: '/inventory?brand=apple&category=accessory' },
 ];
 
-export default async function BrandPage(props: Props) {
-  const { brand: slug } = await props.params;
-  const brand = await getBrandBySlug(slug);
-  if (!brand) notFound();
+const APPLE_SERIES = [
+  'iPhone 16 Series', 'iPhone 15 Series', 'iPhone 14 Series', 'iPhone 13 Series', 'Older Models',
+];
 
-  const products = await getProducts({ brand: slug });
-  const cfg = BRAND_CONFIG[slug] ?? { from: '#0B1829', to: '#1A2D47' };
+export default async function BrandPage(props: BrandPageProps) {
+  const { brand: brandSlug } = await props.params;
+  const brandData = await getBrandBySlug(brandSlug);
+  if (!brandData) notFound();
+
+  const products = await getProducts({ brand: brandSlug });
+  const isApple = brandSlug === 'apple';
+  const cfg = BRAND_CONFIG[brandSlug] ?? { from: '#0B1829', to: '#1A2332' };
 
   return (
     <div>
       {/* Brand hero */}
-      <div style={{ background: `linear-gradient(135deg, ${cfg.from} 0%, ${cfg.to} 100%)`, padding: '3rem 0' }}>
+      <div style={{
+        background: `linear-gradient(135deg, ${cfg.from} 0%, ${cfg.to} 100%)`,
+        padding: '3rem 0',
+      }}>
         <div className="container-site">
-          <nav style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1.25rem' }}>
-            <Link href="/" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Home</Link>
+          <nav style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1.5rem' }}>
+            <Link href="/" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Home</Link>
             <span style={{ margin: '0 0.375rem' }}>›</span>
-            <Link href="/brands" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Brands</Link>
+            <Link href="/brands" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Brands</Link>
             <span style={{ margin: '0 0.375rem' }}>›</span>
-            <span style={{ color: '#fff' }}>{brand.name}</span>
+            <span style={{ color: '#fff' }}>{brandData.name}</span>
           </nav>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            {/* Brand logo chip */}
             <div style={{
-              width: '72px', height: '72px',
-              background: 'rgba(255,255,255,0.12)',
-              border: '2px solid rgba(255,255,255,0.2)',
-              borderRadius: '16px',
+              width: '64px', height: '64px',
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '14px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <span style={{ color: '#fff', fontWeight: 900, fontSize: '2rem', letterSpacing: '-0.04em' }}>
-                {brand.name[0]}
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: '1.5rem' }}>
+                {brandData.name[0]}
               </span>
             </div>
             <div>
-              <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800, color: '#fff', marginBottom: '0.375rem', letterSpacing: '-0.03em' }}>
-                {brand.name}
+              <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800, color: '#fff', marginBottom: '0.375rem', letterSpacing: '-0.025em' }}>
+                {brandData.name}
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.9375rem' }}>{brand.description}</p>
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.75rem' }}>
-                <span style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 700 }}>
-                  {products.length} products in stock
-                </span>
-              </div>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9375rem', margin: 0 }}>
+                {brandData.description}
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', fontWeight: 600, marginTop: '0.375rem' }}>
+                {products.length} products available wholesale
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Apple category strip */}
-      {slug === 'apple' && (
+      {/* Apple subcategories */}
+      {isApple && (
         <div style={{ background: '#F8FAFC', borderBottom: '1px solid #DDE3EA', padding: '1rem 0' }}>
           <div className="container-site">
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748B', marginRight: '0.25rem' }}>Category:</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginRight: '0.25rem' }}>Category:</span>
               {APPLE_CATS.map(cat => (
-                <Link key={cat.label} href={cat.href} style={{
-                  display: 'inline-flex', alignItems: 'center',
-                  padding: '0.375rem 0.875rem',
-                  background: '#fff', border: '1.5px solid #DDE3EA',
-                  borderRadius: '9999px', fontSize: '0.8125rem',
-                  color: '#374151', fontWeight: 600,
-                  transition: 'all 0.15s', textDecoration: 'none',
-                }} className="brand-cat-chip">
+                <Link key={cat.label} href={cat.href} className="brand-cat-chip">
                   {cat.label}
+                </Link>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginRight: '0.25rem' }}>iPhone Series:</span>
+              {APPLE_SERIES.map(series => (
+                <Link
+                  key={series}
+                  href={`/inventory?brand=apple&search=${encodeURIComponent(series.split(' ')[1])}`}
+                  className="brand-cat-chip"
+                >
+                  {series}
                 </Link>
               ))}
             </div>
@@ -108,24 +123,26 @@ export default async function BrandPage(props: Props) {
       )}
 
       {/* Products */}
-      <section style={{ padding: '2.5rem 0 4rem', background: '#F8FAFC' }}>
+      <section style={{ background: '#F8FAFC', padding: '2rem 0 4rem' }}>
         <div className="container-site">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className="section-header" style={{ marginBottom: '1.5rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.375rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.025em', margin: 0 }}>
-                {brand.name} Inventory
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0B1829', margin: 0 }}>
+                {brandData.name} Inventory
               </h2>
-              <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-                {products.length} products available wholesale
+              <p style={{ color: '#64748B', margin: '0.25rem 0 0', fontSize: '0.875rem' }}>
+                {products.length} products available for wholesale
               </p>
             </div>
             <Link href="/rfq" className="btn btn-primary btn-sm">Request Bulk Quote</Link>
           </div>
 
           {products.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem 1rem', background: '#fff', borderRadius: '12px', border: '1px solid #DDE3EA' }}>
-              <p style={{ color: '#64748B', marginBottom: '1rem' }}>No products available for this brand right now.</p>
-              <Link href="/inventory" className="btn btn-outline">Browse All Inventory</Link>
+            <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+              <p style={{ color: '#64748B' }}>No products available for this brand yet — check back soon.</p>
+              <Link href="/inventory" className="btn btn-outline" style={{ marginTop: '1rem', display: 'inline-flex' }}>
+                Browse All Inventory
+              </Link>
             </div>
           ) : (
             <div className="brand-grid">
@@ -138,6 +155,19 @@ export default async function BrandPage(props: Props) {
       </section>
 
       <style>{`
+        .brand-cat-chip {
+          display: inline-block;
+          padding: 0.375rem 0.75rem;
+          background: #fff;
+          border: 1.5px solid #DDE3EA;
+          border-radius: 9999px;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: #374151;
+          text-decoration: none;
+          transition: border-color 0.15s, color 0.15s;
+        }
+        .brand-cat-chip:hover { border-color: #0066FF; color: #0066FF; }
         .brand-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -145,7 +175,6 @@ export default async function BrandPage(props: Props) {
         }
         @media (min-width: 640px)  { .brand-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 1024px) { .brand-grid { grid-template-columns: repeat(4, 1fr); } }
-        .brand-cat-chip:hover { border-color: #0066FF !important; color: #0066FF !important; background: #E5F0FF !important; }
       `}</style>
     </div>
   );

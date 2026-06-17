@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { cloudinaryUrl } from '@/lib/cloudinary';
 import type { Product } from '@/types';
 
 interface Props {
@@ -20,6 +21,38 @@ const CONDITION_LABELS: Record<string, { label: string; color: string; bg: strin
   'refurbished-grade-b':  { label: 'Grade B',    color: '#92400E', bg: '#FEF3C7' },
   'certified-refurbished':{ label: 'Certified',  color: '#5B21B6', bg: '#EDE9FE' },
 };
+
+/* Per-brand demo images — cycled across cards when no real image exists */
+const BRAND_DEMO: Record<string, string[]> = {
+  apple: [
+    'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=280&q=80',
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=280&q=80',
+    'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=280&q=80',
+  ],
+  samsung: [
+    'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=280&q=80',
+    'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=280&q=80',
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=280&q=80',
+  ],
+  xiaomi: [
+    'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=280&q=80',
+    'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=280&q=80',
+  ],
+  huawei: [
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=280&q=80',
+    'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=280&q=80',
+  ],
+  oppo: [
+    'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=280&q=80',
+    'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=280&q=80',
+  ],
+  vivo: [
+    'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=280&q=80',
+    'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=280&q=80',
+  ],
+};
+const DEMO_TABLET = 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=280&q=80';
+const DEMO_PHONE  = 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=280&q=80';
 
 function groupByBrand(products: Product[]) {
   const groups: Record<string, { brandName: string; brandSlug: string; items: Product[] }> = {};
@@ -61,6 +94,7 @@ export default function BrandShowcase({ products }: Props) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           {brandGroups.map(({ brandName, brandSlug, items }) => {
             const cfg = BRAND_CONFIG[brandSlug] ?? { color: '#0B1829', accent: '#1A2332' };
+            const demoPics = BRAND_DEMO[brandSlug] ?? [DEMO_PHONE];
             return (
               <div key={brandSlug}>
                 {/* Brand row header */}
@@ -85,10 +119,20 @@ export default function BrandShowcase({ products }: Props) {
 
                 {/* Horizontal scroll */}
                 <div className="showcase-row">
-                  {items.map(product => {
+                  {items.map((product, idx) => {
                     const cond = CONDITION_LABELS[product.condition] ?? { label: product.condition, color: '#374151', bg: '#F3F4F6' };
                     const isTablet = product.category === 'tablet';
                     const isAudio  = product.category === 'airpods' || product.subcategory?.includes('buds') || product.subcategory?.includes('airpods');
+
+                    /* Real image → Cloudinary; otherwise brand demo; audio stays as CSS shape */
+                    const imgSrc: string | null = product.images?.[0]
+                      ? cloudinaryUrl(product.images[0], { width: 250, quality: 85 })
+                      : isAudio
+                        ? null
+                        : isTablet
+                          ? DEMO_TABLET
+                          : demoPics[idx % demoPics.length];
+
                     return (
                       <Link key={product.id} href={`/inventory/${product.slug}`} className="showcase-card">
                         {/* Device visual */}
@@ -98,8 +142,22 @@ export default function BrandShowcase({ products }: Props) {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           marginBottom: '0.75rem', position: 'relative', overflow: 'hidden',
                         }}>
-                          {isAudio ? (
-                            /* Earbuds silhouette */
+                          {imgSrc ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={imgSrc}
+                              alt={product.model}
+                              loading="lazy"
+                              decoding="async"
+                              style={{
+                                width: '100%', height: '100%',
+                                objectFit: 'contain',
+                                padding: '0.625rem',
+                                filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.35))',
+                              }}
+                            />
+                          ) : (
+                            /* Earbuds CSS silhouette (audio only) */
                             <div style={{ display: 'flex', gap: '8px' }}>
                               {[0, 1].map(i => (
                                 <div key={i} style={{
@@ -109,33 +167,6 @@ export default function BrandShowcase({ products }: Props) {
                                   borderRadius: '10px',
                                 }} />
                               ))}
-                            </div>
-                          ) : isTablet ? (
-                            /* Tablet silhouette */
-                            <div style={{
-                              width: '72px', height: '82px',
-                              background: 'rgba(255,255,255,0.12)',
-                              border: '2px solid rgba(255,255,255,0.4)',
-                              borderRadius: '6px',
-                            }} />
-                          ) : (
-                            /* Phone silhouette */
-                            <div style={{
-                              width: '42px', height: '78px',
-                              background: 'rgba(255,255,255,0.12)',
-                              border: '2px solid rgba(255,255,255,0.4)',
-                              borderRadius: '8px', position: 'relative',
-                            }}>
-                              <div style={{
-                                position: 'absolute', top: '6px', left: '50%', transform: 'translateX(-50%)',
-                                width: '14px', height: '3px',
-                                background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
-                              }} />
-                              <div style={{
-                                position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)',
-                                width: '13px', height: '13px',
-                                border: '1.5px solid rgba(255,255,255,0.45)', borderRadius: '50%',
-                              }} />
                             </div>
                           )}
 

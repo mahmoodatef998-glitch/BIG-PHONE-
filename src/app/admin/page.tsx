@@ -1,22 +1,29 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Package, FileText, Tag, Users, TrendingUp, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { getProducts, getBrands } from '@/lib/data';
+import { getProducts, getBrands, getRFQs } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 
-export default async function AdminDashboard() {
-  const [products, brands] = await Promise.all([getProducts(), getBrands()]);
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
+}
 
-  const rfqStats = { total: 24, new: 8, contacted: 10, quoted: 6 };
+export default async function AdminDashboard() {
+  const [products, brands, rfqs] = await Promise.all([getProducts(), getBrands(), getRFQs()]);
+
+  const rfqStats = { total: rfqs.length, new: rfqs.filter(r => r.status === 'new').length };
   const totalStock = products.reduce((sum, p) => sum + p.stock_quantity, 0);
-  const featuredCount = products.filter(p => p.is_featured).length;
+  const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity < p.moq).length;
 
   const stats = [
     { label: 'Total Products', value: products.length, icon: Package, color: '#2563EB', href: '/admin/products' },
     { label: 'Total Stock', value: `${totalStock}+`, icon: TrendingUp, color: '#22c55e', href: '/admin/products' },
     { label: 'Pending RFQs', value: rfqStats.new, icon: FileText, color: '#F59E0B', href: '/admin/rfqs' },
-    { label: 'Active Brands', value: brands.length, icon: Tag, color: '#8b5cf6', href: '/admin/brands' },
+    { label: 'Low Stock', value: lowStockCount, icon: AlertCircle, color: '#ef4444', href: '/admin/products' },
   ];
 
   const quickLinks = [
@@ -25,8 +32,6 @@ export default async function AdminDashboard() {
     { href: '/admin/brands', label: 'Manage Brands', desc: 'Update brand info and product counts', icon: Tag, color: '#8b5cf6' },
     { href: '/admin/customers', label: 'Customers', desc: 'View wholesale customer contacts', icon: Users, color: '#22c55e' },
   ];
-
-  void featuredCount;
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -109,13 +114,8 @@ export default async function AdminDashboard() {
             <Link href="/admin/rfqs" style={{ fontSize: '0.8125rem', color: '#2563EB', fontWeight: 600 }}>View All →</Link>
           </div>
           <div>
-            {[
-              { company: 'Al Baraka Mobile', country: 'Saudi Arabia', product: 'iPhone 15 Pro 128GB x50', status: 'new', time: '10 min ago' },
-              { company: 'Tech World LLC', country: 'Egypt', product: 'Samsung S24 256GB x100', status: 'contacted', time: '2h ago' },
-              { company: 'Dubai Phone Mart', country: 'UAE', product: 'iPhone 14 Mixed Lot x200', status: 'quoted', time: '5h ago' },
-              { company: 'Global Mobile KE', country: 'Kenya', product: 'Xiaomi 13 Pro x30', status: 'new', time: '1d ago' },
-            ].map((rfq, i) => (
-              <div key={i} style={{
+            {rfqs.slice(0, 4).map((rfq, i) => (
+              <div key={rfq.id} style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
@@ -134,8 +134,10 @@ export default async function AdminDashboard() {
                    <Clock size={16} style={{ color: '#2563EB' }} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A' }}>{rfq.company}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rfq.product} • {rfq.country}</div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A' }}>{rfq.company_name}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {rfq.product_interest} {rfq.quantity ? `x${rfq.quantity}` : ''} • {rfq.country}
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <span style={{
@@ -148,7 +150,7 @@ export default async function AdminDashboard() {
                     background: rfq.status === 'new' ? '#fef9c3' : rfq.status === 'contacted' ? '#dbeafe' : '#f0fdf4',
                     color: rfq.status === 'new' ? '#92400e' : rfq.status === 'contacted' ? '#1e40af' : '#166534',
                   }}>{rfq.status}</span>
-                  <div style={{ fontSize: '0.6875rem', color: '#94a3b8', marginTop: '0.25rem' }}>{rfq.time}</div>
+                  <div style={{ fontSize: '0.6875rem', color: '#94a3b8', marginTop: '0.25rem' }}>{timeAgo(rfq.created_at)}</div>
                 </div>
               </div>
             ))}

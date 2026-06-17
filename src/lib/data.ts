@@ -72,6 +72,14 @@ const MOCK_PRODUCTS: Product[] = [
   { id: "p26", brand_id: "3", name: "Xiaomi Pad 6 Pro 256GB Wi-Fi",                     slug: "xiaomi-pad-6-pro-256gb",                        model: "Pad 6 Pro",            category: "tablet",     subcategory: "xiaomi-pad",        condition: "brand-new",              storage: "256GB", color: "Black",           battery_health: null, warranty: "12 Months", stock_quantity: 65,   moq: 5,  country_of_origin: "China",  description: "Brand new Xiaomi Pad 6 Pro, 144Hz display.",                  specifications: { "Chip": "Snapdragon 8+ Gen 1", "Display": "11.47\" 144Hz" },    images: [IMG.xiaomi("Xiaomi Pad 6 Pro"), IMG.xiaomi("256GB · Black · 144Hz")],   is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[2] },
 ];
 
+const MOCK_RFQS: RFQ[] = [
+  { id: '1', company_name: 'Al Baraka Mobile', contact_person: 'Ahmed Al-Rashid', country: 'Saudi Arabia', phone: '+966501234567', email: 'ahmed@albaraka.sa', product_interest: 'iPhone 15 Pro 128GB Grade A', quantity: 50, message: 'Need urgent delivery to Riyadh', status: 'new', created_at: '2024-01-15T10:30:00Z' },
+  { id: '2', company_name: 'Tech World LLC', contact_person: 'Mohamed Hassan', country: 'Egypt', phone: '+201001234567', email: 'mohamed@techworld.eg', product_interest: 'Samsung Galaxy S24 256GB', quantity: 100, message: 'Export to Egypt, need HS codes', status: 'contacted', created_at: '2024-01-15T08:15:00Z' },
+  { id: '3', company_name: 'Dubai Phone Mart', contact_person: 'Sarah Johnson', country: 'UAE', phone: '+971501234567', email: 'sarah@dubaiphone.ae', product_interest: 'Mixed iPhone 14 Lot', quantity: 200, message: 'Various colors and storage', status: 'quoted', created_at: '2024-01-14T16:45:00Z' },
+  { id: '4', company_name: 'Global Mobile KE', contact_person: 'James Mwangi', country: 'Kenya', phone: '+254701234567', email: 'james@globalmobile.ke', product_interest: 'Xiaomi 13 Pro 256GB', quantity: 30, message: 'Nairobi delivery required', status: 'new', created_at: '2024-01-14T09:00:00Z' },
+  { id: '5', company_name: 'Horizon Phones PK', contact_person: 'Ali Raza', country: 'Pakistan', phone: '+923001234567', email: 'ali@horizonphones.pk', product_interest: 'Huawei P60 Pro', quantity: 25, message: 'Karachi port delivery', status: 'closed', created_at: '2024-01-13T14:30:00Z' },
+];
+
 export async function getProducts(filters?: Partial<{
   brand: string; condition: string; category: string; featured: boolean; search: string; limit: number;
 }>): Promise<Product[]> {
@@ -116,6 +124,16 @@ export async function getProducts(filters?: Partial<{
   return products;
 }
 
+export async function getProductsAdmin(): Promise<Product[]> {
+  if (!USE_SUPABASE) return MOCK_PRODUCTS;
+  const { data, error } = await db()
+    .from('products')
+    .select('*, brand:brands(*)')
+    .order('created_at', { ascending: false });
+  if (error) { console.error('[getProductsAdmin]', error.message); return []; }
+  return (data ?? []) as Product[];
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!USE_SUPABASE) return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
   const { data, error } = await db().from('products').select('*, brand:brands(*)').eq('slug', slug).eq('is_active', true).single();
@@ -135,6 +153,13 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   const { data, error } = await db().from('brands').select('*').eq('slug', slug).eq('is_active', true).single();
   if (error) { console.error('[getBrandBySlug]', error.message); return null; }
   return (data as Brand) ?? null;
+}
+
+export async function getRFQs(): Promise<RFQ[]> {
+  if (!USE_SUPABASE) return MOCK_RFQS;
+  const { data, error } = await db().from('rfqs').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('[getRFQs]', error.message); return []; }
+  return (data ?? []) as RFQ[];
 }
 
 export async function submitRFQ(data: Omit<RFQ, 'id' | 'status' | 'created_at'>): Promise<{ success: boolean; id?: string; error?: string }> {

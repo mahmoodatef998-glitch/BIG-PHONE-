@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit2, Trash2, Search, ChevronDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy } from 'lucide-react';
 import type { Product, Brand } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import { createClient } from '@/lib/supabase/client';
@@ -21,6 +21,34 @@ const CONDITION_LABELS: Record<string, string> = {
   'certified-refurbished': 'Certified',
 };
 
+function makeEmpty(brands: Brand[]): Product {
+  return {
+    id: '__new__',
+    brand_id: brands[0]?.id ?? '',
+    brand: brands[0],
+    name: '',
+    slug: '',
+    model: '',
+    category: 'smartphone',
+    subcategory: null,
+    condition: 'brand-new',
+    storage: null,
+    color: null,
+    battery_health: null,
+    warranty: '12 Months',
+    stock_quantity: 0,
+    moq: 1,
+    country_of_origin: 'UAE',
+    description: null,
+    specifications: null,
+    images: [],
+    is_featured: false,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export default function ProductsClient({ products, brands }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -28,6 +56,9 @@ export default function ProductsClient({ products, brands }: Props) {
   const [conditionFilter, setConditionFilter] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+  const [editingStockId, setEditingStockId] = useState<string | null>(null);
+  const [editingStockValue, setEditingStockValue] = useState('');
 
   const filtered = useMemo(() => {
     return products.filter(p => {
@@ -38,6 +69,8 @@ export default function ProductsClient({ products, brands }: Props) {
     });
   }, [products, search, brandFilter, conditionFilter]);
 
+  const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity < p.moq).length;
+
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product? This cannot be undone.')) return;
     setDeletingId(id);
@@ -45,6 +78,44 @@ export default function ProductsClient({ products, brands }: Props) {
     await supabase.from('products').delete().eq('id', id);
     router.refresh();
     setDeletingId(null);
+  };
+
+  const handleDuplicate = async (product: Product) => {
+    setDuplicatingId(product.id);
+    const supabase = createClient();
+    await supabase.from('products').insert({
+      brand_id: product.brand_id,
+      name: product.name + ' (Copy)',
+      slug: product.slug + '-copy-' + Date.now().toString(36),
+      model: product.model,
+      category: product.category,
+      subcategory: product.subcategory,
+      condition: product.condition,
+      storage: product.storage,
+      color: product.color,
+      battery_health: product.battery_health,
+      stock_quantity: product.stock_quantity,
+      moq: product.moq,
+      country_of_origin: product.country_of_origin,
+      warranty: product.warranty,
+      description: product.description,
+      specifications: product.specifications,
+      images: product.images,
+      is_featured: false,
+      is_active: false,
+    });
+    router.refresh();
+    setDuplicatingId(null);
+  };
+
+  const saveStock = async (productId: string) => {
+    const val = parseInt(editingStockValue);
+    if (!isNaN(val) && val >= 0) {
+      const supabase = createClient();
+      await supabase.from('products').update({ stock_quantity: val }).eq('id', productId);
+      router.refresh();
+    }
+    setEditingStockId(null);
   };
 
   return (
@@ -57,6 +128,11 @@ export default function ProductsClient({ products, brands }: Props) {
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Products</h1>
             <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '0.25rem' }}>
               {filtered.length} of {products.length} products
+              {lowStockCount > 0 && (
+                <span style={{ marginLeft: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#c2410c', fontWeight: 600, fontSize: '0.8125rem' }}>
+                  <AlertTriangle size={12} /> {lowStockCount} low stock
+                </span>
+              )}
             </p>
           </div>
           <button
@@ -67,7 +143,7 @@ export default function ProductsClient({ products, brands }: Props) {
               fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
               transition: 'background 0.15s',
             }}
-            onClick={() => alert('Add product form coming soon')}
+            onClick={() => setEditingProduct(makeEmpty(brands))}
           >
             <Plus size={15} /> Add Product
           </button>
@@ -156,101 +232,149 @@ export default function ProductsClient({ products, brands }: Props) {
                       No products match your filters.
                     </td>
                   </tr>
-                ) : filtered.map((product, i) => (
-                  <tr
-                    key={product.id}
-                    style={{
-                      borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
-                      transition: 'background 0.1s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    {/* Product name + thumbnail */}
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{
-                          width: '40px', height: '40px', flexShrink: 0,
-                          borderRadius: '0.375rem', overflow: 'hidden',
-                          border: '1px solid #E2E8F0', background: '#F8FAFC',
-                        }}>
-                          {product.images[0] ? (
-                            <img src={product.images[0]} alt={product.model} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '18px' }}>□</div>
-                          )}
-                        </div>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {product.model}
+                ) : filtered.map((product, i) => {
+                  const isLowStock = product.stock_quantity > 0 && product.stock_quantity < product.moq;
+                  const isOutOfStock = product.stock_quantity === 0;
+                  return (
+                    <tr
+                      key={product.id}
+                      style={{
+                        borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
+                        borderLeft: isLowStock ? '3px solid #f97316' : isOutOfStock ? '3px solid #ef4444' : '3px solid transparent',
+                        transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {/* Product name + thumbnail */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{
+                            width: '40px', height: '40px', flexShrink: 0,
+                            borderRadius: '0.375rem', overflow: 'hidden',
+                            border: '1px solid #E2E8F0', background: '#F8FAFC',
+                          }}>
+                            {product.images[0] ? (
+                              <img src={product.images[0]} alt={product.model} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '18px' }}>□</div>
+                            )}
                           </div>
-                          <Link href={`/products/${product.slug}`} target="_blank" style={{ fontSize: '0.75rem', color: '#2563EB', textDecoration: 'none' }}>
-                            View →
-                          </Link>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {product.model}
+                            </div>
+                            <Link href={`/products/${product.slug}`} target="_blank" style={{ fontSize: '0.75rem', color: '#2563EB', textDecoration: 'none' }}>
+                              View →
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151', whiteSpace: 'nowrap' }}>
-                      {product.brand?.name ?? '—'}
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <ConditionBadge condition={product.condition} />
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>
-                      {product.storage ?? '—'}
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <StockBadge quantity={product.stock_quantity} />
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>
-                      {product.moq}
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center',
-                        fontSize: '0.75rem', fontWeight: 600,
-                        color: product.is_featured ? '#16a34a' : '#94a3b8',
-                      }}>
-                        {product.is_featured ? 'Yes' : 'No'}
-                      </span>
-                    </td>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151', whiteSpace: 'nowrap' }}>
+                        {product.brand?.name ?? '—'}
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <ConditionBadge condition={product.condition} />
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>
+                        {product.storage ?? '—'}
+                      </td>
 
-                    {/* Actions */}
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
-                        <button
-                          onClick={() => setEditingProduct(product)}
-                          aria-label={`Edit ${product.model}`}
-                          style={{
-                            width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: '#eff6ff', color: '#2563EB', border: '1px solid #bfdbfe',
-                            borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s',
-                          }}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#dbeafe')}
-                          onMouseLeave={e => (e.currentTarget.style.background = '#eff6ff')}
-                        >
-                          <Edit2 size={13} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          aria-label={`Delete ${product.model}`}
-                          disabled={deletingId === product.id}
-                          style={{
-                            width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca',
-                            borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s',
-                            opacity: deletingId === product.id ? 0.5 : 1,
-                          }}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
-                          onMouseLeave={e => (e.currentTarget.style.background = '#fef2f2')}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      {/* Stock cell — inline edit */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        {editingStockId === product.id ? (
+                          <input
+                            type="number"
+                            autoFocus
+                            min="0"
+                            value={editingStockValue}
+                            onChange={e => setEditingStockValue(e.target.value)}
+                            onBlur={() => saveStock(product.id)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') saveStock(product.id);
+                              if (e.key === 'Escape') setEditingStockId(null);
+                            }}
+                            style={{ width: '72px', padding: '0.25rem 0.5rem', border: '2px solid #2563EB', borderRadius: '0.375rem', fontSize: '0.875rem', outline: 'none' }}
+                          />
+                        ) : (
+                          <div
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'text' }}
+                            onClick={() => { setEditingStockId(product.id); setEditingStockValue(product.stock_quantity.toString()); }}
+                          >
+                            <StockBadge quantity={product.stock_quantity} />
+                            {isLowStock && <AlertTriangle size={12} color="#f97316" />}
+                          </div>
+                        )}
+                      </td>
+
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>
+                        {product.moq}
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center',
+                          fontSize: '0.75rem', fontWeight: 600,
+                          color: product.is_featured ? '#16a34a' : '#94a3b8',
+                        }}>
+                          {product.is_featured ? 'Yes' : 'No'}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
+                          {/* Duplicate */}
+                          <button
+                            onClick={() => handleDuplicate(product)}
+                            aria-label={`Duplicate ${product.model}`}
+                            disabled={duplicatingId === product.id}
+                            style={{
+                              width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0',
+                              borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s',
+                              opacity: duplicatingId === product.id ? 0.5 : 1,
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
+                            onMouseLeave={e => (e.currentTarget.style.background = '#f8fafc')}
+                          >
+                            <Copy size={13} />
+                          </button>
+                          {/* Edit */}
+                          <button
+                            onClick={() => setEditingProduct(product)}
+                            aria-label={`Edit ${product.model}`}
+                            style={{
+                              width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: '#eff6ff', color: '#2563EB', border: '1px solid #bfdbfe',
+                              borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = '#dbeafe')}
+                            onMouseLeave={e => (e.currentTarget.style.background = '#eff6ff')}
+                          >
+                            <Edit2 size={13} />
+                          </button>
+                          {/* Delete */}
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            aria-label={`Delete ${product.model}`}
+                            disabled={deletingId === product.id}
+                            style={{
+                              width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca',
+                              borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s',
+                              opacity: deletingId === product.id ? 0.5 : 1,
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                            onMouseLeave={e => (e.currentTarget.style.background = '#fef2f2')}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -261,16 +385,17 @@ export default function ProductsClient({ products, brands }: Props) {
               Showing {filtered.length} product{filtered.length !== 1 ? 's' : ''}
             </span>
             <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-              Click edit to manage images and details
+              Click stock to edit inline · Click edit for full details
             </span>
           </div>
         </div>
       </div>
 
-      {/* Edit Drawer */}
+      {/* Edit / Add Drawer */}
       <ProductEditDrawer
         product={editingProduct}
         brands={brands}
+        isNew={editingProduct?.id === '__new__'}
         onClose={() => setEditingProduct(null)}
       />
     </>

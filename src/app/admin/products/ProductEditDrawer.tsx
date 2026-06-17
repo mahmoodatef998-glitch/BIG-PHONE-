@@ -40,9 +40,20 @@ function field(product: Product): FormState {
   };
 }
 
+function generateSlug(form: FormState): string {
+  const parts = [form.model, form.condition, form.storage, form.color]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${parts}-${Date.now().toString(36)}`;
+}
+
 interface Props {
   product: Product | null;
   brands: Brand[];
+  isNew?: boolean;
   onClose: () => void;
 }
 
@@ -89,7 +100,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
-export default function ProductEditDrawer({ product, brands, onClose }: Props) {
+export default function ProductEditDrawer({ product, brands, isNew, onClose }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState | null>(null);
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -100,7 +111,14 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (product) { setForm(field(product)); setNewFiles([]); setStatus('idle'); setSyncVariants(false); setUploadProgress(''); }
+    if (product) {
+      setForm(field(product));
+      setNewFiles([]);
+      setStatus('idle');
+      setSyncVariants(false);
+      setUploadProgress('');
+      setErrorMsg('');
+    }
   }, [product]);
 
   useEffect(() => {
@@ -119,8 +137,18 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
     setStatus('saving');
     setErrorMsg('');
 
+    // Validation for new products
+    if (isNew) {
+      if (!form.name.trim() || !form.model.trim()) {
+        setStatus('error');
+        setErrorMsg('Name and Model are required');
+        return;
+      }
+    }
+
     let finalImages = [...form.images];
 
+    // Upload new files to Supabase Storage
     if (newFiles.length > 0) {
       setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
       const uploads = await Promise.all(newFiles.map(uploadToStorage));
@@ -135,33 +163,65 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
 
     const supabase = createClient();
 
-    const { error } = await supabase.from('products').update({
-      name: form.name, model: form.model, color: form.color || null,
-      brand_id: form.brand_id, category: form.category, condition: form.condition,
-      storage: form.storage || null,
-      battery_health: form.battery_health ? parseInt(form.battery_health) : null,
-      stock_quantity: parseInt(form.stock_quantity) || 0,
-      moq: parseInt(form.moq) || 1,
-      country_of_origin: form.country_of_origin,
-      warranty: form.warranty || null,
-      description: form.description || null,
-      is_featured: form.is_featured, is_active: form.is_active,
-      images: finalImages,
-      updated_at: new Date().toISOString(),
-    }).eq('id', product.id);
+    if (isNew) {
+      // INSERT new product
+      const { error } = await supabase.from('products').insert({
+        brand_id: form.brand_id,
+        name: form.name,
+        slug: generateSlug(form),
+        model: form.model,
+        category: form.category,
+        subcategory: null,
+        condition: form.condition,
+        storage: form.storage || null,
+        color: form.color || null,
+        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+        stock_quantity: parseInt(form.stock_quantity) || 0,
+        moq: parseInt(form.moq) || 1,
+        country_of_origin: form.country_of_origin,
+        warranty: form.warranty || null,
+        description: form.description || null,
+        is_featured: form.is_featured,
+        is_active: form.is_active,
+        images: finalImages,
+      });
 
-    if (error) {
-      setStatus('error');
-      setErrorMsg(error.message);
-      return;
-    }
+      if (error) {
+        setStatus('error');
+        setErrorMsg(error.message);
+        return;
+      }
+    } else {
+      // UPDATE existing product
+      const { error } = await supabase.from('products').update({
+        name: form.name, model: form.model, color: form.color || null,
+        brand_id: form.brand_id, category: form.category, condition: form.condition,
+        storage: form.storage || null,
+        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+        stock_quantity: parseInt(form.stock_quantity) || 0,
+        moq: parseInt(form.moq) || 1,
+        country_of_origin: form.country_of_origin,
+        warranty: form.warranty || null,
+        description: form.description || null,
+        is_featured: form.is_featured, is_active: form.is_active,
+        images: finalImages,
+        updated_at: new Date().toISOString(),
+      }).eq('id', product.id);
 
-    if (syncVariants && finalImages.length > 0) {
-      await supabase
-        .from('products')
-        .update({ images: finalImages, updated_at: new Date().toISOString() })
-        .eq('model', product.model)
-        .neq('id', product.id);
+      if (error) {
+        setStatus('error');
+        setErrorMsg(error.message);
+        return;
+      }
+
+      // If sync enabled: apply same images to all other products with same model
+      if (syncVariants && finalImages.length > 0) {
+        await supabase
+          .from('products')
+          .update({ images: finalImages, updated_at: new Date().toISOString() })
+          .eq('model', product.model)
+          .neq('id', product.id);
+      }
     }
 
     setStatus('success');
@@ -169,8 +229,12 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
     setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
   };
 
+  const headerTitle = isNew ? 'Add Product' : product.model;
+  const headerSubtitle = isNew ? 'New product' : `${product.brand?.name} · ${product.condition}`;
+
   return (
     <>
+      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -180,11 +244,12 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
         aria-hidden="true"
       />
 
+      {/* Drawer */}
       <div
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`Edit ${product.model}`}
+        aria-label={headerTitle}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: '520px', maxWidth: '100vw',
@@ -193,6 +258,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}
       >
+        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem', background: '#0F172A',
           display: 'flex', alignItems: 'center', gap: '0.875rem',
@@ -213,10 +279,10 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {product.model}
+              {headerTitle}
             </div>
             <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>
-              {product.brand?.name} · {product.condition}
+              {headerSubtitle}
             </div>
           </div>
           <button
@@ -235,10 +301,11 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           >
             {status === 'saving' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
             {status === 'success' && <CheckCircle2 size={14} />}
-            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : 'Save Changes'}
+            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : isNew ? 'Create Product' : 'Save Changes'}
           </button>
         </div>
 
+        {/* Error banner */}
         {status === 'error' && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -250,6 +317,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           </div>
         )}
 
+        {/* Partial-error warning (upload failures but save succeeded) */}
         {status === 'success' && errorMsg && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -261,8 +329,10 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
           </div>
         )}
 
+        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
+          {/* ── SECTION 1: Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -271,44 +341,48 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
               uploading={status === 'saving'}
             />
 
-            <div style={{
-              marginTop: '1rem',
-              padding: '0.75rem 1rem',
-              background: syncVariants ? '#eff6ff' : '#F8FAFC',
-              border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
-              borderRadius: '0.5rem',
-              display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-              transition: 'all 0.15s',
-              cursor: 'pointer',
-            }}
-              onClick={() => setSyncVariants(v => !v)}
-            >
+            {/* Sync to variants toggle — hide for new products */}
+            {!isNew && (
               <div style={{
-                width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
-                borderRadius: '4px',
-                border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
-                background: syncVariants ? '#2563EB' : '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginTop: '1rem',
+                padding: '0.75rem 1rem',
+                background: syncVariants ? '#eff6ff' : '#F8FAFC',
+                border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
+                borderRadius: '0.5rem',
+                display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
                 transition: 'all 0.15s',
-              }}>
-                {syncVariants && (
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
-                  Apply images to all &ldquo;{product.model}&rdquo; variants
+                cursor: 'pointer',
+              }}
+                onClick={() => setSyncVariants(v => !v)}
+              >
+                <div style={{
+                  width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
+                  borderRadius: '4px',
+                  border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
+                  background: syncVariants ? '#2563EB' : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}>
+                  {syncVariants && (
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
-                  Same images will be copied to every product with this model name (different storage, color, condition).
+                <div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
+                    Apply images to all &ldquo;{product.model}&rdquo; variants
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    Same images will be copied to every product with this model name (different storage, color, condition).
+                  </div>
                 </div>
+                <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
               </div>
-              <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
-            </div>
+            )}
           </SectionCard>
 
+          {/* ── SECTION 2: Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -344,6 +418,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
+          {/* ── SECTION 3: Inventory */}
           <SectionCard icon={Package} title="Inventory">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -367,6 +442,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
+          {/* ── SECTION 4: Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -399,6 +475,7 @@ export default function ProductEditDrawer({ product, brands, onClose }: Props) {
             </div>
           </SectionCard>
 
+          {/* ── SECTION 5: Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />

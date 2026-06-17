@@ -60,7 +60,6 @@ export default async function InventoryPage(props: {
               />
               {brand && <input type="hidden" name="brand" value={brand} />}
               {condition && <input type="hidden" name="condition" value={condition} />}
-              {category && <input type="hidden" name="category" value={category} />}
             </form>
           </div>
         </div>

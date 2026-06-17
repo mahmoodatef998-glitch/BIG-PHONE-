@@ -1,4 +1,5 @@
 import HeroSection from '@/components/home/HeroSection';
+import StockTicker from '@/components/home/StockTicker';
 import BrandsGrid from '@/components/home/BrandsGrid';
 import FeaturedInventory from '@/components/home/FeaturedInventory';
 import WhyBuySection from '@/components/home/WhyBuySection';
@@ -15,6 +16,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
+      <StockTicker />
       <BrandsGrid brands={brands} />
       <FeaturedInventory products={featuredProducts} />
       <WhyBuySection />

@@ -134,31 +134,22 @@ export default function RFQsClient({ rfqs }: Props) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.375rem',
                       padding: '0.5rem 0.75rem',
-                      background: '#eff6ff',
-                      color: '#2563EB',
-                      border: '1px solid #bfdbfe',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
-                      textDecoration: 'none',
+                      background: '#eff6ff', color: '#2563EB',
+                      border: '1px solid #bfdbfe', borderRadius: '0.5rem',
+                      fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none',
                     }}
                   >
                     <Mail size={14} /> Email
                   </a>
                   <a
                     href={`https://wa.me/${rfq.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${rfq.contact_person}, thank you for your inquiry about ${rfq.product_interest}. We'd like to discuss your order of ${rfq.quantity} units.`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_blank" rel="noopener noreferrer"
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.375rem',
                       padding: '0.5rem 0.75rem',
-                      background: '#f0fdf4',
-                      color: '#16a34a',
-                      border: '1px solid #bbf7d0',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
-                      textDecoration: 'none',
+                      background: '#f0fdf4', color: '#16a34a',
+                      border: '1px solid #bbf7d0', borderRadius: '0.5rem',
+                      fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none',
                     }}
                   >
                     <MessageCircle size={14} /> WhatsApp

@@ -152,6 +152,18 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         )}
 
+        {/* Price */}
+        {(product.price_usd && product.show_price) ? (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+            <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.02em' }}>
+              ${product.price_usd.toLocaleString()}
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 500 }}>/unit</span>
+          </div>
+        ) : (
+          <span style={{ fontSize: '0.8125rem', color: '#94A3B8', fontStyle: 'italic' }}>Price on Request</span>
+        )}
+
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.125rem' }}>
           <StockDot quantity={product.stock_quantity} />
           <span style={{ background: '#FFF7E6', color: '#B45309', fontSize: '0.6875rem', fontWeight: 600, padding: '0.125rem 0.4rem', borderRadius: '3px' }}>

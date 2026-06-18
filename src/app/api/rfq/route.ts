@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendAdminRFQNotification, sendBuyerRFQConfirmation } from '@/lib/email';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -14,27 +15,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const rfqData = { company_name, contact_person, country, phone, email, product_interest, quantity: quantity ? Number(quantity) : null, message: message ?? null };
+
     if (USE_SUPABASE) {
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-      const { error } = await supabase.from('rfqs').insert([{
-        company_name,
-        contact_person,
-        country,
-        phone,
-        email,
-        product_interest,
-        quantity: Number(quantity),
-        message: message ?? null,
-        status: 'new',
-      }]);
+      const { error } = await supabase.from('rfqs').insert([{ ...rfqData, status: 'new' }]);
 
       if (error) {
         console.error('[RFQ Supabase Error]', error.message);
         return NextResponse.json({ error: 'Failed to save request' }, { status: 500 });
       }
     } else {
-      console.log('[RFQ - no Supabase]', { company_name, contact_person, country, phone, email, product_interest, quantity, message });
+      console.log('[RFQ - no Supabase]', rfqData);
     }
+
+    // Fire emails in parallel — non-blocking (errors are swallowed inside each function)
+    void Promise.all([
+      sendAdminRFQNotification(rfqData),
+      sendBuyerRFQConfirmation(rfqData),
+    ]);
 
     return NextResponse.json({ success: true, message: 'Quotation request submitted successfully' });
   } catch (err) {

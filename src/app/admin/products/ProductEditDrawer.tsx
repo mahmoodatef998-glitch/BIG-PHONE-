@@ -24,6 +24,7 @@ type FormState = {
   category: Category; condition: Condition; storage: string;
   battery_health: string; stock_quantity: string; moq: string;
   country_of_origin: string; warranty: string; description: string;
+  price_usd: string; show_price: boolean;
   is_featured: boolean; is_active: boolean; images: string[];
 };
 
@@ -35,7 +36,9 @@ function field(product: Product): FormState {
     storage: product.storage ?? '', battery_health: product.battery_health?.toString() ?? '',
     stock_quantity: product.stock_quantity.toString(), moq: product.moq.toString(),
     country_of_origin: product.country_of_origin, warranty: product.warranty ?? '',
-    description: product.description ?? '', is_featured: product.is_featured,
+    description: product.description ?? '',
+    price_usd: product.price_usd?.toString() ?? '', show_price: product.show_price ?? true,
+    is_featured: product.is_featured,
     is_active: product.is_active, images: [...product.images],
   };
 }
@@ -137,7 +140,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     setStatus('saving');
     setErrorMsg('');
 
-    // Validation for new products
     if (isNew) {
       if (!form.name.trim() || !form.model.trim()) {
         setStatus('error');
@@ -148,7 +150,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
 
     let finalImages = [...form.images];
 
-    // Upload new files to Supabase Storage
     if (newFiles.length > 0) {
       setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
       const uploads = await Promise.all(newFiles.map(uploadToStorage));
@@ -164,7 +165,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     const supabase = createClient();
 
     if (isNew) {
-      // INSERT new product
       const { error } = await supabase.from('products').insert({
         brand_id: form.brand_id,
         name: form.name,
@@ -181,6 +181,8 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         country_of_origin: form.country_of_origin,
         warranty: form.warranty || null,
         description: form.description || null,
+        price_usd: form.price_usd ? parseFloat(form.price_usd) : null,
+        show_price: form.show_price,
         is_featured: form.is_featured,
         is_active: form.is_active,
         images: finalImages,
@@ -192,7 +194,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         return;
       }
     } else {
-      // UPDATE existing product
       const { error } = await supabase.from('products').update({
         name: form.name, model: form.model, color: form.color || null,
         brand_id: form.brand_id, category: form.category, condition: form.condition,
@@ -203,6 +204,8 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         country_of_origin: form.country_of_origin,
         warranty: form.warranty || null,
         description: form.description || null,
+        price_usd: form.price_usd ? parseFloat(form.price_usd) : null,
+        show_price: form.show_price,
         is_featured: form.is_featured, is_active: form.is_active,
         images: finalImages,
         updated_at: new Date().toISOString(),
@@ -214,7 +217,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         return;
       }
 
-      // If sync enabled: apply same images to all other products with same model
       if (syncVariants && finalImages.length > 0) {
         await supabase
           .from('products')
@@ -234,7 +236,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -244,7 +245,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         aria-hidden="true"
       />
 
-      {/* Drawer */}
       <div
         ref={drawerRef}
         role="dialog"
@@ -258,7 +258,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}
       >
-        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem', background: '#0F172A',
           display: 'flex', alignItems: 'center', gap: '0.875rem',
@@ -305,7 +304,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           </button>
         </div>
 
-        {/* Error banner */}
         {status === 'error' && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -317,7 +315,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           </div>
         )}
 
-        {/* Partial-error warning (upload failures but save succeeded) */}
         {status === 'success' && errorMsg && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.625rem',
@@ -329,10 +326,8 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           </div>
         )}
 
-        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
-          {/* ── SECTION 1: Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -340,8 +335,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
               onNewFiles={setNewFiles}
               uploading={status === 'saving'}
             />
-
-            {/* Sync to variants toggle — hide for new products */}
             {!isNew && (
               <div style={{
                 marginTop: '1rem',
@@ -382,7 +375,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             )}
           </SectionCard>
 
-          {/* ── SECTION 2: Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -418,8 +410,55 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* ── SECTION 3: Inventory */}
           <SectionCard icon={Package} title="Inventory">
+            <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '0.5rem' }}>
+              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
+                Wholesale Pricing
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+                <div>
+                  <label htmlFor="edit-price" style={labelStyle}>Unit Price (USD)</label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '0.875rem', fontWeight: 600, pointerEvents: 'none' }}>$</span>
+                    <input
+                      id="edit-price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      style={{ ...inp, paddingLeft: '1.625rem' }}
+                      value={form.price_usd}
+                      onChange={e => set('price_usd', e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div style={{ paddingBottom: '2px' }}>
+                  <label style={{ ...labelStyle, marginBottom: '0.5rem' }}>Show Price</label>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={form.show_price}
+                    onClick={() => set('show_price', !form.show_price)}
+                    style={{
+                      width: '44px', height: '24px', borderRadius: '9999px',
+                      background: form.show_price ? '#2563EB' : '#CBD5E1',
+                      border: 'none', cursor: 'pointer', position: 'relative',
+                      transition: 'background 0.2s', padding: 0,
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: '2px', left: form.show_price ? '22px' : '2px',
+                      width: '20px', height: '20px', background: '#fff', borderRadius: '50%',
+                      transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block',
+                    }} />
+                  </button>
+                </div>
+              </div>
+              <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#64748B' }}>
+                {form.price_usd ? `Shows as $${parseFloat(form.price_usd || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
+              </p>
+            </div>
+
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label>
@@ -442,7 +481,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* ── SECTION 4: Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -475,7 +513,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* ── SECTION 5: Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />

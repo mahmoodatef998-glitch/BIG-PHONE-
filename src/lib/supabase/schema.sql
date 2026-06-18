@@ -63,6 +63,8 @@ create table if not exists products (
   description        text,
   specifications     jsonb,
   images             text[] not null default '{}',
+  price_usd          numeric(10,2),
+  show_price         boolean not null default true,
   is_featured        boolean not null default false,
   is_active          boolean not null default true,
   created_at         timestamptz not null default now(),
@@ -159,3 +161,7 @@ insert into brands (id, name, slug, description, is_active, sort_order) values
   ('00000000-0000-0000-0000-000000000005', 'Oppo',    'oppo',    'Oppo Find and Reno series',                     true, 5),
   ('00000000-0000-0000-0000-000000000006', 'Vivo',    'vivo',    'Vivo X and V series smartphones',               true, 6)
 on conflict (id) do nothing;
+
+-- ─── MIGRATIONS (safe to re-run on existing databases) ───────────────────────
+alter table products add column if not exists price_usd  numeric(10,2);
+alter table products add column if not exists show_price boolean not null default true;

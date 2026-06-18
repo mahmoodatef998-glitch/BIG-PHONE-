@@ -35,6 +35,8 @@ export interface Product {
   description: string | null;
   specifications: Record<string, string> | null;
   images: string[];
+  price_usd: number | null;
+  show_price: boolean;
   is_featured: boolean;
   is_active: boolean;
   created_at: string;

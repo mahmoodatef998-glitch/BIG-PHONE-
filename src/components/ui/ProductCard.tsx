@@ -20,48 +20,20 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
   const [c1, c2] = BRAND_GRADIENT[brandSlug ?? ''] ?? ['#1A2332', '#2D3748'];
   const isTablet = category === 'tablet';
   const isAudio  = category === 'airpods';
-
   return (
-    <div style={{
-      position: 'absolute', inset: 0,
-      background: `linear-gradient(135deg, ${c1}, ${c2})`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
+    <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${c1}, ${c2})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {isAudio ? (
         <div style={{ display: 'flex', gap: '8px' }}>
           {[0, 1].map(i => (
-            <div key={i} style={{
-              width: '16px', height: '28px',
-              background: 'rgba(255,255,255,0.18)',
-              border: '1.5px solid rgba(255,255,255,0.4)',
-              borderRadius: '8px',
-            }} />
+            <div key={i} style={{ width: '16px', height: '28px', background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: '8px' }} />
           ))}
         </div>
       ) : isTablet ? (
-        <div style={{
-          width: '56px', height: '68px',
-          background: 'rgba(255,255,255,0.12)',
-          border: '2px solid rgba(255,255,255,0.4)',
-          borderRadius: '5px',
-        }} />
+        <div style={{ width: '56px', height: '68px', background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '5px' }} />
       ) : (
-        <div style={{
-          width: '34px', height: '62px',
-          background: 'rgba(255,255,255,0.12)',
-          border: '2px solid rgba(255,255,255,0.4)',
-          borderRadius: '7px', position: 'relative',
-        }}>
-          <div style={{
-            position: 'absolute', top: '5px', left: '50%', transform: 'translateX(-50%)',
-            width: '10px', height: '2px',
-            background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)',
-            width: '10px', height: '10px',
-            border: '1.5px solid rgba(255,255,255,0.45)', borderRadius: '50%',
-          }} />
+        <div style={{ width: '34px', height: '62px', background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '7px', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '5px', left: '50%', transform: 'translateX(-50%)', width: '10px', height: '2px', background: 'rgba(255,255,255,0.5)', borderRadius: '9999px' }} />
+          <div style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', width: '10px', height: '10px', border: '1.5px solid rgba(255,255,255,0.45)', borderRadius: '50%' }} />
         </div>
       )}
     </div>
@@ -91,8 +63,8 @@ function StockDot({ quantity }: { quantity: number }) {
 
 export default function ProductCard({ product }: { product: Product }) {
   const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name}. Can you provide pricing for wholesale quantity?`);
-  const waLink = `https://wa.me/${WHATSAPP}?text=${waMessage}`;
-  const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
+  const waLink  = `https://wa.me/${WHATSAPP}?text=${waMessage}`;
+  const imgSrc  = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
 
   return (
     <div className="pcard">
@@ -113,12 +85,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <ConditionBadge condition={product.condition} />
           </div>
           {product.stock_quantity > 0 && product.stock_quantity <= 15 && (
-            <div style={{
-              position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 1,
-              background: 'rgba(249,115,22,0.9)', color: '#fff',
-              fontSize: '10px', fontWeight: 700,
-              padding: '2px 6px', borderRadius: '4px',
-            }}>
+            <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 1, background: 'rgba(249,115,22,0.9)', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px' }}>
               Only {product.stock_quantity} left
             </div>
           )}
@@ -127,24 +94,20 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         {product.brand && (
-          <span style={{
-            display: 'inline-block', background: '#E5F0FF', color: '#0066FF',
-            fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-            letterSpacing: '0.08em', padding: '0.125rem 0.4rem', borderRadius: '3px',
-          }}>
+          <span style={{ display: 'inline-block', background: '#E5F0FF', color: '#0066FF', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0.125rem 0.4rem', borderRadius: '3px' }}>
             {product.brand.name}
           </span>
         )}
 
         <Link href={`/products/${product.slug}`} style={{ textDecoration: 'none' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1A2332', lineHeight: 1.3, margin: 0 }}>
-            {product.model}{product.storage && ` ${product.storage}`}
+          <h3 style={{
+            fontSize: '0.875rem', fontWeight: 700, color: '#1A2332', lineHeight: 1.3, margin: 0,
+            overflow: 'hidden', display: '-webkit-box',
+            WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          }}>
+            {product.name}
           </h3>
         </Link>
-
-        {product.color && (
-          <p style={{ fontSize: '0.75rem', color: '#8B9DB5', margin: 0 }}>{product.color}</p>
-        )}
 
         {product.battery_health && (
           <span style={{ background: '#F0F4F8', color: '#4B5563', fontSize: '0.6875rem', fontWeight: 500, padding: '0.125rem 0.4rem', borderRadius: '3px', alignSelf: 'flex-start' }}>
@@ -152,7 +115,6 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         )}
 
-        {/* Price */}
         {(product.price_aed && product.show_price !== false) ? (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
             <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.02em' }}>

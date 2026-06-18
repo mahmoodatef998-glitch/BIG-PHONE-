@@ -8,17 +8,21 @@ import ProductCard from '@/components/ui/ProductCard';
 import RFQForm from '@/components/rfq/RFQForm';
 import { formatCondition } from '@/lib/utils';
 import { cloudinaryUrl } from '@/lib/cloudinary';
-import { getProductBySlug as fetchProduct, getProducts as fetchProducts } from '@/lib/data';
+import { getProductBySlug, getProducts, getAllProductSlugs } from '@/lib/data';
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
-type ProductPageProps = {
-  params: Promise<{ slug: string }>;
-};
+type ProductPageProps = { params: Promise<{ slug: string }> };
+
+export async function generateStaticParams() {
+  const slugs = await getAllProductSlugs();
+  return slugs.map(slug => ({ slug }));
+}
 
 export async function generateMetadata(props: ProductPageProps): Promise<Metadata> {
   const { slug } = await props.params;
-  const product = await fetchProduct(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return { title: 'Product Not Found' };
   const desc = `Buy ${product.name} wholesale from Dubai. ${product.condition === 'brand-new' ? 'Brand new sealed' : 'Refurbished'} | Stock: ${product.stock_quantity} units | MOQ: ${product.moq} | Fast global shipping.`;
   return {
@@ -46,11 +50,11 @@ const BRAND_GRADIENT: Record<string, [string, string]> = {
 
 export default async function ProductPage(props: ProductPageProps) {
   const { slug } = await props.params;
-  const product = await fetchProduct(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = await fetchProducts({ brand: product.brand?.slug, limit: 5 });
-  const waMessage = encodeURIComponent(`Hi, I'd like a wholesale quote for: ${product.name}${product.storage ? ` ${product.storage}` : ''}. Quantity: `);
+  const related = await getProducts({ brand: product.brand?.slug, limit: 5 });
+  const waMessage = encodeURIComponent(`Hi, I'd like a wholesale quote for: ${product.name}. Quantity: `);
   const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 800, quality: 85 }) : null;
   const [bg1, bg2] = BRAND_GRADIENT[product.brand?.slug ?? ''] ?? ['#1A2332', '#2D3748'];
   const isTablet = product.category === 'tablet';
@@ -81,21 +85,28 @@ export default async function ProductPage(props: ProductPageProps) {
   return (
     <div style={{ background: '#F8FAFC' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* Breadcrumb */}
       <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA', padding: '0.75rem 0' }}>
         <div className="container-site">
           <nav style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href="/" style={{ color: '#0066FF', textDecoration: 'none' }}>Home</Link>
             <span style={{ color: '#CBD5E1' }}>›</span>
             <Link href="/inventory" style={{ color: '#0066FF', textDecoration: 'none' }}>Inventory</Link>
-            {product.brand && (<><span style={{ color: '#CBD5E1' }}>›</span><Link href={`/brands/${product.brand.slug}`} style={{ color: '#0066FF', textDecoration: 'none' }}>{product.brand.name}</Link></>)}
+            {product.brand && (
+              <><span style={{ color: '#CBD5E1' }}>›</span>
+              <Link href={`/brands/${product.brand.slug}`} style={{ color: '#0066FF', textDecoration: 'none' }}>{product.brand.name}</Link></>
+            )}
             <span style={{ color: '#CBD5E1' }}>›</span>
-            <span style={{ color: '#374151' }}>{product.model}</span>
+            <span style={{ color: '#374151' }}>{product.model}{product.storage ? ` ${product.storage}` : ''}</span>
           </nav>
         </div>
       </div>
 
       <div className="container-site" style={{ padding: '2rem 1rem 4rem' }}>
         <div className="product-detail-grid">
+
+          {/* Left: image + specs */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', overflow: 'hidden' }}>
               <div style={{ position: 'relative', paddingBottom: '80%' }}>
@@ -103,28 +114,51 @@ export default async function ProductPage(props: ProductPageProps) {
                   <Image src={imgSrc} alt={product.name} fill style={{ objectFit: 'contain', padding: '2rem', background: '#fff' }} />
                 ) : (
                   <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${bg1}, ${bg2})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAudio ? (<div style={{ display: 'flex', gap: '16px' }}>{[0,1].map(i => (<div key={i} style={{ width: '28px', height: '52px', background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '14px' }} />))}</div>) : isTablet ? (<div style={{ width: '110px', height: '140px', background: 'rgba(255,255,255,0.12)', border: '3px solid rgba(255,255,255,0.4)', borderRadius: '10px' }} />) : (<div style={{ width: '56px', height: '100px', background: 'rgba(255,255,255,0.12)', border: '3px solid rgba(255,255,255,0.4)', borderRadius: '12px', position: 'relative' }}><div style={{ position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)', width: '18px', height: '3px', background: 'rgba(255,255,255,0.5)', borderRadius: '9999px' }} /><div style={{ position: 'absolute', bottom: '7px', left: '50%', transform: 'translateX(-50%)', width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.45)', borderRadius: '50%' }} /></div>)}
+                    {isAudio
+                      ? <div style={{ display: 'flex', gap: '16px' }}>{[0,1].map(i => <div key={i} style={{ width: '28px', height: '52px', background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '14px' }} />)}</div>
+                      : isTablet
+                        ? <div style={{ width: '110px', height: '140px', background: 'rgba(255,255,255,0.12)', border: '3px solid rgba(255,255,255,0.4)', borderRadius: '10px' }} />
+                        : <div style={{ width: '56px', height: '100px', background: 'rgba(255,255,255,0.12)', border: '3px solid rgba(255,255,255,0.4)', borderRadius: '12px', position: 'relative' }}><div style={{ position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)', width: '18px', height: '3px', background: 'rgba(255,255,255,0.5)', borderRadius: '9999px' }} /><div style={{ position: 'absolute', bottom: '7px', left: '50%', transform: 'translateX(-50%)', width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.45)', borderRadius: '50%' }} /></div>
+                    }
                     <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500, whiteSpace: 'nowrap' }}>Image coming soon</div>
                   </div>
                 )}
               </div>
             </div>
+
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '0.875rem 1.125rem', borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}><h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0B1829', margin: 0 }}>Specifications</h3></div>
-                <div>{Object.entries(product.specifications).map(([key, val]) => (<div key={key} style={{ display: 'flex', padding: '0.5625rem 1.125rem', borderBottom: '1px solid #F1F5F9', fontSize: '0.8125rem' }}><span style={{ flex: '0 0 40%', color: '#64748B', fontWeight: 500 }}>{key}</span><span style={{ color: '#111827' }}>{String(val)}</span></div>))}</div>
+                <div style={{ padding: '0.875rem 1.125rem', borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0B1829', margin: 0 }}>Specifications</h3>
+                </div>
+                <div>
+                  {Object.entries(product.specifications).map(([key, val]) => (
+                    <div key={key} style={{ display: 'flex', padding: '0.5625rem 1.125rem', borderBottom: '1px solid #F1F5F9', fontSize: '0.8125rem' }}>
+                      <span style={{ flex: '0 0 40%', color: '#64748B', fontWeight: 500 }}>{key}</span>
+                      <span style={{ color: '#111827' }}>{String(val)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
+          {/* Right: info + RFQ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', padding: '1.5rem' }}>
-              {product.brand && (<Link href={`/brands/${product.brand.slug}`} style={{ display: 'inline-block', fontSize: '0.6875rem', fontWeight: 700, color: '#0066FF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem', background: '#E5F0FF', padding: '0.125rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>{product.brand.name}</Link>)}
-              <h1 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)', fontWeight: 800, color: '#0B1829', marginBottom: '0.75rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>{product.name}</h1>
+              {product.brand && (
+                <Link href={`/brands/${product.brand.slug}`} style={{ display: 'inline-block', fontSize: '0.6875rem', fontWeight: 700, color: '#0066FF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem', background: '#E5F0FF', padding: '0.125rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>
+                  {product.brand.name}
+                </Link>
+              )}
+              <h1 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)', fontWeight: 800, color: '#0B1829', marginBottom: '0.75rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+                {product.name}
+              </h1>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
                 <ConditionBadge condition={product.condition} />
                 <StockBadge quantity={product.stock_quantity} />
               </div>
+
               {(product.price_aed && product.show_price !== false) ? (
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
                   <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>AED {product.price_aed.toLocaleString()}</span>
@@ -136,31 +170,59 @@ export default async function ProductPage(props: ProductPageProps) {
                   <span style={{ fontSize: '0.8125rem', color: '#94A3B8', marginLeft: '0.5rem' }}>— submit RFQ below</span>
                 </div>
               )}
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>
-                {[{ label: 'Condition', value: formatCondition(product.condition) }, { label: 'Storage', value: product.storage ?? 'N/A' }, { label: 'Color', value: product.color ?? 'Various' }, { label: 'Battery', value: product.battery_health ? `${product.battery_health}%` : 'N/A' }, { label: 'Warranty', value: product.warranty ?? 'As-is' }, { label: 'MOQ', value: `${product.moq} units` }].map(({ label, value }) => (<div key={label} style={{ background: '#F8FAFC', border: '1px solid #DDE3EA', borderRadius: '8px', padding: '0.5rem 0.75rem' }}><div style={{ fontSize: '0.625rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>{label}</div><div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0B1829' }}>{value}</div></div>))}
+                {[
+                  { label: 'Condition', value: formatCondition(product.condition) },
+                  { label: 'Storage',   value: product.storage ?? 'N/A' },
+                  { label: 'Color',     value: product.color ?? 'Various' },
+                  { label: 'Battery',   value: product.battery_health ? `${product.battery_health}%` : 'N/A' },
+                  { label: 'Warranty',  value: product.warranty ?? 'As-is' },
+                  { label: 'MOQ',       value: `${product.moq} units` },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ background: '#F8FAFC', border: '1px solid #DDE3EA', borderRadius: '8px', padding: '0.5rem 0.75rem' }}>
+                    <div style={{ fontSize: '0.625rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>{label}</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0B1829' }}>{value}</div>
+                  </div>
+                ))}
               </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={13} style={{ color: '#94a3b8' }} /><span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Origin: {product.country_of_origin}</span></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Shield size={13} style={{ color: '#00A850' }} /><span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Verified Stock</span></div>
               </div>
-              <a href={`https://wa.me/${WHATSAPP}?text=${waMessage}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', background: '#00A850', color: '#fff', borderRadius: '10px', fontWeight: 700, fontSize: '0.9375rem', textDecoration: 'none', border: 'none' }}>
+
+              <a
+                href={`https://wa.me/${WHATSAPP}?text=${waMessage}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', background: '#00A850', color: '#fff', borderRadius: '10px', fontWeight: 700, fontSize: '0.9375rem', textDecoration: 'none' }}
+              >
                 <MessageCircle size={18} /> WhatsApp Inquiry
               </a>
             </div>
+
             <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', overflow: 'hidden' }}>
-              <div style={{ background: '#0B1829', padding: '1rem 1.25rem' }}><h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>Request Wholesale Quote</h3><p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: '0.25rem', marginBottom: 0 }}>Get pricing &amp; availability in under 2 hours</p></div>
+              <div style={{ background: '#0B1829', padding: '1rem 1.25rem' }}>
+                <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>Request Wholesale Quote</h3>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: '0.25rem', marginBottom: 0 }}>Get pricing &amp; availability in under 2 hours</p>
+              </div>
               <div style={{ padding: '1.25rem' }}><RFQForm defaultProduct={product.name} compact /></div>
             </div>
           </div>
         </div>
 
+        {/* Related products */}
         {related.filter(p => p.id !== product.id).length > 0 && (
           <div style={{ marginTop: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
               <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: '#0B1829', margin: 0 }}>More from {product.brand?.name}</h2>
-              {product.brand && (<Link href={`/brands/${product.brand.slug}`} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8125rem', fontWeight: 600, color: '#0066FF', textDecoration: 'none' }}>View All <ArrowRight size={13} /></Link>)}
+              {product.brand && (
+                <Link href={`/brands/${product.brand.slug}`} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8125rem', fontWeight: 600, color: '#0066FF', textDecoration: 'none' }}>View All <ArrowRight size={13} /></Link>
+              )}
             </div>
-            <div className="related-grid">{related.filter(p => p.id !== product.id).slice(0, 4).map(p => (<ProductCard key={p.id} product={p} />))}</div>
+            <div className="related-grid">
+              {related.filter(p => p.id !== product.id).slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
           </div>
         )}
       </div>

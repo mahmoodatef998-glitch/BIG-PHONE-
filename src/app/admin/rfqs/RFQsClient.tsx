@@ -2,24 +2,48 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, Mail, Phone, Globe, Calendar, MessageCircle } from 'lucide-react';
+import { Mail, Phone, Globe, Calendar, MessageCircle, Download } from 'lucide-react';
 import type { RFQ } from '@/types';
 import { createClient } from '@/lib/supabase/client';
-
-void FileText;
 
 interface Props {
   rfqs: RFQ[];
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  new: { label: 'New', bg: '#fef9c3', color: '#92400e' },
+  new:       { label: 'New',       bg: '#fef9c3', color: '#92400e' },
   contacted: { label: 'Contacted', bg: '#dbeafe', color: '#1e40af' },
-  quoted: { label: 'Quoted', bg: '#f3e8ff', color: '#6b21a8' },
-  closed: { label: 'Closed', bg: '#f0fdf4', color: '#166534' },
+  quoted:    { label: 'Quoted',    bg: '#f3e8ff', color: '#6b21a8' },
+  closed:    { label: 'Closed',    bg: '#f0fdf4', color: '#166534' },
 };
 
 const FILTER_OPTIONS = ['all', 'new', 'contacted', 'quoted', 'closed'];
+
+function exportToCSV(rfqs: RFQ[], filter: string) {
+  const headers = ['ID', 'Company', 'Contact', 'Country', 'Phone', 'Email', 'Product', 'Qty', 'Message', 'Status', 'Date'];
+  const rows = rfqs.map(r => [
+    r.id,
+    r.company_name,
+    r.contact_person,
+    r.country,
+    r.phone,
+    r.email,
+    r.product_interest,
+    r.quantity,
+    r.message ?? '',
+    r.status,
+    new Date(r.created_at).toLocaleDateString(),
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+
+  const csv = '﻿' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rfqs-${filter}-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function RFQsClient({ rfqs }: Props) {
   const router = useRouter();
@@ -36,8 +60,7 @@ export default function RFQsClient({ rfqs }: Props) {
             {filtered.length} of {rfqs.length} requests
           </p>
         </div>
-        {/* Status filter pills */}
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
           {FILTER_OPTIONS.map(s => (
             <button
               key={s}
@@ -57,6 +80,24 @@ export default function RFQsClient({ rfqs }: Props) {
               {s === 'all' ? 'All' : STATUS_CONFIG[s]?.label ?? s}
             </button>
           ))}
+          <button
+            onClick={() => exportToCSV(filtered, activeFilter)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              padding: '0.375rem 0.875rem',
+              borderRadius: '0.5rem',
+              background: '#F8FAFC',
+              color: '#374151',
+              border: '1px solid #E2E8F0',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Download size={14} />
+            Export CSV ({filtered.length})
+          </button>
         </div>
       </div>
 
@@ -106,7 +147,6 @@ export default function RFQsClient({ rfqs }: Props) {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
-                  {/* Status select */}
                   <select
                     value={rfq.status}
                     onChange={async e => {

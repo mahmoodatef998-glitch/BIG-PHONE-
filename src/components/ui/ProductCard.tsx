@@ -1,8 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle } from 'lucide-react';
 import { ConditionBadge } from './Badge';
 import { cloudinaryUrl } from '@/lib/cloudinary';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Product } from '@/types';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -40,11 +43,11 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
   );
 }
 
-function StockDot({ quantity }: { quantity: number }) {
+function StockDot({ quantity, outOfStockLabel }: { quantity: number; outOfStockLabel: string }) {
   if (quantity === 0) return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#DC2626', flexShrink: 0 }} />
-      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#DC2626' }}>Out of Stock</span>
+      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#DC2626' }}>{outOfStockLabel}</span>
     </div>
   );
   if (quantity <= 20) return (
@@ -62,6 +65,7 @@ function StockDot({ quantity }: { quantity: number }) {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { t } = useLanguage();
   const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name}. Can you provide pricing for wholesale quantity?`);
   const waLink  = `https://wa.me/${WHATSAPP}?text=${waMessage}`;
   const imgSrc  = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
@@ -123,13 +127,13 @@ export default function ProductCard({ product }: { product: Product }) {
             <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 500 }}>/unit</span>
           </div>
         ) : (
-          <span style={{ fontSize: '0.8125rem', color: '#94A3B8', fontStyle: 'italic' }}>Price on Request</span>
+          <span style={{ fontSize: '0.8125rem', color: '#94A3B8', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.125rem' }}>
-          <StockDot quantity={product.stock_quantity} />
+          <StockDot quantity={product.stock_quantity} outOfStockLabel={t.product.outOfStock} />
           <span style={{ background: '#FFF7E6', color: '#B45309', fontSize: '0.6875rem', fontWeight: 600, padding: '0.125rem 0.4rem', borderRadius: '3px' }}>
-            MOQ: {product.moq}
+            {t.product.moq}: {product.moq}
           </span>
         </div>
 
@@ -139,7 +143,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className="btn btn-primary"
             style={{ flex: 1, fontSize: '0.75rem', minHeight: '44px', padding: '0 0.625rem' }}
           >
-            Request Quote
+            {t.product.requestQuote}
           </Link>
           <a
             href={waLink}

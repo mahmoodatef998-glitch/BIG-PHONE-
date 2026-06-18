@@ -4,14 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Search, MessageCircle, ChevronDown, Globe, LayoutDashboard } from 'lucide-react';
-
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/inventory', label: 'Inventory' },
-  { href: '/brands', label: 'Brands', hasDropdown: true },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const brandLinks = [
   { href: '/brands/apple',   label: 'Apple' },
@@ -22,25 +15,34 @@ const brandLinks = [
   { href: '/brands/vivo',    label: 'Vivo' },
 ];
 
-const categoryPills = [
-  { label: 'Smartphones',  href: '/inventory?category=smartphone' },
-  { label: 'Tablets',      href: '/inventory?category=tablet' },
-  { label: 'Accessories',  href: '/inventory?category=accessory' },
-  { label: 'Apple',        href: '/inventory?brand=apple' },
-  { label: 'Samsung',      href: '/inventory?brand=samsung' },
-  { label: 'Xiaomi',       href: '/inventory?brand=xiaomi' },
-  { label: 'Huawei',       href: '/inventory?brand=huawei' },
-];
-
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function Header() {
+  const { t, toggle, isRTL } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [brandsOpen, setBrandsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+
+  const navLinks = [
+    { href: '/', label: t.nav.home },
+    { href: '/inventory', label: t.nav.inventory },
+    { href: '/brands', label: t.nav.brands, hasDropdown: true },
+    { href: '/about', label: t.nav.about },
+    { href: '/contact', label: t.nav.contact },
+  ];
+
+  const categoryPills = [
+    { label: t.categories.smartphones, href: '/inventory?category=smartphone' },
+    { label: t.categories.tablets,     href: '/inventory?category=tablet' },
+    { label: t.categories.accessories, href: '/inventory?category=accessory' },
+    { label: 'Apple',   href: '/inventory?brand=apple' },
+    { label: 'Samsung', href: '/inventory?brand=samsung' },
+    { label: 'Xiaomi',  href: '/inventory?brand=xiaomi' },
+    { label: 'Huawei',  href: '/inventory?brand=huawei' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
@@ -81,13 +83,7 @@ export default function Header() {
               flexWrap: 'wrap',
             }}>
               <Globe size={12} style={{ color: '#0066FF', flexShrink: 0 }} />
-              <span style={{ color: '#fff' }}>Global Export</span>
-              <span style={{ color: '#334155' }}>·</span>
-              <span>50+ Countries</span>
-              <span style={{ color: '#334155' }}>·</span>
-              <span>MOQ from 5 Units</span>
-              <span style={{ color: '#334155' }}>·</span>
-              <span>WhatsApp 24/7</span>
+              <span style={{ color: '#fff' }}>{t.announcement}</span>
             </p>
           </div>
         </div>
@@ -181,9 +177,26 @@ export default function Header() {
                 <Search size={16} />
               </button>
 
+              {/* Language toggle */}
+              <button
+                onClick={toggle}
+                style={{
+                  height: '36px', padding: '0 0.75rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: '0.375rem', border: '1px solid #DDE3EA',
+                  background: '#fff', color: '#0B1829',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  fontSize: '0.8125rem', fontWeight: 700,
+                  minWidth: '44px', whiteSpace: 'nowrap',
+                }}
+                aria-label="Switch language"
+              >
+                {t.header.switchLang}
+              </button>
+
               <Link href="/admin" className="admin-btn">
                 <LayoutDashboard size={15} />
-                <span className="admin-btn-label">Admin</span>
+                <span className="admin-btn-label">{t.header.admin}</span>
               </Link>
 
               <a
@@ -201,7 +214,7 @@ export default function Header() {
                 className="btn btn-primary btn-sm header-quote-btn"
                 style={{ display: 'none' }}
               >
-                Get Quote
+                {t.header.getQuote}
               </Link>
 
               <button
@@ -233,7 +246,7 @@ export default function Header() {
                   name="search"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search iPhone 15, Samsung S24, iPad..."
+                  placeholder={t.header.searchPlaceholder}
                   className="form-input"
                   style={{ paddingLeft: '2.5rem', paddingRight: '1rem' }}
                 />
@@ -288,10 +301,10 @@ export default function Header() {
                 textDecoration: 'none',
               }}>
                 <LayoutDashboard size={17} style={{ color: '#0066FF' }} />
-                Admin Dashboard
+                {t.header.admin}
               </Link>
               <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center' }}>
-                Request a Quote
+                {t.header.getQuote}
               </Link>
               <a
                 href={`https://wa.me/${WHATSAPP}`}
@@ -302,6 +315,20 @@ export default function Header() {
                 <MessageCircle size={16} />
                 Chat on WhatsApp
               </a>
+              <button
+                onClick={toggle}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0.75rem 1rem', borderRadius: '0.5rem',
+                  fontSize: '0.9375rem', fontWeight: 600,
+                  color: '#0B1829', background: '#F8FAFC',
+                  border: '1px solid #DDE3EA',
+                  cursor: 'pointer', gap: '0.5rem', width: '100%',
+                }}
+              >
+                <Globe size={16} />
+                {isRTL ? 'Switch to English' : 'التبديل إلى العربية'}
+              </button>
             </div>
           </div>
         )}

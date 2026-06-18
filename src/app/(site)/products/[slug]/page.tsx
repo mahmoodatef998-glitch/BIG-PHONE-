@@ -10,7 +10,7 @@ import { formatCondition } from '@/lib/utils';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts } from '@/lib/data';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
@@ -20,9 +20,16 @@ export async function generateMetadata(props: ProductPageProps): Promise<Metadat
   const { slug } = await props.params;
   const product = await fetchProduct(slug);
   if (!product) return { title: 'Product Not Found' };
+  const desc = `Buy ${product.name} wholesale from Dubai. ${product.condition === 'brand-new' ? 'Brand new sealed' : 'Refurbished'} | Stock: ${product.stock_quantity} units | MOQ: ${product.moq} | Fast global shipping.`;
   return {
     title: `${product.name} — Wholesale | BIG PHONE`,
-    description: `Buy ${product.name} wholesale. ${product.condition === 'brand-new' ? 'Brand new' : 'Refurbished'} | Stock: ${product.stock_quantity} units | MOQ: ${product.moq}`,
+    description: desc,
+    openGraph: {
+      title: `${product.name} — Wholesale`,
+      description: desc,
+      images: product.images[0] ? [{ url: product.images[0] }] : [],
+      type: 'website',
+    },
   };
 }
 
@@ -49,8 +56,31 @@ export default async function ProductPage(props: ProductPageProps) {
   const isTablet = product.category === 'tablet';
   const isAudio  = product.category === 'airpods';
 
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.images,
+    description: product.description ?? `Buy ${product.name} wholesale from BIG PHONE Dubai.`,
+    brand: { '@type': 'Brand', name: product.brand?.name ?? '' },
+    sku: product.slug,
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE_URL}/products/${product.slug}`,
+      priceCurrency: 'AED',
+      ...(product.price_aed && product.show_price !== false ? {
+        price: product.price_aed,
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      } : {}),
+      availability: product.stock_quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Organization', name: 'BIG PHONE' },
+    },
+  };
+
   return (
     <div style={{ background: '#F8FAFC' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Breadcrumb */}
       <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA', padding: '0.75rem 0' }}>
         <div className="container-site">
@@ -182,10 +212,25 @@ export default async function ProductPage(props: ProductPageProps) {
                 {product.name}
               </h1>
 
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
                 <ConditionBadge condition={product.condition} />
                 <StockBadge quantity={product.stock_quantity} />
               </div>
+
+              {/* Price */}
+              {(product.price_aed && product.show_price !== false) ? (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>
+                    AED {product.price_aed.toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>/unit · MOQ {product.moq}</span>
+                </div>
+              ) : (
+                <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '0.9375rem', color: '#64748B', fontStyle: 'italic' }}>Price on Request</span>
+                  <span style={{ fontSize: '0.8125rem', color: '#94A3B8', marginLeft: '0.5rem' }}>— submit RFQ below</span>
+                </div>
+              )}
 
               {/* Key details */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>

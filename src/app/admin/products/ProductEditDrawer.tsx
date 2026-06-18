@@ -193,7 +193,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         name: form.name, model: form.model, color: form.color || null,
         brand_id: form.brand_id, category: form.category, condition: form.condition,
         storage: form.storage || null,
-        battery_health: form.battery_health ? parseInt(form.battery_height) : null,
+        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
         stock_quantity: parseInt(form.stock_quantity) || 0,
         moq: parseInt(form.moq) || 1,
         country_of_origin: form.country_of_origin,

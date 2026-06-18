@@ -153,10 +153,10 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
 
         {/* Price */}
-        {(product.price_usd && product.show_price) ? (
+        {(product.price_aed && product.show_price !== false) ? (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
             <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.02em' }}>
-              ${product.price_usd.toLocaleString()}
+              AED {product.price_aed.toLocaleString()}
             </span>
             <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 500 }}>/unit</span>
           </div>

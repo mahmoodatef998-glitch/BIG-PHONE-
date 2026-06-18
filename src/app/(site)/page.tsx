@@ -8,13 +8,13 @@ import ProcessSection from '@/components/home/ProcessSection';
 import WhatsAppCTA from '@/components/home/WhatsAppCTA';
 import { getBrands, getProducts } from '@/lib/data';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function HomePage() {
   const [brands, featuredProducts, allProducts] = await Promise.all([
     getBrands(),
     getProducts({ featured: true, limit: 16 }),
-    getProducts({ limit: 100 }),
+    getProducts({ limit: 30 }),
   ]);
 
   return (

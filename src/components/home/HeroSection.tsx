@@ -1,365 +1,232 @@
+'use client';
+
 import Link from 'next/link';
-import { Search, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Search, ArrowRight, ShieldCheck, Truck, Star, BadgeCheck, Package, Headphones } from 'lucide-react';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
-
-const POPULAR = [
-  { label: 'iPhone 16 Pro Max', href: '/inventory?search=iPhone+16+Pro' },
-  { label: 'Samsung S25 Ultra', href: '/inventory?search=Samsung+S25' },
-  { label: 'AirPods Pro 2', href: '/inventory?search=AirPods+Pro' },
-  { label: 'iPad Pro M4', href: '/inventory?search=iPad+Pro' },
-  { label: 'Grade A iPhones', href: '/inventory?search=iPhone&condition=refurbished-grade-a' },
-  { label: 'Accessories', href: '/inventory?category=accessory' },
+const FLOAT_CARDS = [
+  { icon: ShieldCheck, label: 'Verified Sellers',    color: '#6C5CE7', bg: '#F0EEFF' },
+  { icon: BadgeCheck,  label: 'Buyer Protection',    color: '#10B981', bg: '#ECFDF5' },
+  { icon: Package,     label: 'Wholesale Pricing',   color: '#F59E0B', bg: '#FFFBEB' },
+  { icon: Truck,       label: 'Fast Delivery',        color: '#3B82F6', bg: '#EFF6FF' },
+  { icon: Star,        label: 'Quality Assured',      color: '#EF4444', bg: '#FEF2F2' },
+  { icon: Headphones,  label: 'Support 24/7',         color: '#8B5CF6', bg: '#F5F3FF' },
 ];
 
 const STATS = [
-  { value: '500+', label: 'Products in Stock' },
-  { value: '50+', label: 'Countries Exported' },
-  { value: '< 2h', label: 'Response Time' },
-  { value: '10K+', label: 'B2B Clients' },
-];
-
-const TRUST = [
-  'Grade A & Certified Stock',
-  'MOQ from 5 Units',
-  'Export Documentation',
-  '24/7 WhatsApp Support',
-];
-
-const CATEGORIES = [
-  { label: 'All Devices', value: '' },
-  { label: 'Smartphones', value: 'smartphone' },
-  { label: 'Tablets', value: 'tablet' },
-  { label: 'Accessories', value: 'accessory' },
-  { label: 'Earbuds & Audio', value: 'airpods' },
-];
-
-/* Demo device images — staggered 2×2 grid shown on wide screens */
-const HERO_PHONES = [
-  'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=320&q=80',
-  'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=320&q=80',
-  'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=320&q=80',
-  'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=320&q=80',
+  { value: '10K+',  label: 'Products' },
+  { value: '500+',  label: 'Suppliers' },
+  { value: '50K+',  label: 'Monthly Visitors' },
+  { value: '100%',  label: 'Secure' },
 ];
 
 export default function HeroSection() {
-  const waMsg = encodeURIComponent('Hi BIG PHONE, I want to inquire about wholesale mobile devices.');
+  const [search, setSearch] = useState('');
 
   return (
     <section style={{
-      background: 'linear-gradient(160deg, #0B1829 0%, #0D2040 60%, #0B1829 100%)',
-      position: 'relative',
+      background: 'linear-gradient(135deg, #F8F7FF 0%, #FFFFFF 50%, #F0EEFF 100%)',
+      padding: '5rem 0 4rem',
       overflow: 'hidden',
+      position: 'relative',
     }}>
-      {/* Background glow */}
+      {/* Background blobs */}
       <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: `
-          radial-gradient(ellipse at 50% -10%, rgba(0,102,255,0.2) 0%, transparent 60%),
-          radial-gradient(ellipse at 80% 90%, rgba(0,60,160,0.12) 0%, transparent 50%)
-        `,
+        position: 'absolute', top: '-120px', right: '-80px',
+        width: '500px', height: '500px',
+        background: 'radial-gradient(circle, rgba(108,92,231,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: '-100px', left: '-60px',
+        width: '400px', height: '400px',
+        background: 'radial-gradient(circle, rgba(139,124,246,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
       }} />
 
-      {/* Main content */}
-      <div className="container-site" style={{ position: 'relative', zIndex: 1, padding: '3.5rem 1.5rem 3rem' }}>
-        <div className="hero-outer-wrap">
+      <div className="container-site">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: '3rem',
+          alignItems: 'center',
+        }} className="hero-grid">
 
-          {/* ── Text + search ─────────────────────────────────────────── */}
-          <div className="hero-content" style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-
-            {/* Badge */}
+          {/* ─ Left: Content ─ */}
+          <div style={{ maxWidth: '580px' }}>
+            {/* Eyebrow */}
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(0,102,255,0.15)',
-              border: '1px solid rgba(0,102,255,0.35)',
-              borderRadius: '9999px',
-              padding: '0.375rem 1rem',
+              background: '#F0EEFF', border: '1px solid #C4BBFF',
+              borderRadius: '9999px', padding: '0.375rem 0.875rem',
               marginBottom: '1.5rem',
             }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4D94FF', display: 'inline-block' }} />
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', letterSpacing: '0.04em' }}>
-                B2B Wholesale Supplier &middot; Dubai, UAE
+              <span style={{ width: '6px', height: '6px', background: '#6C5CE7', borderRadius: '50%', animation: 'pulse-dot 2s infinite' }} />
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#6C5CE7', letterSpacing: '0.02em' }}>
+                UAE’s #1 B2B Mobile Marketplace
               </span>
             </div>
 
-            {/* H1 */}
+            {/* Headline */}
             <h1 style={{
-              fontSize: 'clamp(1.875rem, 5vw, 3rem)',
+              fontSize: 'clamp(2rem, 5vw, 3.25rem)',
               fontWeight: 800,
-              color: '#fff',
-              lineHeight: 1.15,
-              letterSpacing: '-0.03em',
-              marginBottom: '0.875rem',
+              lineHeight: 1.1,
+              letterSpacing: '-0.035em',
+              color: '#111827',
+              marginBottom: '1.25rem',
             }}>
-              Source Premium Mobile Devices<br />
-              <span style={{ color: '#4D94FF' }}>At Wholesale Prices</span>
+              UAE’s Trusted{' '}
+              <span className="gradient-text">B2B Mobile</span>
+              <br />Marketplace
             </h1>
 
-            <p style={{
-              fontSize: '1rem',
-              color: 'rgba(255,255,255,0.6)',
-              lineHeight: 1.65,
-              marginBottom: '2rem',
-            }}>
-              iPhones &bull; Samsung &bull; Tablets &bull; Accessories &bull; Earbuds<br />
-              Grade A, Certified Refurbished &amp; Brand New &mdash; bulk export ready
+            <p style={{ fontSize: '1.0625rem', color: '#6B7280', lineHeight: 1.7, marginBottom: '2rem', maxWidth: '480px' }}>
+              Buy and sell new, used, refurbished, and wholesale mobile devices
+              from trusted suppliers across the UAE — fast, secure, verified.
             </p>
 
             {/* Search bar */}
-            <form action="/inventory" method="GET" style={{ marginBottom: '1rem' }}>
+            <form action="/inventory" method="get" style={{ marginBottom: '1.75rem' }}>
               <div style={{
-                display: 'flex',
+                display: 'flex', gap: '0.5rem',
                 background: '#fff',
-                borderRadius: '10px',
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                border: '2px solid rgba(77,148,255,0.2)',
-              }}>
-                <select
-                  name="category"
-                  aria-label="Select category"
-                  className="hero-cat-select"
-                  style={{
-                    border: 'none',
-                    borderRight: '1.5px solid #DDE3EA',
-                    background: '#F8FAFC',
-                    color: '#374151',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    padding: '0 0.875rem',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    minWidth: '140px',
-                    flexShrink: 0,
-                  }}
-                >
-                  {CATEGORIES.map(c => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-
+                border: '2px solid #EAEAEA',
+                borderRadius: '1rem',
+                padding: '0.375rem 0.375rem 0.375rem 1rem',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={() => {}}
+              >
+                <Search size={18} style={{ color: '#9CA3AF', alignSelf: 'center', flexShrink: 0 }} />
                 <input
                   type="search"
                   name="search"
-                  placeholder="Search iPhone 16, Galaxy S25, AirPods Pro..."
-                  aria-label="Search products"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search iPhone 15 Pro, Samsung S24, iPad..."
                   style={{
-                    flex: 1,
-                    border: 'none',
-                    outline: 'none',
-                    padding: '0.9375rem 1rem',
-                    fontSize: '0.9375rem',
-                    color: '#1A2332',
+                    flex: 1, border: 'none', outline: 'none',
+                    fontSize: '0.9375rem', color: '#111827',
                     background: 'transparent',
-                    minWidth: 0,
                   }}
                 />
-
-                <button
-                  type="submit"
-                  style={{
-                    background: '#0066FF',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '0 1.25rem',
-                    fontSize: '0.9375rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    flexShrink: 0,
-                    transition: 'background 0.15s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <Search size={16} />
-                  <span className="search-label">Search</span>
+                <button type="submit" className="btn btn-primary" style={{ borderRadius: '0.75rem', gap: '0.375rem' }}>
+                  Search <ArrowRight size={15} />
                 </button>
               </div>
             </form>
 
-            {/* Popular searches */}
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
-              justifyContent: 'center', marginBottom: '2rem',
-              alignItems: 'center',
-            }}>
-              <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
-                Popular:
-              </span>
-              {POPULAR.map(p => (
-                <Link
-                  key={p.label}
-                  href={p.href}
-                  className="popular-pill"
-                >
-                  {p.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* CTA buttons */}
-            <div style={{
-              display: 'flex', gap: '0.75rem',
-              justifyContent: 'center', flexWrap: 'wrap',
-              marginBottom: '3rem',
-            }}>
-              <Link href="/rfq" className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }}>
-                Request a Quote
-                <ArrowRight size={16} />
+            {/* CTAs */}
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+              <Link href="/inventory" className="btn btn-primary btn-lg btn-pill">
+                Browse Products
               </Link>
-              <a
-                href={`https://wa.me/${WHATSAPP}?text=${waMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-lg"
-                style={{ background: '#00A850', color: '#fff', gap: '0.5rem' }}
-              >
-                <MessageCircle size={16} />
-                WhatsApp Us
-              </a>
+              <Link href="/rfq" className="btn btn-ghost btn-lg btn-pill">
+                Request a Quote
+              </Link>
             </div>
 
-            {/* Stats grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '12px',
-              overflow: 'hidden',
-            }} className="stats-grid">
-              {STATS.map((stat, i) => (
-                <div key={stat.value} style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  padding: '1.125rem 0.75rem',
-                  textAlign: 'center',
-                  borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                }}>
-                  <div style={{
-                    fontSize: 'clamp(1.25rem, 3vw, 1.625rem)',
-                    fontWeight: 800,
-                    color: '#fff',
-                    lineHeight: 1.1,
-                  }}>
-                    {stat.value}
-                  </div>
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: 'rgba(255,255,255,0.5)',
-                    marginTop: '0.25rem',
-                    fontWeight: 500,
-                  }}>
-                    {stat.label}
-                  </div>
+            {/* Trust stats */}
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+              {STATS.map(s => (
+                <div key={s.label}>
+                  <div style={{ fontSize: '1.375rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>{s.value}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── Phone image grid — desktop only ──────────────── */}
-          <div className="hero-phones-grid" aria-hidden="true">
-            {HERO_PHONES.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={src}
-                alt=""
-                className="hero-phone-img"
-                loading={i < 2 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            ))}
-          </div>
+          {/* ─ Right: Visual ─ */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '420px' }} className="hero-visual">
+            {/* Glow */}
+            <div style={{
+              position: 'absolute', width: '320px', height: '320px',
+              background: 'radial-gradient(circle, rgba(108,92,231,0.18) 0%, transparent 70%)',
+              borderRadius: '50%',
+            }} />
 
-        </div>
-      </div>
-
-      {/* Trust bar */}
-      <div style={{
-        background: 'rgba(255,255,255,0.05)',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        padding: '0.875rem 0',
-        position: 'relative', zIndex: 1,
-      }}>
-        <div className="container-site">
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '1.5rem', flexWrap: 'wrap',
-          }}>
-            {TRUST.map(item => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
-                <CheckCircle size={14} style={{ color: '#4ADE80', flexShrink: 0 }} />
-                <span style={{
-                  fontSize: '0.8125rem',
-                  color: 'rgba(255,255,255,0.8)',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 500,
-                }}>
-                  {item}
-                </span>
+            {/* Phone mockup */}
+            <div style={{
+              position: 'relative', zIndex: 2,
+              width: '160px', height: '300px',
+              background: 'linear-gradient(160deg, #1C1C1E 0%, #2D2D30 100%)',
+              borderRadius: '28px',
+              boxShadow: '0 32px 64px rgba(0,0,0,0.28), 0 0 0 1.5px rgba(255,255,255,0.08) inset',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              padding: '16px',
+            }}>
+              {/* Notch */}
+              <div style={{ width: '60px', height: '6px', background: '#3A3A3C', borderRadius: '3px', marginBottom: '12px' }} />
+              {/* Screen content */}
+              <div style={{ flex: 1, width: '100%', background: 'linear-gradient(180deg, #6C5CE7 0%, #8B7CF6 100%)', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+                <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.2)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ color: '#fff', fontSize: '20px', fontWeight: 900 }}>B</span>
+                </div>
+                <div style={{ width: '70%', height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px' }} />
+                <div style={{ width: '50%', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }} />
+                <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+                  {[0,1,2].map(i => (
+                    <div key={i} style={{ width: '28px', height: '28px', background: 'rgba(255,255,255,0.15)', borderRadius: '8px' }} />
+                  ))}
+                </div>
               </div>
-            ))}
+              {/* Home indicator */}
+              <div style={{ width: '50px', height: '4px', background: '#3A3A3C', borderRadius: '2px', marginTop: '10px' }} />
+            </div>
+
+            {/* Floating feature cards */}
+            {FLOAT_CARDS.map((card, i) => {
+              const positions: React.CSSProperties[] = [
+                { top: '8%',  left: '-5%'  },
+                { top: '8%',  right: '-5%' },
+                { top: '42%', left: '-12%' },
+                { top: '42%', right: '-12%'},
+                { bottom: '10%', left: '2%'  },
+                { bottom: '10%', right: '2%' },
+              ];
+              return (
+                <div key={card.label} style={{
+                  position: 'absolute',
+                  ...positions[i],
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.8)',
+                  borderRadius: '0.875rem',
+                  padding: '0.625rem 0.875rem',
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                  whiteSpace: 'nowrap', zIndex: 3,
+                  animation: `float-card ${2.5 + i * 0.3}s ease-in-out infinite alternate`,
+                }}>
+                  <div style={{ width: '28px', height: '28px', background: card.bg, borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <card.icon size={14} style={{ color: card.color }} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#111827' }}>{card.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       <style>{`
-        @media (max-width: 480px) {
-          .search-label { display: none; }
-          .hero-cat-select { min-width: 100px !important; }
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .stats-grid > div:nth-child(2n+1) { border-left: none !important; }
-          .stats-grid > div:nth-child(3),
-          .stats-grid > div:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.08); }
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(0.85); }
         }
-        .popular-pill {
-          display: inline-block;
-          background: rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.8);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 9999px;
-          padding: 0.3125rem 0.875rem;
-          font-size: 0.8125rem;
-          font-weight: 500;
-          text-decoration: none;
-          transition: all 0.15s;
+        @keyframes float-card {
+          from { transform: translateY(0px); }
+          to   { transform: translateY(-8px); }
         }
-        .popular-pill:hover {
-          background: rgba(255,255,255,0.15);
-          border-color: rgba(255,255,255,0.3);
-          color: #fff;
-        }
-        /* Phone image grid */
-        .hero-phones-grid { display: none; }
+        .hero-grid { grid-template-columns: 1fr; }
+        .hero-visual { display: none; }
         @media (min-width: 900px) {
-          .hero-outer-wrap {
-            display: flex;
-            align-items: center;
-            gap: 2.5rem;
-          }
-          .hero-content {
-            flex: 1;
-            min-width: 0;
-          }
-          .hero-phones-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.875rem;
-            flex-shrink: 0;
-            width: 255px;
-            padding: 1rem 0;
-          }
-          .hero-phone-img {
-            width: 100%;
-            aspect-ratio: 9 / 18;
-            object-fit: cover;
-            border-radius: 18px;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.55),
-                        0 0 0 1px rgba(255,255,255,0.08);
-          }
-          .hero-phones-grid .hero-phone-img:nth-child(2) { margin-top: 2.5rem; }
-          .hero-phones-grid .hero-phone-img:nth-child(4) { margin-top: -2rem; }
+          .hero-grid { grid-template-columns: 1fr 1fr; }
+          .hero-visual { display: flex !important; }
         }
       `}</style>
     </section>

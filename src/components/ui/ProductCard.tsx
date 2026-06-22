@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Heart, MessageCircle, Star } from 'lucide-react';
 import { ConditionBadge } from './Badge';
 import { cloudinaryUrl } from '@/lib/cloudinary';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Product } from '@/types';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -22,44 +23,17 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
   const [c1, c2] = BRAND_GRADIENT[brandSlug ?? ''] ?? ['#6C5CE7', '#8B7CF6'];
   const isTablet = category === 'tablet';
   const isAudio  = category === 'airpods';
-
   return (
-    <div style={{
-      position: 'absolute', inset: 0,
-      background: `linear-gradient(135deg, ${c1}, ${c2})`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
+    <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${c1}, ${c2})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {isAudio ? (
         <div style={{ display: 'flex', gap: '8px' }}>
-          {[0, 1].map(i => (
-            <div key={i} style={{
-              width: '16px', height: '28px',
-              background: 'rgba(255,255,255,0.18)',
-              border: '1.5px solid rgba(255,255,255,0.4)',
-              borderRadius: '8px',
-            }} />
-          ))}
+          {[0, 1].map(i => <div key={i} style={{ width: '16px', height: '28px', background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: '8px' }} />)}
         </div>
       ) : isTablet ? (
-        <div style={{
-          width: '56px', height: '68px',
-          background: 'rgba(255,255,255,0.12)',
-          border: '2px solid rgba(255,255,255,0.4)',
-          borderRadius: '5px',
-        }} />
+        <div style={{ width: '56px', height: '68px', background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '5px' }} />
       ) : (
-        <div style={{
-          width: '34px', height: '62px',
-          background: 'rgba(255,255,255,0.12)',
-          border: '2px solid rgba(255,255,255,0.4)',
-          borderRadius: '7px', position: 'relative',
-        }}>
-          <div style={{
-            position: 'absolute', top: '5px', left: '50%',
-            transform: 'translateX(-50%)',
-            width: '10px', height: '2px',
-            background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
-          }} />
+        <div style={{ width: '34px', height: '62px', background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '7px', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '5px', left: '50%', transform: 'translateX(-50%)', width: '10px', height: '2px', background: 'rgba(255,255,255,0.5)', borderRadius: '9999px' }} />
         </div>
       )}
     </div>
@@ -67,69 +41,44 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name}. Can you provide pricing?`);
+  const { t } = useLanguage();
+  const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name}. Can you provide pricing for wholesale quantity?`);
   const waLink = `https://wa.me/${WHATSAPP}?text=${waMessage}`;
   const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
-
   const isInStock  = product.stock_quantity > 0;
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 15;
 
   return (
     <div className="pcard">
-      {/* Image */}
       <Link href={`/products/${product.slug}`} style={{ display: 'block', position: 'relative' }}>
-        <div style={{
-          width: '100%', paddingBottom: '100%',
-          position: 'relative', overflow: 'hidden',
-          borderRadius: '14px 14px 0 0', background: '#F9FAFB',
-        }}>
+        <div style={{ width: '100%', paddingBottom: '80%', position: 'relative', overflow: 'hidden', borderRadius: '0.875rem 0.875rem 0 0', background: '#F9FAFB' }}>
           {imgSrc ? (
-            <Image
-              src={imgSrc}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              style={{ objectFit: 'contain', padding: '0.75rem' }}
-            />
+            <Image src={imgSrc} alt={product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" style={{ objectFit: 'contain', padding: '0.75rem' }} />
           ) : (
             <DevicePlaceholder brandSlug={product.brand?.slug} category={product.category} />
           )}
-
-          {/* Condition badge */}
-          <div style={{ position: 'absolute', top: '0.625rem', left: '0.625rem', zIndex: 1 }}>
+          <div style={{ position: 'absolute', top: '0.5rem', left: '0.5rem', zIndex: 1 }}>
             <ConditionBadge condition={product.condition} />
           </div>
-
-          {/* Heart */}
-          <button
-            className="pcard-heart"
-            aria-label="Save to wishlist"
-            onClick={(e) => { e.preventDefault(); }}
-          >
+          <button className="pcard-heart" aria-label="Save to wishlist" onClick={(e) => { e.preventDefault(); }}>
             <Heart size={14} />
           </button>
         </div>
       </Link>
 
-      {/* Content */}
       <div style={{ padding: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', flex: 1 }}>
         {product.brand && (
-          <span style={{
-            fontSize: '0.6875rem', fontWeight: 700,
-            textTransform: 'uppercase', letterSpacing: '0.08em',
-            color: '#6C5CE7',
-          }}>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6C5CE7' }}>
             {product.brand.name}
           </span>
         )}
 
         <Link href={`/products/${product.slug}`} style={{ textDecoration: 'none' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111827', lineHeight: 1.3, margin: 0 }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111827', lineHeight: 1.3, margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {product.name}
           </h3>
         </Link>
 
-        {/* Stars */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
           {[1,2,3,4,5].map(i => (
             <Star key={i} size={11} fill={i <= 4 ? '#F59E0B' : 'none'} color={i <= 4 ? '#F59E0B' : '#D1D5DB'} />
@@ -137,55 +86,34 @@ export default function ProductCard({ product }: { product: Product }) {
           <span style={{ fontSize: '0.6875rem', color: '#9CA3AF', fontWeight: 500, marginLeft: '0.25rem' }}>(4.0)</span>
         </div>
 
-        {/* Price */}
         {(product.price_aed && product.show_price !== false) ? (
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginTop: '0.125rem' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.125rem' }}>
             <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#6C5CE7', letterSpacing: '-0.02em' }}>
               AED {product.price_aed.toLocaleString()}
             </span>
             <span style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>/unit</span>
           </div>
         ) : (
-          <span style={{ fontSize: '0.8125rem', color: '#9CA3AF', fontStyle: 'italic' }}>Price on Request</span>
+          <span style={{ fontSize: '0.8125rem', color: '#9CA3AF', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
         )}
 
-        {/* Stock + MOQ */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.125rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <span style={{
-              width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
-              background: isInStock ? (isLowStock ? '#F59E0B' : '#10B981') : '#EF4444',
-            }} />
-            <span style={{
-              fontSize: '0.75rem', fontWeight: 600,
-              color: isInStock ? (isLowStock ? '#D97706' : '#059669') : '#DC2626',
-            }}>
-              {isInStock ? (isLowStock ? `Only ${product.stock_quantity} left` : 'In Stock') : 'Out of Stock'}
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0, background: isInStock ? (isLowStock ? '#F59E0B' : '#10B981') : '#EF4444' }} />
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isInStock ? (isLowStock ? '#D97706' : '#059669') : '#DC2626' }}>
+              {isInStock ? (isLowStock ? `Only ${product.stock_quantity} left` : 'In Stock') : t.product.outOfStock}
             </span>
           </div>
-          <span style={{
-            background: '#FFF7ED', color: '#C2410C',
-            fontSize: '0.6875rem', fontWeight: 600,
-            padding: '0.125rem 0.4rem', borderRadius: '4px',
-          }}>
-            MOQ: {product.moq}
+          <span style={{ background: '#FFF7ED', color: '#C2410C', fontSize: '0.6875rem', fontWeight: 600, padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
+            {t.product.moq}: {product.moq}
           </span>
         </div>
 
-        {/* CTAs */}
         <div style={{ display: 'flex', gap: '0.375rem', marginTop: 'auto', paddingTop: '0.5rem' }}>
-          <Link
-            href={`/rfq?product=${encodeURIComponent(product.name)}`}
-            className="pcard-quote-btn"
-          >
-            Request Quote
+          <Link href={`/rfq?product=${encodeURIComponent(product.name)}`} className="pcard-quote-btn">
+            {t.product.requestQuote}
           </Link>
-          <a
-            href={waLink}
-            target="_blank" rel="noopener noreferrer"
-            className="pcard-wa-btn"
-            aria-label="WhatsApp"
-          >
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="pcard-wa-btn" aria-label="WhatsApp">
             <MessageCircle size={15} />
           </a>
         </div>
@@ -206,17 +134,14 @@ export default function ProductCard({ product }: { product: Product }) {
           padding: 0.625rem; border-radius: 8px;
           background: #6C5CE7; color: #fff;
           font-size: 0.8125rem; font-weight: 700;
-          text-decoration: none; transition: background 0.15s;
-          min-height: 40px;
+          text-decoration: none; transition: background 0.15s; min-height: 40px;
         }
-        .pcard-quote-btn:hover { background: #5B4BD5; }
+        .pcard-quote-btn:hover { background: #5A4BD1; }
         .pcard-wa-btn {
           width: 40px; height: 40px; border-radius: 8px;
-          background: #ECFDF5; color: #10B981;
-          border: 1.5px solid #A7F3D0;
+          background: #ECFDF5; color: #10B981; border: 1.5px solid #A7F3D0;
           display: flex; align-items: center; justify-content: center;
-          text-decoration: none; flex-shrink: 0;
-          transition: all 0.15s;
+          text-decoration: none; flex-shrink: 0; transition: all 0.15s;
         }
         .pcard-wa-btn:hover { background: #10B981; color: #fff; border-color: #10B981; }
       `}</style>

@@ -16,11 +16,11 @@ const BRAND_CHIPS: Record<string, { bg: string; color: string; letter: string }>
 };
 
 const EXTRA_CHIPS: Record<string, { bg: string; color: string; letter: string }> = {
-  tablets:     { bg: '#0066FF', color: '#fff', letter: 'T' },
-  accessories: { bg: '#B45309', color: '#fff', letter: '+' },
+  tablets:     { bg: '#6C5CE7', color: '#fff', letter: 'T' },
+  accessories: { bg: '#F59E0B', color: '#fff', letter: '+' },
 };
 
-const EXTRA_CATEGORIES = [
+const EXTRA = [
   { name: 'Tablets',     slug: 'tablets',     count: 48,  href: '/inventory?category=tablet' },
   { name: 'Accessories', slug: 'accessories', count: 120, href: '/inventory?category=accessory' },
 ];
@@ -28,17 +28,10 @@ const EXTRA_CATEGORIES = [
 function ChipBadge({ chip }: { chip: { bg: string; color: string; letter: string } }) {
   return (
     <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       width: '20px', height: '20px',
-      background: chip.bg,
-      color: chip.color,
-      borderRadius: '4px',
-      fontSize: '0.6875rem',
-      fontWeight: 800,
-      letterSpacing: '-0.01em',
-      flexShrink: 0,
+      background: chip.bg, color: chip.color,
+      borderRadius: '4px', fontSize: '0.6875rem', fontWeight: 800, flexShrink: 0,
     }}>
       {chip.letter}
     </span>
@@ -47,50 +40,26 @@ function ChipBadge({ chip }: { chip: { bg: string; color: string; letter: string
 
 export default function BrandsGrid({ brands }: BrandsGridProps) {
   return (
-    <section style={{ background: '#fff', padding: '1.25rem 0', borderBottom: '1px solid #DDE3EA' }}>
+    <section style={{ background: '#fff', padding: '1.25rem 0', borderBottom: '1px solid #EAEAEA' }}>
       <div className="container-site">
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '0.875rem', gap: '1rem',
-        }}>
-          <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#1A2332', letterSpacing: '-0.01em' }}>
-            Shop by Brand
-          </h2>
-          <Link href="/brands" style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            fontSize: '0.8125rem', fontWeight: 600,
-            color: '#0066FF', textDecoration: 'none', flexShrink: 0,
-          }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.875rem', gap: '1rem' }}>
+          <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#111827', letterSpacing: '-0.01em' }}>Shop by Brand</h2>
+          <Link href="/brands" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: '#6C5CE7', textDecoration: 'none', flexShrink: 0 }}>
             View All <ArrowRight size={12} />
           </Link>
         </div>
-
-        <div
-          style={{
-            display: 'flex', gap: '0.5rem',
-            overflowX: 'auto', scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            paddingBottom: '0.125rem',
-          }}
-          className="brands-scroll"
-        >
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: '0.125rem' }} className="brands-scroll">
           {brands.map((brand) => {
             const chip = BRAND_CHIPS[brand.slug];
             return (
-              <Link
-                key={brand.id}
-                href={`/brands/${brand.slug}`}
-                className="brand-pill"
-              >
+              <Link key={brand.id} href={`/brands/${brand.slug}`} className="brand-pill">
                 {chip && <ChipBadge chip={chip} />}
                 <span>{brand.name}</span>
                 <span className="brand-count">{brand.product_count}</span>
               </Link>
             );
           })}
-
-          {EXTRA_CATEGORIES.map((cat) => {
+          {EXTRA.map((cat) => {
             const chip = EXTRA_CHIPS[cat.slug];
             return (
               <Link key={cat.slug} href={cat.href} className="brand-pill">
@@ -102,38 +71,19 @@ export default function BrandsGrid({ brands }: BrandsGridProps) {
           })}
         </div>
       </div>
-
       <style>{`
         .brands-scroll::-webkit-scrollbar { display: none; }
         .brand-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: #F0F4F8;
-          border: 1.5px solid #DDE3EA;
-          border-radius: 9999px;
-          padding: 0.5625rem 1.125rem;
-          white-space: nowrap;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: #1A2332;
-          text-decoration: none;
-          transition: background 0.15s, border-color 0.15s, color 0.15s;
-          flex-shrink: 0;
-          cursor: pointer;
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          background: #F9FAFB; border: 1.5px solid #EAEAEA;
+          border-radius: 9999px; padding: 0.5rem 1rem;
+          white-space: nowrap; font-size: 0.875rem; font-weight: 600;
+          color: #111827; text-decoration: none; flex-shrink: 0;
+          transition: all 0.15s; cursor: pointer;
         }
-        .brand-pill:hover {
-          background: #E5F0FF;
-          border-color: #0066FF;
-          color: #0066FF;
-        }
-        .brand-count {
-          color: #8B9DB5;
-          font-size: 0.8125rem;
-          font-weight: 500;
-          transition: color 0.15s;
-        }
-        .brand-pill:hover .brand-count { color: #60A5FA; }
+        .brand-pill:hover { background: #EDE9FE; border-color: #6C5CE7; color: #6C5CE7; }
+        .brand-count { color: #9CA3AF; font-size: 0.8125rem; font-weight: 500; transition: color 0.15s; }
+        .brand-pill:hover .brand-count { color: #A78BFA; }
       `}</style>
     </section>
   );

@@ -1,32 +1,31 @@
 import HeroSection from '@/components/home/HeroSection';
-import StockTicker from '@/components/home/StockTicker';
 import BrandsGrid from '@/components/home/BrandsGrid';
+import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturedInventory from '@/components/home/FeaturedInventory';
-import BrandShowcase from '@/components/home/BrandShowcase';
-import WhyBuySection from '@/components/home/WhyBuySection';
-import ProcessSection from '@/components/home/ProcessSection';
-import WhatsAppCTA from '@/components/home/WhatsAppCTA';
+import TrustBar from '@/components/home/TrustBar';
+import TrustSection from '@/components/home/TrustSection';
+import WhyChooseUs from '@/components/home/WhyChooseUs';
+import CTASection from '@/components/home/CTASection';
 import { getBrands, getProducts } from '@/lib/data';
 
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [brands, featuredProducts, allProducts] = await Promise.all([
+  const [brands, featuredProducts] = await Promise.all([
     getBrands(),
-    getProducts({ featured: true, limit: 16 }),
-    getProducts({ limit: 30 }),
+    getProducts({ featured: true, limit: 12 }),
   ]);
 
   return (
-    <>
+    <main className="mobile-nav-spacer">
       <HeroSection />
-      <StockTicker />
       <BrandsGrid brands={brands} />
+      <CategoriesSection />
       <FeaturedInventory products={featuredProducts} />
-      <BrandShowcase products={allProducts} />
-      <WhyBuySection />
-      <ProcessSection />
-      <WhatsAppCTA />
-    </>
+      <TrustBar />
+      <TrustSection />
+      <WhyChooseUs />
+      <CTASection />
+    </main>
   );
 }

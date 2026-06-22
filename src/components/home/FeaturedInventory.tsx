@@ -11,10 +11,10 @@ interface FeaturedInventoryProps {
 }
 
 const TABS = [
-  { label: 'All Products', value: 'all', icon: Layers },
-  { label: 'Smartphones', value: 'smartphone', icon: Smartphone },
-  { label: 'Tablets', value: 'tablet', icon: Tablet },
-  { label: 'Accessories & Audio', value: 'accessories', icon: Headphones },
+  { label: 'All',         value: 'all',        icon: Layers },
+  { label: 'Smartphones', value: 'smartphone',  icon: Smartphone },
+  { label: 'Tablets',     value: 'tablet',      icon: Tablet },
+  { label: 'Accessories', value: 'accessories', icon: Headphones },
 ];
 
 function tabCount(products: Product[], value: string) {
@@ -33,7 +33,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
   });
 
   return (
-    <section className="section" style={{ background: '#F0F4F8' }}>
+    <section className="section" style={{ background: '#F9FAFB' }}>
       <div className="container-site">
         <div className="section-header">
           <div>
@@ -45,19 +45,11 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                 fontSize: '0.6875rem', fontWeight: 700,
                 padding: '0.125rem 0.5rem', borderRadius: '9999px',
                 textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0,
-              }}>
-                Daily Updated
-              </span>
+              }}>Daily Updated</span>
             </div>
-            <p className="section-subtitle">
-              Handpicked wholesale stock &mdash; smartphones, tablets &amp; accessories
-            </p>
+            <p className="section-subtitle">Handpicked wholesale stock — smartphones, tablets &amp; accessories</p>
           </div>
-          <Link href="/inventory" style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            fontSize: '0.875rem', fontWeight: 600,
-            color: '#0066FF', textDecoration: 'none', flexShrink: 0,
-          }}>
+          <Link href="/inventory" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem', fontWeight: 600, color: '#6C5CE7', textDecoration: 'none', flexShrink: 0 }}>
             View All <ArrowRight size={14} />
           </Link>
         </div>
@@ -74,9 +66,9 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
                   padding: '0.5rem 1rem', minHeight: '44px', borderRadius: '9999px',
-                  border: `1.5px solid ${active ? '#0066FF' : '#DDE3EA'}`,
-                  background: active ? '#0066FF' : '#fff',
-                  color: active ? '#fff' : '#4B5563',
+                  border: `1.5px solid ${active ? '#6C5CE7' : '#EAEAEA'}`,
+                  background: active ? '#6C5CE7' : '#fff',
+                  color: active ? '#fff' : '#374151',
                   fontSize: '0.8125rem', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
                 }}
@@ -84,7 +76,7 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
                 <Icon size={14} />
                 {tab.label}
                 <span style={{
-                  background: active ? 'rgba(255,255,255,0.2)' : '#E8EDF3',
+                  background: active ? 'rgba(255,255,255,0.2)' : '#F3F4F6',
                   color: active ? '#fff' : '#6B7280',
                   fontSize: '0.6875rem', fontWeight: 700,
                   padding: '0.125rem 0.4rem', borderRadius: '9999px',
@@ -104,8 +96,8 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B' }}>
-            No products in this category yet &mdash; check back soon.
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6B7280' }}>
+            No products in this category yet — check back soon.
           </div>
         )}
 
@@ -116,7 +108,6 @@ export default function FeaturedInventory({ products }: FeaturedInventoryProps) 
           </Link>
         </div>
       </div>
-
       <style>{`
         @media (min-width: 640px)  { .featured-grid { grid-template-columns: repeat(3, 1fr) !important; } }
         @media (min-width: 1024px) { .featured-grid { grid-template-columns: repeat(4, 1fr) !important; } }

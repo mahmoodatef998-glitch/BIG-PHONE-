@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Package, Tag, FileText,
@@ -32,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC' }}>
 
-      {/* ── Sidebar ─────────────────────────────────────────── */}
+      {/* Sidebar */}
       <aside style={{
         width: '220px', flexShrink: 0,
         background: '#fff',
@@ -41,22 +42,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
       }}>
 
-        {/* Brand mark */}
-        <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid #FFE4CC' }}>
+        {/* Brand + logo */}
+        <div style={{ padding: '1.125rem 1rem', borderBottom: '1px solid #FFE4CC' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+
+            {/* Camel logo */}
             <div style={{
-              width: '34px', height: '34px',
-              background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)',
-              borderRadius: '9px',
+              width: '38px', height: '38px', flexShrink: 0,
+              borderRadius: '10px', overflow: 'hidden',
+              border: '1.5px solid #FFD0A0',
+              background: '#FFF3E8',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-              boxShadow: '0 2px 8px rgba(255,107,0,0.35)',
             }}>
-              <span style={{ color: '#fff', fontWeight: 900, fontSize: '12px', letterSpacing: '-0.5px' }}>BP</span>
+              <Image
+                src="/images/WhatsApp Image 2026-06-22 at 10.49.38 PM.jpeg"
+                alt="BIG PHONE logo"
+                width={38}
+                height={38}
+                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+              />
             </div>
+
             <div>
-              <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#111827', lineHeight: 1, letterSpacing: '-0.02em' }}>BIG PHONE</div>
-              <div style={{ fontSize: '0.6875rem', color: '#9CA3AF', marginTop: '2px', fontWeight: 500 }}>Control Panel</div>
+              <div style={{
+                fontWeight: 800, fontSize: '0.9375rem',
+                color: '#111827', lineHeight: 1,
+                letterSpacing: '-0.02em',
+              }}>BIG PHONE</div>
+              <div style={{
+                fontSize: '0.6875rem', color: '#9CA3AF',
+                marginTop: '2px', fontWeight: 500,
+              }}>Control Panel</div>
             </div>
           </div>
         </div>
@@ -91,12 +107,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer */}
-        <div style={{ padding: '0.875rem 0.75rem', borderTop: '1px solid #FFE4CC', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <div style={{
+          padding: '0.875rem 0.75rem',
+          borderTop: '1px solid #FFE4CC',
+          display: 'flex', flexDirection: 'column', gap: '2px',
+        }}>
           <Link href="/" target="_blank" style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 0.75rem', borderRadius: '8px',
             fontSize: '0.8125rem', color: '#6B7280', textDecoration: 'none',
-            transition: 'background 0.12s',
           }}>
             <ExternalLink size={14} />
             View Website
@@ -106,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             width: '100%', padding: '0.5rem 0.75rem',
             background: 'transparent', border: 'none', borderRadius: '8px',
             fontSize: '0.8125rem', fontWeight: 600, color: '#EF4444',
-            cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s',
+            cursor: 'pointer', textAlign: 'left',
           }}>
             <LogOut size={14} />
             Sign Out
@@ -114,7 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* ── Main content ───────────────────────────────────── */}
+      {/* Main content */}
       <div style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
         {children}
       </div>

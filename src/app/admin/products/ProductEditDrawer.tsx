@@ -45,11 +45,8 @@ function field(product: Product): FormState {
 
 function generateSlug(form: FormState): string {
   const parts = [form.model, form.condition, form.storage, form.color]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .filter(Boolean).join(' ').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return `${parts}-${Date.now().toString(36)}`;
 }
 
@@ -60,16 +57,24 @@ interface Props {
   onClose: () => void;
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#64748B', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em' };
-const inp: React.CSSProperties = { width: '100%', padding: '0.625rem 0.875rem', border: '1px solid #E2E8F0', borderRadius: '0.5rem', fontSize: '0.875rem', color: '#0F172A', background: '#fff', outline: 'none', boxSizing: 'border-box' };
+const labelStyle: React.CSSProperties = {
+  display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#64748B',
+  marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em',
+};
+const inp: React.CSSProperties = {
+  width: '100%', padding: '0.625rem 0.875rem',
+  border: '1px solid #E2E8F0', borderRadius: '0.5rem',
+  fontSize: '0.875rem', color: '#111827', background: '#fff',
+  outline: 'none', boxSizing: 'border-box',
+};
 const row2: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' };
 
 function SectionCard({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
     <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem' }}>
       <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Icon size={14} style={{ color: '#64748B' }} />
-        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</span>
+        <Icon size={14} style={{ color: '#FF6B00' }} />
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</span>
       </div>
       <div style={{ padding: '1.25rem' }}>{children}</div>
     </div>
@@ -80,23 +85,17 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid #F1F5F9' }}>
       <span style={{ fontSize: '0.875rem', color: '#374151', fontWeight: 500 }}>{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
+      <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
         style={{
           width: '44px', height: '24px', borderRadius: '9999px',
-          background: checked ? '#2563EB' : '#CBD5E1',
+          background: checked ? '#FF6B00' : '#CBD5E1',
           border: 'none', cursor: 'pointer', position: 'relative',
           transition: 'background 0.2s', padding: 0, flexShrink: 0,
-        }}
-      >
+        }}>
         <span style={{
           position: 'absolute', top: '2px', left: checked ? '22px' : '2px',
           width: '20px', height: '20px', background: '#fff', borderRadius: '50%',
-          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-          display: 'block',
+          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block',
         }} />
       </button>
     </div>
@@ -140,16 +139,13 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     setStatus('saving');
     setErrorMsg('');
 
-    if (isNew) {
-      if (!form.name.trim() || !form.model.trim()) {
-        setStatus('error');
-        setErrorMsg('Name and Model are required');
-        return;
-      }
+    if (isNew && (!form.name.trim() || !form.model.trim())) {
+      setStatus('error');
+      setErrorMsg('Name and Model are required');
+      return;
     }
 
     let finalImages = [...form.images];
-
     if (newFiles.length > 0) {
       setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
       const uploads = await Promise.all(newFiles.map(uploadToStorage));
@@ -163,66 +159,41 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     }
 
     const supabase = createClient();
+    const payload = {
+      brand_id: form.brand_id,
+      name: form.name, model: form.model, color: form.color || null,
+      category: form.category, condition: form.condition,
+      storage: form.storage || null,
+      battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+      stock_quantity: parseInt(form.stock_quantity) || 0,
+      moq: parseInt(form.moq) || 1,
+      country_of_origin: form.country_of_origin,
+      warranty: form.warranty || null,
+      description: form.description || null,
+      price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
+      show_price: form.show_price,
+      is_featured: form.is_featured,
+      is_active: form.is_active,
+      images: finalImages,
+    };
 
     if (isNew) {
       const { error } = await supabase.from('products').insert({
-        brand_id: form.brand_id,
-        name: form.name,
+        ...payload,
         slug: generateSlug(form),
-        model: form.model,
-        category: form.category,
         subcategory: null,
-        condition: form.condition,
-        storage: form.storage || null,
-        color: form.color || null,
-        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
-        stock_quantity: parseInt(form.stock_quantity) || 0,
-        moq: parseInt(form.moq) || 1,
-        country_of_origin: form.country_of_origin,
-        warranty: form.warranty || null,
-        description: form.description || null,
-        price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
-        show_price: form.show_price,
-        is_featured: form.is_featured,
-        is_active: form.is_active,
-        images: finalImages,
       });
-
-      if (error) {
-        setStatus('error');
-        setErrorMsg(error.message);
-        return;
-      }
+      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
     } else {
-      const { error } = await supabase.from('products').update({
-        name: form.name, model: form.model, color: form.color || null,
-        brand_id: form.brand_id, category: form.category, condition: form.condition,
-        storage: form.storage || null,
-        battery_health: form.battery_health ? parseInt(form.battery_health) : null,
-        stock_quantity: parseInt(form.stock_quantity) || 0,
-        moq: parseInt(form.moq) || 1,
-        country_of_origin: form.country_of_origin,
-        warranty: form.warranty || null,
-        description: form.description || null,
-        price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
-        show_price: form.show_price,
-        is_featured: form.is_featured, is_active: form.is_active,
-        images: finalImages,
-        updated_at: new Date().toISOString(),
-      }).eq('id', product.id);
-
-      if (error) {
-        setStatus('error');
-        setErrorMsg(error.message);
-        return;
-      }
+      const { error } = await supabase.from('products')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', product.id);
+      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
 
       if (syncVariants && finalImages.length > 0) {
-        await supabase
-          .from('products')
+        await supabase.from('products')
           .update({ images: finalImages, updated_at: new Date().toISOString() })
-          .eq('model', product.model)
-          .neq('id', product.id);
+          .eq('model', product.model).neq('id', product.id);
       }
     }
 
@@ -231,101 +202,72 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
   };
 
-  const headerTitle = isNew ? 'Add Product' : product.model;
-  const headerSubtitle = isNew ? 'New product' : `${product.brand?.name} · ${product.condition}`;
-
   return (
     <>
       {/* Backdrop */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)',
-          zIndex: 40, backdropFilter: 'blur(2px)',
-        }}
-        aria-hidden="true"
-      />
+      <div onClick={onClose} aria-hidden="true" style={{
+        position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)',
+        zIndex: 40, backdropFilter: 'blur(2px)',
+      }} />
 
       {/* Drawer */}
-      <div
-        ref={drawerRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={headerTitle}
+      <div ref={drawerRef} role="dialog" aria-modal="true" aria-label={isNew ? 'Add Product' : product.model}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: '520px', maxWidth: '100vw',
           background: '#F8FAFC', zIndex: 50,
           display: 'flex', flexDirection: 'column',
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
-        }}
-      >
-        {/* Drawer header */}
-        <div style={{
-          padding: '1rem 1.5rem', background: '#0F172A',
-          display: 'flex', alignItems: 'center', gap: '0.875rem',
-          borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0,
         }}>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close drawer"
-            style={{
-              width: '32px', height: '32px', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.1)', border: 'none',
-              borderRadius: '0.375rem', cursor: 'pointer', color: '#fff',
-            }}
-          >
+
+        {/* Drawer header — orange brand */}
+        <div style={{
+          padding: '1rem 1.5rem',
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)',
+          display: 'flex', alignItems: 'center', gap: '0.875rem',
+          borderBottom: '1px solid rgba(255,255,255,0.15)', flexShrink: 0,
+        }}>
+          <button type="button" onClick={onClose} aria-label="Close drawer" style={{
+            width: '32px', height: '32px', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.2)', border: 'none',
+            borderRadius: '0.375rem', cursor: 'pointer', color: '#fff',
+          }}>
             <X size={16} />
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {headerTitle}
+              {isNew ? 'Add Product' : product.model}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>
-              {headerSubtitle}
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '1px' }}>
+              {isNew ? 'New product' : `${product.brand?.name} · ${product.condition}`}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={status === 'saving'}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.5rem 1rem', height: '36px',
-              background: status === 'success' ? '#16a34a' : '#2563EB',
-              color: '#fff', border: 'none', borderRadius: '0.5rem',
-              fontSize: '0.875rem', fontWeight: 700, cursor: status === 'saving' ? 'not-allowed' : 'pointer',
-              transition: 'background 0.15s', flexShrink: 0,
-              opacity: status === 'saving' ? 0.8 : 1,
-            }}
-          >
+          <button type="button" onClick={handleSave} disabled={status === 'saving'} style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.5rem 1rem', height: '36px',
+            background: status === 'success' ? '#16a34a' : 'rgba(255,255,255,0.25)',
+            color: '#fff', border: '1px solid rgba(255,255,255,0.4)',
+            borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 700,
+            cursor: status === 'saving' ? 'not-allowed' : 'pointer',
+            transition: 'background 0.15s', flexShrink: 0,
+            opacity: status === 'saving' ? 0.8 : 1,
+          }}>
             {status === 'saving' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
             {status === 'success' && <CheckCircle2 size={14} />}
-            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : isNew ? 'Create Product' : 'Save Changes'}
+            {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : isNew ? 'Create' : 'Save'}
           </button>
         </div>
 
         {/* Error banner */}
         {status === 'error' && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            background: '#fef2f2', borderBottom: '1px solid #fecaca',
-            padding: '0.75rem 1.5rem', flexShrink: 0,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
             <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0 }} />
             <span style={{ fontSize: '0.8125rem', color: '#991b1b' }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
           </div>
         )}
-
-        {/* Partial-error warning */}
         {status === 'success' && errorMsg && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            background: '#fff7ed', borderBottom: '1px solid #fed7aa',
-            padding: '0.625rem 1.5rem', flexShrink: 0,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fff7ed', borderBottom: '1px solid #fed7aa', padding: '0.625rem 1.5rem', flexShrink: 0 }}>
             <AlertCircle size={13} style={{ color: '#c2410c', flexShrink: 0 }} />
             <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>{errorMsg}</span>
           </div>
@@ -334,7 +276,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
-          {/* SECTION 1: Images */}
+          {/* Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -342,25 +284,20 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
               onNewFiles={setNewFiles}
               uploading={status === 'saving'}
             />
-
             {!isNew && (
               <div style={{
-                marginTop: '1rem',
-                padding: '0.75rem 1rem',
-                background: syncVariants ? '#eff6ff' : '#F8FAFC',
-                border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
+                marginTop: '1rem', padding: '0.75rem 1rem',
+                background: syncVariants ? '#FFF0E0' : '#F8FAFC',
+                border: `1px solid ${syncVariants ? '#FFD0A0' : '#E2E8F0'}`,
                 borderRadius: '0.5rem',
                 display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                transition: 'all 0.15s',
-                cursor: 'pointer',
-              }}
-                onClick={() => setSyncVariants(v => !v)}
-              >
+                transition: 'all 0.15s', cursor: 'pointer',
+              }} onClick={() => setSyncVariants(v => !v)}>
                 <div style={{
                   width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
                   borderRadius: '4px',
-                  border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
-                  background: syncVariants ? '#2563EB' : '#fff',
+                  border: `2px solid ${syncVariants ? '#FF6B00' : '#CBD5E1'}`,
+                  background: syncVariants ? '#FF6B00' : '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.15s',
                 }}>
@@ -371,19 +308,19 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                   )}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#FF6B00' : '#374151' }}>
                     Apply images to all &ldquo;{product.model}&rdquo; variants
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
-                    Same images will be copied to every product with this model name (different storage, color, condition).
+                    Same images will be copied to every product with this model name.
                   </div>
                 </div>
-                <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
+                <Copy size={14} style={{ color: syncVariants ? '#FF6B00' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
               </div>
             )}
           </SectionCard>
 
-          {/* SECTION 2: Basic Info */}
+          {/* Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -419,10 +356,10 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* SECTION 3: Inventory */}
+          {/* Inventory */}
           <SectionCard icon={Package} title="Inventory">
-            <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
+            <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '0.5rem' }}>
+              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
                 Wholesale Pricing
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
@@ -430,32 +367,21 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                   <label htmlFor="edit-price" style={labelStyle}>Unit Price (AED)</label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '0.8125rem', fontWeight: 600, pointerEvents: 'none' }}>AED</span>
-                    <input
-                      id="edit-price"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
+                    <input id="edit-price" type="number" min="0" step="0.01" placeholder="0.00"
                       style={{ ...inp, paddingLeft: '2.875rem' }}
-                      value={form.price_aed}
-                      onChange={e => set('price_aed', e.target.value)}
-                    />
+                      value={form.price_aed} onChange={e => set('price_aed', e.target.value)} />
                   </div>
                 </div>
                 <div style={{ paddingBottom: '2px' }}>
                   <label style={{ ...labelStyle, marginBottom: '0.5rem' }}>Show Price</label>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={form.show_price}
+                  <button type="button" role="switch" aria-checked={form.show_price}
                     onClick={() => set('show_price', !form.show_price)}
                     style={{
                       width: '44px', height: '24px', borderRadius: '9999px',
-                      background: form.show_price ? '#2563EB' : '#CBD5E1',
+                      background: form.show_price ? '#FF6B00' : '#CBD5E1',
                       border: 'none', cursor: 'pointer', position: 'relative',
                       transition: 'background 0.2s', padding: 0,
-                    }}
-                  >
+                    }}>
                     <span style={{
                       position: 'absolute', top: '2px', left: form.show_price ? '22px' : '2px',
                       width: '20px', height: '20px', background: '#fff', borderRadius: '50%',
@@ -464,11 +390,10 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                   </button>
                 </div>
               </div>
-              <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#64748B' }}>
-                {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
+              <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#92400E' }}>
+                {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show “Price on Request”'}
               </p>
             </div>
-
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label>
@@ -491,7 +416,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* SECTION 4: Condition & Specs */}
+          {/* Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -510,32 +435,30 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-battery" style={labelStyle}>Battery Health %</label>
-              <input id="edit-battery" type="number" min="0" max="100" style={{ ...inp, maxWidth: '50%' }} value={form.battery_health} onChange={e => set('battery_health', e.target.value)} placeholder="Leave blank if new" />
+              <input id="edit-battery" type="number" min="0" max="100" style={{ ...inp, maxWidth: '50%' }}
+                value={form.battery_health} onChange={e => set('battery_health', e.target.value)} placeholder="Leave blank if new" />
             </div>
             <div>
               <label htmlFor="edit-desc" style={labelStyle}>Description</label>
-              <textarea
-                id="edit-desc"
-                rows={3}
-                style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
-                value={form.description}
-                onChange={e => set('description', e.target.value)}
-              />
+              <textarea id="edit-desc" rows={3} style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
+                value={form.description} onChange={e => set('description', e.target.value)} />
             </div>
           </SectionCard>
 
-          {/* SECTION 5: Status */}
+          {/* Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />
           </SectionCard>
-
         </div>
       </div>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        input:focus, select:focus, textarea:focus { border-color: #2563EB !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+        input:focus, select:focus, textarea:focus {
+          border-color: #FF6B00 !important;
+          box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+        }
       `}</style>
     </>
   );

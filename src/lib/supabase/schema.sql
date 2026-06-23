@@ -4,7 +4,7 @@
 
 create extension if not exists "uuid-ossp";
 
--- ─── ENUMS (safe) ────────────────────────────────────────────────────────────
+-- ─── ENUMS (safe) ────────────────────────────────────────────────────────────────────
 do $$ begin
   create type condition_type as enum (
     'brand-new', 'refurbished-grade-a', 'refurbished-grade-b', 'certified-refurbished'
@@ -26,7 +26,7 @@ do $$ begin
 exception when duplicate_object then null;
 end $$;
 
--- ─── BRANDS ──────────────────────────────────────────────────────────────────
+-- ─── BRANDS ────────────────────────────────────────────────────────────────────────────
 create table if not exists brands (
   id            uuid primary key default uuid_generate_v4(),
   name          text not null,
@@ -43,7 +43,7 @@ create table if not exists brands (
 create index if not exists brands_slug_idx on brands (slug);
 create index if not exists brands_sort_idx on brands (sort_order) where is_active = true;
 
--- ─── PRODUCTS ────────────────────────────────────────────────────────────────
+-- ─── PRODUCTS ───────────────────────────────────────────────────────────────────────────
 create table if not exists products (
   id                 uuid primary key default uuid_generate_v4(),
   brand_id           uuid not null references brands (id) on delete restrict,
@@ -80,7 +80,7 @@ create index if not exists products_stock_idx     on products (stock_quantity) w
 create index if not exists products_fts_idx on products
   using gin (to_tsvector('english', name || ' ' || model || ' ' || coalesce(description, '')));
 
--- ─── FUNCTIONS & TRIGGERS ────────────────────────────────────────────────────
+-- ─── FUNCTIONS & TRIGGERS ────────────────────────────────────────────────────────────
 create or replace function update_updated_at()
 returns trigger language plpgsql as $$
 begin
@@ -115,7 +115,7 @@ create trigger sync_brand_count
   after insert or update or delete on products
   for each row execute function sync_brand_product_count();
 
--- ─── RFQ ─────────────────────────────────────────────────────────────────────
+-- ─── RFQ ────────────────────────────────────────────────────────────────────────────────
 create table if not exists rfqs (
   id               uuid primary key default uuid_generate_v4(),
   company_name     text not null,
@@ -134,7 +134,7 @@ create index if not exists rfqs_status_idx  on rfqs (status);
 create index if not exists rfqs_email_idx   on rfqs (email);
 create index if not exists rfqs_created_idx on rfqs (created_at desc);
 
--- ─── ROW LEVEL SECURITY ──────────────────────────────────────────────────────
+-- ─── ROW LEVEL SECURITY ────────────────────────────────────────────────────────────────
 alter table brands   enable row level security;
 alter table products enable row level security;
 alter table rfqs     enable row level security;
@@ -152,7 +152,7 @@ create policy "Public can read active products"
 create policy "Anyone can submit RFQ"
   on rfqs for insert with check (true);
 
--- ─── SEED BRANDS (skip if already exist) ─────────────────────────────────────
+-- ─── SEED BRANDS (skip if already exist) ─────────────────────────────────────────────────
 insert into brands (id, name, slug, description, is_active, sort_order) values
   ('00000000-0000-0000-0000-000000000001', 'Apple',   'apple',   'Premium iPhones, iPads, Apple Watch & AirPods', true, 1),
   ('00000000-0000-0000-0000-000000000002', 'Samsung', 'samsung', 'Galaxy Series smartphones and tablets',         true, 2),
@@ -162,6 +162,6 @@ insert into brands (id, name, slug, description, is_active, sort_order) values
   ('00000000-0000-0000-0000-000000000006', 'Vivo',    'vivo',    'Vivo X and V series smartphones',               true, 6)
 on conflict (id) do nothing;
 
--- ─── MIGRATIONS (safe to re-run on existing databases) ───────────────────────
+-- ─── MIGRATIONS (safe to re-run on existing databases) ─────────────────────────────────────
 alter table products add column if not exists price_aed  numeric(10,2);
 alter table products add column if not exists show_price boolean not null default true;

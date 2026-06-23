@@ -3,21 +3,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ui/ProductCard';
-import type { Product } from '@/types';
+import type { Product, Condition } from '@/types';
 
-const FILTERS = [
-  { key: '',             label: 'All' },
-  { key: 'new',         label: 'New' },
-  { key: 'used',        label: 'Used' },
-  { key: 'refurbished', label: 'Refurbished' },
-  { key: 'wholesale',   label: 'Wholesale' },
+const REFURB: Condition[] = ['refurbished-grade-a', 'refurbished-grade-b', 'certified-refurbished'];
+
+const FILTERS: { key: string; label: string; test: (p: Product) => boolean }[] = [
+  { key: '',            label: 'All',         test: ()  => true },
+  { key: 'brand-new',  label: 'New',         test: (p) => p.condition === 'brand-new' },
+  { key: 'refurb',     label: 'Refurbished', test: (p) => REFURB.includes(p.condition) },
 ];
 
 export default function FeaturedInventory({ products }: { products: Product[] }) {
   const [filter, setFilter] = useState('');
 
-  const visible = filter
-    ? products.filter(p => p.condition === filter)
+  const visible = FILTERS.find(f => f.key === filter)?.test
+    ? products.filter(FILTERS.find(f => f.key === filter)!.test)
     : products;
 
   return (
@@ -25,10 +25,10 @@ export default function FeaturedInventory({ products }: { products: Product[] })
       <div className="container-site">
         <div className="section-header">
           <div>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#6C5CE7', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Featured</p>
-            <h2 className="section-title">Popular Listings</h2>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Featured</p>
+            <h2 className="section-title">Featured Products</h2>
           </div>
-          <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6C5CE7', textDecoration: 'none', whiteSpace: 'nowrap' }}>View All →</Link>
+          <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#FF6B00', textDecoration: 'none', whiteSpace: 'nowrap' }}>View All →</Link>
         </div>
 
         {/* Filter tabs */}

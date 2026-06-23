@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { cloudinaryUrl } from '@/lib/cloudinary';
-import type { Product } from '@/types';
+import type { Product, Condition } from '@/types';
 
 const BRAND_COLORS: Record<string, string> = {
   apple:   '#1C1C1E',
@@ -11,6 +11,21 @@ const BRAND_COLORS: Record<string, string> = {
   oppo:    '#1D3461',
   vivo:    '#415FFF',
 };
+
+const REFURB_CONDITIONS: Condition[] = [
+  'refurbished-grade-a',
+  'refurbished-grade-b',
+  'certified-refurbished',
+];
+
+function conditionLabel(cond: Condition): string {
+  switch (cond) {
+    case 'refurbished-grade-a':   return 'Grade A';
+    case 'refurbished-grade-b':   return 'Grade B';
+    case 'certified-refurbished': return 'Certified';
+    default:                      return '';
+  }
+}
 
 function getIphoneNum(name: string) {
   const m = name.match(/iphone\s*(\d+)/i);
@@ -22,6 +37,8 @@ function MiniCard({ product }: { product: Product }) {
     ? cloudinaryUrl(product.images[0], { width: 220, quality: 80 })
     : null;
   const brandColor = BRAND_COLORS[product.brand?.slug ?? ''] ?? '#FF6B00';
+  const isRefurb = REFURB_CONDITIONS.includes(product.condition);
+  const label = conditionLabel(product.condition);
 
   return (
     <Link href={`/products/${product.slug}`} className="pop-card">
@@ -48,15 +65,14 @@ function MiniCard({ product }: { product: Product }) {
             }} />
           </div>
         )}
-        {product.condition && product.condition !== 'new' && (
+        {isRefurb && label && (
           <span style={{
             position: 'absolute', top: '6px', left: '6px',
             fontSize: '0.5625rem', fontWeight: 700,
             padding: '2px 6px', borderRadius: '4px',
-            background: product.condition === 'refurbished' ? '#ECFDF5' : '#FFF7ED',
-            color: product.condition === 'refurbished' ? '#059669' : '#C2410C',
-            textTransform: 'capitalize',
-          }}>{product.condition}</span>
+            background: product.condition === 'certified-refurbished' ? '#ECFDF5' : '#FFF7ED',
+            color: product.condition === 'certified-refurbished' ? '#059669' : '#C2410C',
+          }}>{label}</span>
         )}
       </div>
       <div className="pop-card-info">
@@ -107,7 +123,6 @@ function ListingSection({ title, subtitle, accentColor, accentBg, products, href
           View All →
         </Link>
       </div>
-
       <div className="pop-scroll">
         {products.map(p => <MiniCard key={p.slug} product={p} />)}
       </div>
@@ -122,14 +137,14 @@ export default function PopularListings({ products }: { products: Product[] }) {
 
   const refurbishedPhones = products
     .filter(p =>
-      p.condition === 'refurbished' &&
+      REFURB_CONDITIONS.includes(p.condition) &&
       (p.brand?.slug === 'apple' || p.name.toLowerCase().includes('iphone'))
     )
     .sort((a, b) => getIphoneNum(a.name) - getIphoneNum(b.name))
     .slice(0, 14);
 
   const newPhones = products
-    .filter(p => p.condition === 'new' && p.brand?.slug !== 'apple')
+    .filter(p => p.condition === 'brand-new' && p.brand?.slug !== 'apple')
     .sort((a, b) => (b.price_aed ?? 0) - (a.price_aed ?? 0))
     .slice(0, 12);
 
@@ -154,23 +169,21 @@ export default function PopularListings({ products }: { products: Product[] }) {
               products={accessories}
               href="/inventory?category=accessory"
             />
-
             <ListingSection
               title="Refurbished iPhones"
               subtitle="iPhone 11 Pro Max → 17 Pro Max — certified & graded"
               accentColor="#10B981"
               accentBg="#F0FDF4"
               products={refurbishedPhones}
-              href="/inventory?condition=refurbished&category=smartphone"
+              href="/inventory?condition=refurbished-grade-a&category=smartphone"
             />
-
             <ListingSection
               title="New Phones"
               subtitle="Samsung, Xiaomi, Huawei & more — latest models"
               accentColor="#3B82F6"
               accentBg="#EFF6FF"
               products={newPhones}
-              href="/inventory?condition=new"
+              href="/inventory?condition=brand-new"
             />
           </div>
         </div>

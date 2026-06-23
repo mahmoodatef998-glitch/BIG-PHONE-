@@ -2,6 +2,7 @@ import HeroSection from '@/components/home/HeroSection';
 import BrandsGrid from '@/components/home/BrandsGrid';
 import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturedInventory from '@/components/home/FeaturedInventory';
+import TrustBar from '@/components/home/TrustBar';
 import TrustSection from '@/components/home/TrustSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CTASection from '@/components/home/CTASection';
@@ -21,6 +22,7 @@ export default async function HomePage() {
       <BrandsGrid brands={brands} />
       <CategoriesSection />
       <FeaturedInventory products={featuredProducts} />
+      <TrustBar />
       <TrustSection />
       <WhyChooseUs />
       <CTASection />

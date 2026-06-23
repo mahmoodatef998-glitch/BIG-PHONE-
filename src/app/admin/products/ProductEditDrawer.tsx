@@ -7,13 +7,32 @@ import { createClient } from '@/lib/supabase/client';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
+async function ensureBucket(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/admin/setup-storage', { method: 'POST' });
+    const json = await res.json();
+    return json.ok === true;
+  } catch {
+    return false;
+  }
+}
+
 async function uploadToStorage(file: File): Promise<string | null> {
   const supabase = createClient();
   const ext = file.name.split('.').pop() ?? 'jpg';
   const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage
-    .from('product-images')
-    .upload(path, file, { contentType: file.type, upsert: false });
+
+  const doUpload = () =>
+    supabase.storage.from('product-images').upload(path, file, { contentType: file.type, upsert: false });
+
+  let { error } = await doUpload();
+
+  if (error?.message?.toLowerCase().includes('bucket')) {
+    const ready = await ensureBucket();
+    if (!ready) { console.error('[upload] bucket setup failed'); return null; }
+    ({ error } = await doUpload());
+  }
+
   if (error) { console.error('[upload]', error.message); return null; }
   const { data } = supabase.storage.from('product-images').getPublicUrl(path);
   return data.publicUrl;
@@ -183,12 +202,28 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         slug: generateSlug(form),
         subcategory: null,
       });
-      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
+      if (error) {
+        setStatus('error');
+        setErrorMsg(
+          error.message.includes('price_aed') || error.message.includes('show_price')
+            ? 'Run this SQL in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
+            : error.message
+        );
+        return;
+      }
     } else {
       const { error } = await supabase.from('products')
         .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', product.id);
-      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
+      if (error) {
+        setStatus('error');
+        setErrorMsg(
+          error.message.includes('price_aed') || error.message.includes('show_price')
+            ? 'Run this SQL in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
+            : error.message
+        );
+        return;
+      }
 
       if (syncVariants && finalImages.length > 0) {
         await supabase.from('products')
@@ -220,7 +255,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}>
 
-        {/* Drawer header — orange brand */}
+        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem',
           background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)',
@@ -261,9 +296,9 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
 
         {/* Error banner */}
         {status === 'error' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
-            <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.8125rem', color: '#991b1b' }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
+            <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0, marginTop: '2px' }} />
+            <span style={{ fontSize: '0.8125rem', color: '#991b1b', lineHeight: 1.5 }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
           </div>
         )}
         {status === 'success' && errorMsg && (
@@ -391,7 +426,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                 </div>
               </div>
               <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#92400E' }}>
-                {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show “Price on Request”'}
+                {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
               </p>
             </div>
             <div style={{ ...row2, marginBottom: '0.875rem' }}>

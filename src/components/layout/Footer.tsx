@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Mail, Phone } from 'lucide-react';
 
 const LINKS = {
   marketplace: [
     { label: 'Browse All',       href: '/inventory' },
     { label: 'Brands',           href: '/brands' },
-    { label: 'New Arrivals',     href: '/inventory?condition=new' },
+    { label: 'New Arrivals',     href: '/inventory?condition=brand-new' },
     { label: 'Deals',            href: '/inventory?featured=true' },
     { label: 'Request a Quote',  href: '/rfq' },
   ],
@@ -32,12 +33,30 @@ export default function Footer() {
             {/* Brand */}
             <div className="footer-brand-col">
               <Link href="/" className="footer-logo">
+                {/* Camel mark on dark background — invert for visibility */}
                 <div style={{
-                  width: '38px', height: '38px',
-                  background: 'linear-gradient(135deg, #E55A00, #FF8C33)',
-                  borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '64px',
+                  height: '42px',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  lineHeight: 0,
+                  borderRadius: '6px',
+                  background: 'rgba(255,255,255,0.06)',
                 }}>
-                  <span style={{ color: '#fff', fontWeight: 900, fontSize: '17px', letterSpacing: '-0.04em' }}>B</span>
+                  <Image
+                    src="/images/WhatsApp Image 2026-06-22 at 10.49.38 PM.jpeg"
+                    alt="BIG PHONE"
+                    width={64}
+                    height={64}
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      objectFit: 'cover',
+                      objectPosition: 'center top',
+                      display: 'block',
+                      filter: 'brightness(0.9) contrast(1.05)',
+                    }}
+                  />
                 </div>
                 <div>
                   <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>BIG PHONE</span>
@@ -45,7 +64,7 @@ export default function Footer() {
                 </div>
               </Link>
               <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#9CA3AF', maxWidth: '260px', margin: '0 0 1.5rem' }}>
-                UAE&apos;s trusted B2B platform for buying and selling wholesale mobile devices from verified suppliers.
+                UAE’s trusted B2B platform for buying and selling wholesale mobile devices from verified suppliers.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {[
@@ -93,16 +112,10 @@ export default function Footer() {
 
       <style>{`
         .footer-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2.5rem;
+          display: grid; grid-template-columns: 1fr; gap: 2.5rem;
         }
-        @media (min-width: 640px) {
-          .footer-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (min-width: 1024px) {
-          .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
-        }
+        @media (min-width: 640px)  { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
         .footer-brand-col { grid-column: span 1; }
         .footer-logo {
           display: inline-flex; align-items: center; gap: 0.625rem;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Search, Heart, ShoppingCart, User, Menu, X, ChevronDown, Smartphone, Tablet, Headphones, Laptop, Watch, Gamepad2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -17,6 +18,29 @@ const CATEGORIES_DROP = [
   { label: 'Smart Watches', href: '/inventory?category=watch',       Icon: Watch },
   { label: 'Gaming',        href: '/inventory?category=gaming',      Icon: Gamepad2 },
 ];
+
+/* Camel logo — objectFit cover + top alignment crops the "CAMEL" text at bottom */
+function CamelLogo({ size = 68 }: { size?: number }) {
+  const showH = Math.round(size * 0.64); // show top 64% = just the camel, hide text
+  return (
+    <div style={{ width: size, height: showH, overflow: 'hidden', flexShrink: 0, lineHeight: 0 }}>
+      <Image
+        src="/images/WhatsApp Image 2026-06-22 at 10.49.38 PM.jpeg"
+        alt="BIG PHONE camel logo"
+        width={size}
+        height={size}
+        priority
+        style={{
+          width: size,
+          height: size,
+          objectFit: 'cover',
+          objectPosition: 'center top',
+          display: 'block',
+        }}
+      />
+    </div>
+  );
+}
 
 export default function Header() {
   const { t, toggle, isRTL } = useLanguage();
@@ -56,20 +80,16 @@ export default function Header() {
         <div className="container-site">
           <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
 
-            {/* Logo */}
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', flexShrink: 0 }}>
-              <div style={{
-                width: '34px', height: '34px',
-                background: '#FF6B00',
-                borderRadius: '8px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ color: '#fff', fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>B</span>
+            {/* ── Logo ────────────────────────────── */}
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
+              <CamelLogo size={72} />
+              <div style={{ lineHeight: 1 }}>
+                <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
+                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>MARKETPLACE</div>
               </div>
-              <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>BIG PHONE</span>
             </Link>
 
-            {/* Desktop Nav */}
+            {/* ── Desktop Nav ────────────────────── */}
             <nav className="hdr-nav">
               {NAV.map(item => (
                 <Link key={item.href} href={item.href} className={`hdr-link${active(item.href) ? ' hdr-link-active' : ''}`}>
@@ -107,36 +127,25 @@ export default function Header() {
               <Link href="/rfq" className="hdr-link" style={{ color: '#FF6B00', fontWeight: 600 }}>Sell on Big Phone</Link>
             </nav>
 
-            {/* Right actions */}
+            {/* ── Right actions ──────────────────── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-              {/* Lang toggle */}
               <button onClick={toggle} className="hdr-icon-btn" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
                 {t.header.switchLang}
               </button>
-
-              {/* Search */}
               <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label="Search">
                 <Search size={17} />
               </button>
-
-              {/* Wishlist */}
               <Link href="/inventory" className="hdr-icon-btn" aria-label="Wishlist">
                 <Heart size={17} />
               </Link>
-
-              {/* Cart */}
               <Link href="/rfq" className="hdr-icon-btn hdr-cart" aria-label="Cart">
                 <ShoppingCart size={17} />
                 <span className="hdr-badge">0</span>
               </Link>
-
-              {/* Login — desktop only */}
               <Link href="/rfq" className="hdr-login hdr-login-desktop">
                 <User size={15} />
                 Login / Register
               </Link>
-
-              {/* Hamburger — mobile */}
               <button onClick={() => setMenuOpen(!menuOpen)} className="hdr-icon-btn hdr-hamburger" aria-label="Menu">
                 {menuOpen ? <X size={18} /> : <Menu size={18} />}
               </button>
@@ -191,7 +200,7 @@ export default function Header() {
       <nav className="mob-bottom-nav">
         {[
           { href: '/',          Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>, label: 'Home' },
-          { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: 'Categories' },
+          { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: 'Shop' },
           { href: '/inventory?featured=true', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>, label: 'Deals' },
           { href: '/rfq',        Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>, label: 'Sell' },
           { href: '/admin',      Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: 'Account' },
@@ -208,31 +217,23 @@ export default function Header() {
       </nav>
 
       <style>{`
-        .hdr-nav {
-          display: none;
-          align-items: center;
-          gap: 0;
-        }
+        .hdr-nav { display: none; align-items: center; gap: 0; }
         .hdr-link {
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem; font-weight: 500; color: #374151;
           text-decoration: none; border-radius: 0.375rem;
-          transition: color 0.15s, background 0.15s;
-          white-space: nowrap;
+          transition: color 0.15s, background 0.15s; white-space: nowrap;
         }
         .hdr-link:hover { color: #FF6B00; background: #FFF3E8; }
         .hdr-link-active { color: #FF6B00 !important; font-weight: 600; }
-
         .hdr-icon-btn {
           width: 38px; height: 38px;
           display: inline-flex; align-items: center; justify-content: center;
           border-radius: 50%; border: 1.5px solid #EAEAEA;
           background: #fff; color: #374151; cursor: pointer;
-          transition: all 0.15s; font-family: inherit; flex-shrink: 0;
-          position: relative;
+          transition: all 0.15s; font-family: inherit; flex-shrink: 0; position: relative;
         }
         .hdr-icon-btn:hover { border-color: #FF6B00; color: #FF6B00; background: #FFF3E8; }
-
         .hdr-cart { position: relative; }
         .hdr-badge {
           position: absolute; top: -4px; right: -4px;
@@ -242,18 +243,14 @@ export default function Header() {
           display: flex; align-items: center; justify-content: center;
           border: 2px solid #fff;
         }
-
         .hdr-login {
-          display: none;
-          align-items: center; gap: 0.375rem;
+          display: none; align-items: center; gap: 0.375rem;
           padding: 0.5rem 1rem; border-radius: 9999px;
           border: 1.5px solid #FF6B00; color: #FF6B00;
           font-size: 0.8125rem; font-weight: 600;
-          text-decoration: none; transition: all 0.18s;
-          white-space: nowrap;
+          text-decoration: none; transition: all 0.18s; white-space: nowrap;
         }
         .hdr-login:hover { background: #FF6B00; color: #fff; }
-
         .cat-drop-item {
           display: flex; align-items: center; gap: 0.625rem;
           padding: 0.5rem 0.75rem; border-radius: 0.5rem;
@@ -261,15 +258,12 @@ export default function Header() {
           transition: background 0.12s, color 0.12s;
         }
         .cat-drop-item:hover { background: #FFF3E8; color: #FF6B00; }
-
         .hdr-hamburger { display: inline-flex !important; }
         .mob-bottom-nav {
           position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
           background: #fff; border-top: 1px solid #EAEAEA;
-          display: flex;
-          padding-bottom: env(safe-area-inset-bottom);
+          display: flex; padding-bottom: env(safe-area-inset-bottom);
         }
-
         @media (min-width: 768px) {
           .hdr-nav { display: flex !important; }
           .hdr-login-desktop { display: inline-flex !important; }

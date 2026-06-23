@@ -187,7 +187,12 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         is_active: form.is_active,
         images: finalImages,
       });
-      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
+
+      if (error) {
+        setStatus('error');
+        setErrorMsg(error.message);
+        return;
+      }
     } else {
       const { error } = await supabase.from('products').update({
         name: form.name, model: form.model, color: form.color || null,
@@ -205,7 +210,12 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         images: finalImages,
         updated_at: new Date().toISOString(),
       }).eq('id', product.id);
-      if (error) { setStatus('error'); setErrorMsg(error.message); return; }
+
+      if (error) {
+        setStatus('error');
+        setErrorMsg(error.message);
+        return;
+      }
 
       if (syncVariants && finalImages.length > 0) {
         await supabase
@@ -226,84 +236,231 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 40, backdropFilter: 'blur(2px)' }} aria-hidden="true" />
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)',
+          zIndex: 40, backdropFilter: 'blur(2px)',
+        }}
+        aria-hidden="true"
+      />
 
-      <div ref={drawerRef} role="dialog" aria-modal="true" aria-label={headerTitle} style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '520px', maxWidth: '100vw', background: '#F8FAFC', zIndex: 50, display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 32px rgba(15,23,42,0.16)' }}>
-        <div style={{ padding: '1rem 1.5rem', background: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.875rem', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-          <button type="button" onClick={onClose} aria-label="Close drawer" style={{ width: '32px', height: '32px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', color: '#fff' }}>
+      {/* Drawer */}
+      <div
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={headerTitle}
+        style={{
+          position: 'fixed', top: 0, right: 0, bottom: 0,
+          width: '520px', maxWidth: '100vw',
+          background: '#F8FAFC', zIndex: 50,
+          display: 'flex', flexDirection: 'column',
+          boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
+        }}
+      >
+        {/* Drawer header */}
+        <div style={{
+          padding: '1rem 1.5rem', background: '#0F172A',
+          display: 'flex', alignItems: 'center', gap: '0.875rem',
+          borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0,
+        }}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close drawer"
+            style={{
+              width: '32px', height: '32px', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.1)', border: 'none',
+              borderRadius: '0.375rem', cursor: 'pointer', color: '#fff',
+            }}
+          >
             <X size={16} />
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{headerTitle}</div>
-            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{headerSubtitle}</div>
+            <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {headerTitle}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>
+              {headerSubtitle}
+            </div>
           </div>
-          <button type="button" onClick={handleSave} disabled={status === 'saving'} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', height: '36px', background: status === 'success' ? '#16a34a' : '#2563EB', color: '#fff', border: 'none', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 700, cursor: status === 'saving' ? 'not-allowed' : 'pointer', transition: 'background 0.15s', flexShrink: 0, opacity: status === 'saving' ? 0.8 : 1 }}>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={status === 'saving'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.5rem 1rem', height: '36px',
+              background: status === 'success' ? '#16a34a' : '#2563EB',
+              color: '#fff', border: 'none', borderRadius: '0.5rem',
+              fontSize: '0.875rem', fontWeight: 700, cursor: status === 'saving' ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s', flexShrink: 0,
+              opacity: status === 'saving' ? 0.8 : 1,
+            }}
+          >
             {status === 'saving' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
             {status === 'success' && <CheckCircle2 size={14} />}
             {status === 'saving' ? (uploadProgress || 'Saving…') : status === 'success' ? 'Saved!' : isNew ? 'Create Product' : 'Save Changes'}
           </button>
         </div>
 
+        {/* Error banner */}
         {status === 'error' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.625rem',
+            background: '#fef2f2', borderBottom: '1px solid #fecaca',
+            padding: '0.75rem 1.5rem', flexShrink: 0,
+          }}>
             <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0 }} />
             <span style={{ fontSize: '0.8125rem', color: '#991b1b' }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
           </div>
         )}
+
+        {/* Partial-error warning */}
         {status === 'success' && errorMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', background: '#fff7ed', borderBottom: '1px solid #fed7aa', padding: '0.625rem 1.5rem', flexShrink: 0 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.625rem',
+            background: '#fff7ed', borderBottom: '1px solid #fed7aa',
+            padding: '0.625rem 1.5rem', flexShrink: 0,
+          }}>
             <AlertCircle size={13} style={{ color: '#c2410c', flexShrink: 0 }} />
             <span style={{ fontSize: '0.75rem', color: '#9a3412' }}>{errorMsg}</span>
           </div>
         )}
 
+        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
+
+          {/* SECTION 1: Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
-            <ImageDropZone existingImages={form.images} onExistingChange={imgs => set('images', imgs)} onNewFiles={setNewFiles} uploading={status === 'saving'} />
+            <ImageDropZone
+              existingImages={form.images}
+              onExistingChange={imgs => set('images', imgs)}
+              onNewFiles={setNewFiles}
+              uploading={status === 'saving'}
+            />
+
             {!isNew && (
-              <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: syncVariants ? '#eff6ff' : '#F8FAFC', border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`, borderRadius: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', transition: 'all 0.15s', cursor: 'pointer' }} onClick={() => setSyncVariants(v => !v)}>
-                <div style={{ width: '18px', height: '18px', flexShrink: 0, marginTop: '1px', borderRadius: '4px', border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`, background: syncVariants ? '#2563EB' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
-                  {syncVariants && (<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>)}
+              <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem 1rem',
+                background: syncVariants ? '#eff6ff' : '#F8FAFC',
+                border: `1px solid ${syncVariants ? '#bfdbfe' : '#E2E8F0'}`,
+                borderRadius: '0.5rem',
+                display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                transition: 'all 0.15s',
+                cursor: 'pointer',
+              }}
+                onClick={() => setSyncVariants(v => !v)}
+              >
+                <div style={{
+                  width: '18px', height: '18px', flexShrink: 0, marginTop: '1px',
+                  borderRadius: '4px',
+                  border: `2px solid ${syncVariants ? '#2563EB' : '#CBD5E1'}`,
+                  background: syncVariants ? '#2563EB' : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}>
+                  {syncVariants && (
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>Apply images to all &ldquo;{product.model}&rdquo; variants</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>Same images will be copied to every product with this model name.</div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: syncVariants ? '#1d4ed8' : '#374151' }}>
+                    Apply images to all &ldquo;{product.model}&rdquo; variants
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    Same images will be copied to every product with this model name (different storage, color, condition).
+                  </div>
                 </div>
                 <Copy size={14} style={{ color: syncVariants ? '#2563EB' : '#94a3b8', flexShrink: 0, marginTop: '2px' }} />
               </div>
             )}
           </SectionCard>
 
+          {/* SECTION 2: Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
               <input id="edit-name" style={inp} value={form.name} onChange={e => set('name', e.target.value)} />
             </div>
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
-              <div><label htmlFor="edit-model" style={labelStyle}>Model</label><input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} /></div>
-              <div><label htmlFor="edit-color" style={labelStyle}>Color</label><input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" /></div>
+              <div>
+                <label htmlFor="edit-model" style={labelStyle}>Model</label>
+                <input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="edit-color" style={labelStyle}>Color</label>
+                <input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" />
+              </div>
             </div>
             <div style={row2}>
-              <div><label htmlFor="edit-brand" style={labelStyle}>Brand</label><select id="edit-brand" style={inp} value={form.brand_id} onChange={e => set('brand_id', e.target.value)}>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
-              <div><label htmlFor="edit-category" style={labelStyle}>Category</label><select id="edit-category" style={inp} value={form.category} onChange={e => set('category', e.target.value as Category)}><option value="smartphone">Smartphone</option><option value="tablet">Tablet</option><option value="accessory">Accessory</option><option value="airpods">AirPods</option><option value="smartwatch">Smartwatch</option></select></div>
+              <div>
+                <label htmlFor="edit-brand" style={labelStyle}>Brand</label>
+                <select id="edit-brand" style={inp} value={form.brand_id} onChange={e => set('brand_id', e.target.value)}>
+                  {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="edit-category" style={labelStyle}>Category</label>
+                <select id="edit-category" style={inp} value={form.category} onChange={e => set('category', e.target.value as Category)}>
+                  <option value="smartphone">Smartphone</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="accessory">Accessory</option>
+                  <option value="airpods">AirPods</option>
+                  <option value="smartwatch">Smartwatch</option>
+                </select>
+              </div>
             </div>
           </SectionCard>
 
+          {/* SECTION 3: Inventory */}
           <SectionCard icon={Package} title="Inventory">
             <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>Wholesale Pricing</div>
+              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
+                Wholesale Pricing
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
                 <div>
                   <label htmlFor="edit-price" style={labelStyle}>Unit Price (AED)</label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '0.8125rem', fontWeight: 600, pointerEvents: 'none' }}>AED</span>
-                    <input id="edit-price" type="number" min="0" step="0.01" placeholder="0.00" style={{ ...inp, paddingLeft: '2.875rem' }} value={form.price_aed} onChange={e => set('price_aed', e.target.value)} />
+                    <input
+                      id="edit-price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      style={{ ...inp, paddingLeft: '2.875rem' }}
+                      value={form.price_aed}
+                      onChange={e => set('price_aed', e.target.value)}
+                    />
                   </div>
                 </div>
                 <div style={{ paddingBottom: '2px' }}>
                   <label style={{ ...labelStyle, marginBottom: '0.5rem' }}>Show Price</label>
-                  <button type="button" role="switch" aria-checked={form.show_price} onClick={() => set('show_price', !form.show_price)} style={{ width: '44px', height: '24px', borderRadius: '9999px', background: form.show_price ? '#2563EB' : '#CBD5E1', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', padding: 0 }}>
-                    <span style={{ position: 'absolute', top: '2px', left: form.show_price ? '22px' : '2px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block' }} />
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={form.show_price}
+                    onClick={() => set('show_price', !form.show_price)}
+                    style={{
+                      width: '44px', height: '24px', borderRadius: '9999px',
+                      background: form.show_price ? '#2563EB' : '#CBD5E1',
+                      border: 'none', cursor: 'pointer', position: 'relative',
+                      transition: 'background 0.2s', padding: 0,
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: '2px', left: form.show_price ? '22px' : '2px',
+                      width: '20px', height: '20px', background: '#fff', borderRadius: '50%',
+                      transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block',
+                    }} />
                   </button>
                 </div>
               </div>
@@ -311,20 +468,45 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                 {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
               </p>
             </div>
+
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
-              <div><label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label><input id="edit-stock" type="number" min="0" style={inp} value={form.stock_quantity} onChange={e => set('stock_quantity', e.target.value)} /></div>
-              <div><label htmlFor="edit-moq" style={labelStyle}>MOQ</label><input id="edit-moq" type="number" min="1" style={inp} value={form.moq} onChange={e => set('moq', e.target.value)} /></div>
+              <div>
+                <label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label>
+                <input id="edit-stock" type="number" min="0" style={inp} value={form.stock_quantity} onChange={e => set('stock_quantity', e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="edit-moq" style={labelStyle}>MOQ</label>
+                <input id="edit-moq" type="number" min="1" style={inp} value={form.moq} onChange={e => set('moq', e.target.value)} />
+              </div>
             </div>
             <div style={row2}>
-              <div><label htmlFor="edit-country" style={labelStyle}>Country of Origin</label><input id="edit-country" style={inp} value={form.country_of_origin} onChange={e => set('country_of_origin', e.target.value)} /></div>
-              <div><label htmlFor="edit-warranty" style={labelStyle}>Warranty</label><input id="edit-warranty" style={inp} value={form.warranty} onChange={e => set('warranty', e.target.value)} placeholder="e.g. 12 Months" /></div>
+              <div>
+                <label htmlFor="edit-country" style={labelStyle}>Country of Origin</label>
+                <input id="edit-country" style={inp} value={form.country_of_origin} onChange={e => set('country_of_origin', e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="edit-warranty" style={labelStyle}>Warranty</label>
+                <input id="edit-warranty" style={inp} value={form.warranty} onChange={e => set('warranty', e.target.value)} placeholder="e.g. 12 Months" />
+              </div>
             </div>
           </SectionCard>
 
+          {/* SECTION 4: Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
-              <div><label htmlFor="edit-condition" style={labelStyle}>Condition</label><select id="edit-condition" style={inp} value={form.condition} onChange={e => set('condition', e.target.value as Condition)}><option value="brand-new">Brand New</option><option value="refurbished-grade-a">Refurbished Grade A</option><option value="refurbished-grade-b">Refurbished Grade B</option><option value="certified-refurbished">Certified Refurbished</option></select></div>
-              <div><label htmlFor="edit-storage" style={labelStyle}>Storage</label><input id="edit-storage" style={inp} value={form.storage} onChange={e => set('storage', e.target.value)} placeholder="e.g. 256GB" /></div>
+              <div>
+                <label htmlFor="edit-condition" style={labelStyle}>Condition</label>
+                <select id="edit-condition" style={inp} value={form.condition} onChange={e => set('condition', e.target.value as Condition)}>
+                  <option value="brand-new">Brand New</option>
+                  <option value="refurbished-grade-a">Refurbished Grade A</option>
+                  <option value="refurbished-grade-b">Refurbished Grade B</option>
+                  <option value="certified-refurbished">Certified Refurbished</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="edit-storage" style={labelStyle}>Storage</label>
+                <input id="edit-storage" style={inp} value={form.storage} onChange={e => set('storage', e.target.value)} placeholder="e.g. 256GB" />
+              </div>
             </div>
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-battery" style={labelStyle}>Battery Health %</label>
@@ -332,14 +514,22 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
             <div>
               <label htmlFor="edit-desc" style={labelStyle}>Description</label>
-              <textarea id="edit-desc" rows={3} style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }} value={form.description} onChange={e => set('description', e.target.value)} />
+              <textarea
+                id="edit-desc"
+                rows={3}
+                style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
+                value={form.description}
+                onChange={e => set('description', e.target.value)}
+              />
             </div>
           </SectionCard>
 
+          {/* SECTION 5: Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />
           </SectionCard>
+
         </div>
       </div>
 

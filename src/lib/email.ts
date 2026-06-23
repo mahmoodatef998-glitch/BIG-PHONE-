@@ -97,8 +97,8 @@ function buyerHtml(d: RFQEmailData): string {
 
 export async function sendAdminRFQNotification(data: RFQEmailData): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
-  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: FROM,
       to: ADMIN_EMAIL,
@@ -112,8 +112,8 @@ export async function sendAdminRFQNotification(data: RFQEmailData): Promise<void
 
 export async function sendBuyerRFQConfirmation(data: RFQEmailData): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
-  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: FROM,
       to: data.email,

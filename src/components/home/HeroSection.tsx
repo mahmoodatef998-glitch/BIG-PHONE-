@@ -1,367 +1,261 @@
+'use client';
+
 import Link from 'next/link';
-import { Search, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react';
-
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
-
-const POPULAR = [
-  { label: 'iPhone 16 Pro Max', href: '/inventory?search=iPhone+16+Pro' },
-  { label: 'Samsung S25 Ultra', href: '/inventory?search=Samsung+S25' },
-  { label: 'AirPods Pro 2', href: '/inventory?search=AirPods+Pro' },
-  { label: 'iPad Pro M4', href: '/inventory?search=iPad+Pro' },
-  { label: 'Grade A iPhones', href: '/inventory?search=iPhone&condition=refurbished-grade-a' },
-  { label: 'Accessories', href: '/inventory?category=accessory' },
-];
+import Image from 'next/image';
+import { useState } from 'react';
+import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
 
 const STATS = [
-  { value: '500+', label: 'Products in Stock' },
-  { value: '50+', label: 'Countries Exported' },
-  { value: '< 2h', label: 'Response Time' },
-  { value: '10K+', label: 'B2B Clients' },
-];
-
-const TRUST = [
-  'Grade A & Certified Stock',
-  'MOQ from 5 Units',
-  'Export Documentation',
-  '24/7 WhatsApp Support',
-];
-
-const CATEGORIES = [
-  { label: 'All Devices', value: '' },
-  { label: 'Smartphones', value: 'smartphone' },
-  { label: 'Tablets', value: 'tablet' },
-  { label: 'Accessories', value: 'accessory' },
-  { label: 'Earbuds & Audio', value: 'airpods' },
-];
-
-/* Demo device images — staggered 2×2 grid shown on wide screens */
-const HERO_PHONES = [
-  'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=320&q=80',
-  'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=320&q=80',
-  'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=320&q=80',
-  'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=320&q=80',
+  { Icon: Package,     value: '10K+', label: 'Products' },
+  { Icon: Users,       value: '500+', label: 'Verified Sellers' },
+  { Icon: Star,        value: '4.9★', label: 'Avg Rating' },
+  { Icon: ShieldCheck, value: '100%', label: 'Secure Payments' },
 ];
 
 export default function HeroSection() {
-  const waMsg = encodeURIComponent('Hi BIG PHONE, I want to inquire about wholesale mobile devices.');
+  const [search, setSearch] = useState('');
 
   return (
-    <section style={{
-      background: 'linear-gradient(160deg, #0B1829 0%, #0D2040 60%, #0B1829 100%)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background glow */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: `
-          radial-gradient(ellipse at 50% -10%, rgba(0,102,255,0.2) 0%, transparent 60%),
-          radial-gradient(ellipse at 80% 90%, rgba(0,60,160,0.12) 0%, transparent 50%)
-        `,
-      }} />
+    <>
+      <section className="hero-section">
+        <div className="container-site">
+          <div className="hero-grid">
 
-      {/* Main content */}
-      <div className="container-site" style={{ position: 'relative', zIndex: 1, padding: '3.5rem 1.5rem 3rem' }}>
-        <div className="hero-outer-wrap">
+            {/* ── Left content ─────────────────────── */}
+            <div className="hero-left">
 
-          {/* ── Text + search ─────────────────────────────────── */}
-          <div className="hero-content" style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
+              {/* Eyebrow */}
+              <div className="hero-eyebrow">
+                <span className="hero-eyebrow-dot" />
+                UAE's #1 B2B Mobile Platform
+              </div>
 
-            {/* Badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(0,102,255,0.15)',
-              border: '1px solid rgba(0,102,255,0.35)',
-              borderRadius: '9999px',
-              padding: '0.375rem 1rem',
-              marginBottom: '1.5rem',
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4D94FF', display: 'inline-block' }} />
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', letterSpacing: '0.04em' }}>
-                B2B Wholesale Supplier &middot; Dubai, UAE
-              </span>
+              {/* Headline */}
+              <h1 className="hero-heading">
+                The Ultimate<br />
+                <span className="hero-heading-accent">Mobile</span> Marketplace
+              </h1>
+
+              {/* Sub */}
+              <p className="hero-sub">
+                Source new, used &amp; refurbished phones<br />
+                from 500+ verified UAE suppliers.
+              </p>
+
+              {/* Search */}
+              <form action="/inventory" method="get" className="hero-search-form">
+                <Search size={18} className="hero-search-icon" />
+                <input
+                  type="search" name="search"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search iPhone, Samsung, Xiaomi…"
+                  className="hero-search-input"
+                />
+                <button type="submit" className="hero-search-btn">Search</button>
+              </form>
+
+              {/* Stats */}
+              <div className="hero-stats">
+                {STATS.map(s => (
+                  <div key={s.label} className="hero-stat">
+                    <div className="hero-stat-icon">
+                      <s.Icon size={18} color="#FF6B00" />
+                    </div>
+                    <div className="hero-stat-value">{s.value}</div>
+                    <div className="hero-stat-label">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTAs */}
+              <div className="hero-cta-row">
+                <Link href="/inventory" className="btn btn-primary btn-lg btn-pill">Browse Products</Link>
+                <Link href="/rfq" className="btn btn-ghost btn-lg btn-pill">Get a Quote</Link>
+              </div>
             </div>
 
-            {/* H1 */}
-            <h1 style={{
-              fontSize: 'clamp(1.875rem, 5vw, 3rem)',
-              fontWeight: 800,
-              color: '#fff',
-              lineHeight: 1.15,
-              letterSpacing: '-0.03em',
-              marginBottom: '0.875rem',
-            }}>
-              Source Premium Mobile Devices<br />
-              <span style={{ color: '#4D94FF' }}>At Wholesale Prices</span>
-            </h1>
+            {/* ── Right — hero image (phone + badges baked in) ── */}
+            <div className="hero-right">
+              {/* Ambient orange glow */}
+              <div className="hero-glow" />
 
-            <p style={{
-              fontSize: '1rem',
-              color: 'rgba(255,255,255,0.6)',
-              lineHeight: 1.65,
-              marginBottom: '2rem',
-            }}>
-              iPhones &bull; Samsung &bull; Tablets &bull; Accessories &bull; Earbuds<br />
-              Grade A, Certified Refurbished &amp; Brand New &mdash; bulk export ready
-            </p>
-
-            {/* Search bar */}
-            <form action="/inventory" method="GET" style={{ marginBottom: '1rem' }}>
-              <div style={{
-                display: 'flex',
-                background: '#fff',
-                borderRadius: '10px',
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                border: '2px solid rgba(77,148,255,0.2)',
-              }}>
-                <select
-                  name="category"
-                  aria-label="Select category"
-                  className="hero-cat-select"
+              {/* Hero image — transparent PNG, badges already inside it */}
+              <div className="hero-img-wrap">
+                <Image
+                  src="/images/hero section.png"
+                  alt="iPhone Pro — BIG PHONE Marketplace"
+                  width={716}
+                  height={716}
+                  priority
                   style={{
-                    border: 'none',
-                    borderRight: '1.5px solid #DDE3EA',
-                    background: '#F8FAFC',
-                    color: '#374151',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    padding: '0 0.875rem',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    minWidth: '140px',
-                    flexShrink: 0,
-                  }}
-                >
-                  {CATEGORIES.map(c => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-
-                <input
-                  type="search"
-                  name="search"
-                  placeholder="Search iPhone 16, Galaxy S25, AirPods Pro..."
-                  aria-label="Search products"
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    outline: 'none',
-                    padding: '0.9375rem 1rem',
-                    fontSize: '0.9375rem',
-                    color: '#1A2332',
-                    background: 'transparent',
-                    minWidth: 0,
+                    objectFit: 'contain',
+                    width: '100%',
+                    height: '100%',
+                    filter: 'drop-shadow(0 32px 64px rgba(255,107,0,0.22)) drop-shadow(0 8px 24px rgba(0,0,0,0.18))',
                   }}
                 />
-
-                <button
-                  type="submit"
-                  style={{
-                    background: '#0066FF',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '0 1.25rem',
-                    fontSize: '0.9375rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    flexShrink: 0,
-                    transition: 'background 0.125s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <Search size={16} />
-                  <span className="search-label">Search</span>
-                </button>
               </div>
-            </form>
-
-            {/* Popular searches */}
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
-              justifyContent: 'center', marginBottom: '2rem',
-              alignItems: 'center',
-            }}>
-              <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
-                Popular:
-              </span>
-              {POPULAR.map(p => (
-                <Link
-                  key={p.label}
-                  href={p.href}
-                  className="popular-pill"
-                >
-                  {p.label}
-                </Link>
-              ))}
             </div>
 
-            {/* CTA buttons */}
-            <div style={{
-              display: 'flex', gap: '0.75rem',
-              justifyContent: 'center', flexWrap: 'wrap',
-              marginBottom: '3rem',
-            }}>
-              <Link href="/rfq" className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }}>
-                Request a Quote
-                <ArrowRight size={16} />
-              </Link>
-              <a
-                href={`https://wa.me/${WHATSAPP}?text=${waMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-lg"
-                style={{ background: '#00A850', color: '#fff', gap: '0.5rem' }}
-              >
-                <MessageCircle size={16} />
-                WhatsApp Us
-              </a>
-            </div>
-
-            {/* Stats grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '12px',
-              overflow: 'hidden',
-            }} className="stats-grid">
-              {STATS.map((stat, i) => (
-                <div key={stat.value} style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  padding: '1.125rem 0.75rem',
-                  textAlign: 'center',
-                  borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                }}>
-                  <div style={{
-                    fontSize: 'clamp(1.25rem, 3vw, 1.625rem)',
-                    fontWeight: 800,
-                    color: '#fff',
-                    lineHeight: 1.1,
-                  }}>
-                    {stat.value}
-                  </div>
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: 'rgba(255,255,255,0.5)',
-                    marginTop: '0.25rem',
-                    fontWeight: 500,
-                  }}>
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Phone image grid — desktop only ──────────────── */}
-          <div className="hero-phones-grid" aria-hidden="true">
-            {HERO_PHONES.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={src}
-                alt=""
-                className="hero-phone-img"
-                loading={i < 2 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            ))}
-          </div>
-
-        </div>
-      </div>
-
-      {/* Trust bar */}
-      <div style={{
-        background: 'rgba(255,255,255,0.05)',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        padding: '0.875rem 0',
-        position: 'relative', zIndex: 1,
-      }}>
-        <div className="container-site">
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '1.5rem', flexWrap: 'wrap',
-          }}>
-            {TRUST.map(item => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
-                <CheckCircle size={14} style={{ color: '#4ADE80', flexShrink: 0 }} />
-                <span style={{
-                  fontSize: '0.8125rem',
-                  color: 'rgba(255,255,255,0.8)',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 500,
-                }}>
-                  {item}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       <style>{`
-        @media (max-width: 480px) {
-          .search-label { display: none; }
-          .hero-cat-select { min-width: 100px !important; }
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .stats-grid > div:nth-child(2n+1) { border-left: none !important; }
-          .stats-grid > div:nth-child(3),
-          .stats-grid > div:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.08); }
+        /* ─── Section ────────────────────────────── */
+        .hero-section {
+          background-color: #FFF3E8;
+          background-image: radial-gradient(circle, rgba(255,107,0,0.13) 1px, transparent 1px);
+          background-size: 28px 28px;
+          padding: 4rem 0 3.5rem;
+          overflow: hidden;
         }
-        .popular-pill {
-          display: inline-block;
-          background: rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.8);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 9999px;
-          padding: 0.3125rem 0.875rem;
-          font-size: 0.8125rem;
-          font-weight: 500;
-          text-decoration: none;
-          transition: all 0.125s;
+        .hero-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          align-items: center;
         }
-        .popular-pill:hover {
-          background: rgba(255,255,255,0.15);
-          border-color: rgba(255,255,255,0.3);
-          color: #fff;
+        .hero-left { max-width: 560px; }
+
+        /* ─── Eyebrow ────────────────────── */
+        .hero-eyebrow {
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          background: #fff; border: 1.5px solid #FFD0A0;
+          border-radius: 9999px; padding: 0.375rem 1rem;
+          font-size: 0.8125rem; font-weight: 600; color: #C2410C;
+          margin-bottom: 1.25rem;
         }
-        /* Phone image grid */
-        .hero-phones-grid { display: none; }
+        .hero-eyebrow-dot {
+          width: 7px; height: 7px; background: #FF6B00;
+          border-radius: 50%;
+          animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ─── Heading ────────────────────── */
+        .hero-heading {
+          font-size: clamp(2.25rem, 5vw, 3.5rem);
+          font-weight: 800; line-height: 1.08;
+          letter-spacing: -0.035em; color: #111827;
+          margin: 0 0 1rem;
+        }
+        .hero-heading-accent { color: #FF6B00; }
+        .hero-sub {
+          font-size: 1.0625rem; color: #6B7280;
+          line-height: 1.7; margin: 0 0 1.75rem;
+        }
+
+        /* ─── Search ────────────────────── */
+        .hero-search-form {
+          display: flex; align-items: center;
+          background: #fff; border: 1.5px solid #E5E7EB;
+          border-radius: 14px; padding: 6px 6px 6px 1rem; gap: 0.5rem;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+          margin-bottom: 2rem;
+          transition: border-color 0.18s, box-shadow 0.18s;
+        }
+        .hero-search-form:focus-within {
+          border-color: #FFB366;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 0 0 3px rgba(255,107,0,0.12);
+        }
+        .hero-search-icon { color: #9CA3AF; flex-shrink: 0; }
+        .hero-search-input {
+          flex: 1; border: none; outline: none;
+          font-size: 0.9375rem; color: #111827;
+          background: transparent; font-family: inherit; min-width: 0;
+        }
+        .hero-search-input::placeholder { color: #9CA3AF; }
+        .hero-search-btn {
+          padding: 0.6875rem 1.5rem;
+          background: #FF6B00; color: #fff;
+          border: none; border-radius: 10px;
+          font-size: 0.9375rem; font-weight: 600;
+          cursor: pointer; white-space: nowrap;
+          font-family: inherit; transition: background 0.15s; flex-shrink: 0;
+        }
+        .hero-search-btn:hover { background: #E55A00; }
+
+        /* ─── Stats ────────────────────── */
+        .hero-stats {
+          display: flex; gap: 0;
+          margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .hero-stat {
+          display: flex; flex-direction: column;
+          align-items: center; text-align: center;
+          padding: 0 1.5rem 0 0; position: relative;
+        }
+        .hero-stat + .hero-stat::before {
+          content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+          width: 1px; background: #FFD0A0;
+        }
+        .hero-stat-icon {
+          width: 38px; height: 38px; background: #FFF0E0;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 5px;
+        }
+        .hero-stat-value { font-size: 1.3125rem; font-weight: 800; color: #111827; letter-spacing: -0.02em; line-height: 1; }
+        .hero-stat-label { font-size: 0.625rem; color: #9CA3AF; font-weight: 500; margin-top: 2px; white-space: nowrap; }
+        .hero-cta-row    { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+        /* ─── Right column ──────────────────── */
+        .hero-right {
+          display: none;
+          position: relative;
+          align-items: center;
+          justify-content: center;
+          height: 520px;
+        }
+
+        /* Soft orange ambient glow */
+        .hero-glow {
+          position: absolute;
+          width: 460px; height: 460px;
+          background: radial-gradient(circle,
+            rgba(255,107,0,0.20) 0%,
+            rgba(255,140,51,0.08) 50%,
+            transparent 70%);
+          border-radius: 50%;
+          left: 50%; top: 50%; transform: translate(-50%, -50%);
+          pointer-events: none; z-index: 0;
+        }
+
+        /* ─── Hero image wrap ───────────────────── */
+        .hero-img-wrap {
+          position: relative; z-index: 1;
+          width: 100%;
+          max-width: 528px;
+          aspect-ratio: 1 / 1;
+          margin-top: -24px;
+          animation: heroFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-12px); }
+        }
+
+        /* ─── Responsive ────────────────────── */
         @media (min-width: 900px) {
-          .hero-outer-wrap {
-            display: flex;
-            align-items: center;
-            gap: 2.5rem;
+          .hero-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
           }
-          .hero-content {
-            flex: 1;
-            min-width: 0;
-          }
-          .hero-phones-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.875rem;
-            flex-shrink: 0;
-            width: 255px;
-            padding: 1rem 0;
-          }
-          .hero-phone-img {
-            width: 100%;
-            aspect-ratio: 9 / 18;
-            object-fit: cover;
-            border-radius: 18px;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.55),
-                        0 0 0 1px rgba(255,255,255,0.08);
-          }
-          .hero-phones-grid .hero-phone-img:nth-child(2) { margin-top: 2.5rem; }
-          .hero-phones-grid .hero-phone-img:nth-child(4) { margin-top: -2rem; }
+          .hero-right { display: flex !important; }
+          .hero-stat  { padding: 0 2rem 0 0; }
+        }
+
+        @media (min-width: 1200px) {
+          .hero-img-wrap { max-width: 572px; }
+          .hero-right { height: 560px; }
         }
       `}</style>
-    </section>
+    </>
   );
 }

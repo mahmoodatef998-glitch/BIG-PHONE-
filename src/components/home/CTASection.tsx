@@ -45,12 +45,12 @@ export default function CTASection() {
       <style>{`
         .cta-section {
           padding: 5rem 0;
-          background: linear-gradient(135deg, #6C5CE7 0%, #8B7CF6 50%, #A78BFA 100%);
+          background: linear-gradient(135deg, #E55A00 0%, #FF6B00 55%, #FF8C33 100%);
           position: relative; overflow: hidden;
         }
         .cta-blob {
           position: absolute; border-radius: 50%; pointer-events: none;
-          background: rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.08);
         }
         .cta-blob-1 { top: -80px; right: -80px; width: 400px; height: 400px; }
         .cta-blob-2 { bottom: -60px; left: -60px; width: 300px; height: 300px; }
@@ -67,7 +67,7 @@ export default function CTASection() {
           text-decoration: none; transition: all 0.18s;
         }
         .cta-btn-white {
-          background: #fff; color: #6C5CE7;
+          background: #fff; color: #FF6B00;
           box-shadow: 0 4px 16px rgba(0,0,0,0.12);
           font-weight: 700;
         }

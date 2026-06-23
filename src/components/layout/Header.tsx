@@ -10,12 +10,12 @@ const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 void WHATSAPP;
 
 const CATEGORIES_DROP = [
-  { label: 'Smartphones',  href: '/inventory?category=smartphone',  Icon: Smartphone },
-  { label: 'Tablets',      href: '/inventory?category=tablet',      Icon: Tablet },
-  { label: 'Accessories',  href: '/inventory?category=accessory',   Icon: Headphones },
-  { label: 'Laptops',      href: '/inventory?category=laptop',      Icon: Laptop },
-  { label: 'Smart Watches',href: '/inventory?category=watch',       Icon: Watch },
-  { label: 'Gaming',       href: '/inventory?category=gaming',      Icon: Gamepad2 },
+  { label: 'Smartphones',   href: '/inventory?category=smartphone',  Icon: Smartphone },
+  { label: 'Tablets',       href: '/inventory?category=tablet',      Icon: Tablet },
+  { label: 'Accessories',   href: '/inventory?category=accessory',   Icon: Headphones },
+  { label: 'Laptops',       href: '/inventory?category=laptop',      Icon: Laptop },
+  { label: 'Smart Watches', href: '/inventory?category=watch',       Icon: Watch },
+  { label: 'Gaming',        href: '/inventory?category=gaming',      Icon: Gamepad2 },
 ];
 
 export default function Header() {
@@ -60,7 +60,7 @@ export default function Header() {
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', flexShrink: 0 }}>
               <div style={{
                 width: '34px', height: '34px',
-                background: '#6C5CE7',
+                background: '#FF6B00',
                 borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
@@ -94,8 +94,8 @@ export default function Header() {
                   }}>
                     {CATEGORIES_DROP.map(c => (
                       <Link key={c.href} href={c.href} className="cat-drop-item">
-                        <div style={{ width: '28px', height: '28px', background: '#F0EEFF', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <c.Icon size={14} style={{ color: '#6C5CE7' }} />
+                        <div style={{ width: '28px', height: '28px', background: '#FFF3E8', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <c.Icon size={14} style={{ color: '#FF6B00' }} />
                         </div>
                         {c.label}
                       </Link>
@@ -104,7 +104,7 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/rfq" className="hdr-link" style={{ color: '#6C5CE7', fontWeight: 600 }}>Sell on Big Phone</Link>
+              <Link href="/rfq" className="hdr-link" style={{ color: '#FF6B00', fontWeight: 600 }}>Sell on Big Phone</Link>
             </nav>
 
             {/* Right actions */}
@@ -168,13 +168,13 @@ export default function Header() {
                 <Link key={item.href} href={item.href} style={{
                   display: 'block', padding: '0.75rem 1rem', borderRadius: '0.625rem',
                   fontSize: '0.9375rem', fontWeight: active(item.href) ? 700 : 500,
-                  color: active(item.href) ? '#6C5CE7' : '#111827',
-                  background: active(item.href) ? '#F0EEFF' : 'transparent', textDecoration: 'none',
+                  color: active(item.href) ? '#FF6B00' : '#111827',
+                  background: active(item.href) ? '#FFF3E8' : 'transparent', textDecoration: 'none',
                 }}>{item.label}</Link>
               ))}
               {CATEGORIES_DROP.map(c => (
                 <Link key={c.href} href={c.href} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.625rem', fontSize: '0.9375rem', color: '#374151', textDecoration: 'none' }}>
-                  <c.Icon size={16} style={{ color: '#6C5CE7' }} /> {c.label}
+                  <c.Icon size={16} style={{ color: '#FF6B00' }} /> {c.label}
                 </Link>
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
@@ -199,7 +199,7 @@ export default function Header() {
           <Link key={item.href} href={item.href} style={{
             flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
             padding: '0.5rem 0.25rem', gap: '3px',
-            color: active(item.href) ? '#6C5CE7' : '#9CA3AF',
+            color: active(item.href) ? '#FF6B00' : '#9CA3AF',
             fontSize: '0.625rem', fontWeight: 600, textDecoration: 'none',
           }}>
             <item.Icon /> {item.label}
@@ -220,8 +220,8 @@ export default function Header() {
           transition: color 0.15s, background 0.15s;
           white-space: nowrap;
         }
-        .hdr-link:hover { color: #6C5CE7; background: #F5F3FF; }
-        .hdr-link-active { color: #6C5CE7 !important; font-weight: 600; }
+        .hdr-link:hover { color: #FF6B00; background: #FFF3E8; }
+        .hdr-link-active { color: #FF6B00 !important; font-weight: 600; }
 
         .hdr-icon-btn {
           width: 38px; height: 38px;
@@ -231,13 +231,13 @@ export default function Header() {
           transition: all 0.15s; font-family: inherit; flex-shrink: 0;
           position: relative;
         }
-        .hdr-icon-btn:hover { border-color: #6C5CE7; color: #6C5CE7; background: #F5F3FF; }
+        .hdr-icon-btn:hover { border-color: #FF6B00; color: #FF6B00; background: #FFF3E8; }
 
         .hdr-cart { position: relative; }
         .hdr-badge {
           position: absolute; top: -4px; right: -4px;
           width: 16px; height: 16px;
-          background: #6C5CE7; color: #fff;
+          background: #FF6B00; color: #fff;
           border-radius: 50%; font-size: 9px; font-weight: 700;
           display: flex; align-items: center; justify-content: center;
           border: 2px solid #fff;
@@ -247,12 +247,12 @@ export default function Header() {
           display: none;
           align-items: center; gap: 0.375rem;
           padding: 0.5rem 1rem; border-radius: 9999px;
-          border: 1.5px solid #6C5CE7; color: #6C5CE7;
+          border: 1.5px solid #FF6B00; color: #FF6B00;
           font-size: 0.8125rem; font-weight: 600;
           text-decoration: none; transition: all 0.18s;
           white-space: nowrap;
         }
-        .hdr-login:hover { background: #6C5CE7; color: #fff; }
+        .hdr-login:hover { background: #FF6B00; color: #fff; }
 
         .cat-drop-item {
           display: flex; align-items: center; gap: 0.625rem;
@@ -260,7 +260,7 @@ export default function Header() {
           font-size: 0.875rem; color: #374151; text-decoration: none;
           transition: background 0.12s, color 0.12s;
         }
-        .cat-drop-item:hover { background: #F0EEFF; color: #6C5CE7; }
+        .cat-drop-item:hover { background: #FFF3E8; color: #FF6B00; }
 
         .hdr-hamburger { display: inline-flex !important; }
         .mob-bottom-nav {

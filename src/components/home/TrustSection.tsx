@@ -1,7 +1,7 @@
 import { ShieldCheck, BadgeCheck, Truck, Wrench, Star, Lock } from 'lucide-react';
 
 const CARDS = [
-  { icon: ShieldCheck, title: 'Secure Payments',    desc: 'Every transaction is protected with bank-grade encryption.',         color: '#6C5CE7', bg: '#F0EEFF' },
+  { icon: ShieldCheck, title: 'Secure Payments',    desc: 'Every transaction is protected with bank-grade encryption.',         color: '#FF6B00', bg: '#FFF3E8' },
   { icon: BadgeCheck,  title: 'Verified Suppliers', desc: 'All suppliers pass strict identity and quality verification.',         color: '#10B981', bg: '#ECFDF5' },
   { icon: Truck,       title: 'Fast Delivery',       desc: 'Global shipping to 50+ countries with real-time tracking.',           color: '#3B82F6', bg: '#EFF6FF' },
   { icon: Wrench,      title: 'Warranty Support',    desc: 'Devices covered with manufacturer or seller warranty.',               color: '#F59E0B', bg: '#FFFBEB' },
@@ -15,7 +15,7 @@ export default function TrustSection() {
       <section className="section section-bg">
         <div className="container-site">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#6C5CE7', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Why Trust Us</p>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Why Trust Us</p>
             <h2 className="section-title">Built for Serious Buyers</h2>
             <p className="section-subtitle">Everything you need to trade wholesale electronics with confidence.</p>
           </div>
@@ -52,8 +52,8 @@ export default function TrustSection() {
           transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
         }
         .trust-card:hover {
-          border-color: #C4BBFF;
-          box-shadow: 0 6px 20px rgba(108,92,231,0.10);
+          border-color: #FFB366;
+          box-shadow: 0 6px 20px rgba(255,107,0,0.10);
           transform: translateY(-2px);
         }
       `}</style>

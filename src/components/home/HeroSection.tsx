@@ -12,12 +12,12 @@ const STATS = [
 ];
 
 const FLOAT_BADGES = [
-  { title: 'Trusted Sellers',     sub: 'Top rated sellers',    avatar: '⭐', pos: 'top: 6%; left: 2%' },
-  { title: 'Buy Used Safely',     sub: 'Certified devices',    avatar: '🛡️', pos: 'top: 28%; left: -2%' },
-  { title: '24/7 Support',        sub: 'We\'re here',          avatar: '🎧', pos: 'top: 10%; right: 4%' },
-  { title: 'Secure Payments',     sub: '100% protected',       avatar: '🔒', pos: 'top: 38%; right: -2%' },
-  { title: 'Best Prices',         sub: 'Guaranteed',           avatar: '💰', pos: 'bottom: 28%; right: 0%' },
-  { title: 'Satisfaction Guarantee', sub: '7 Days Return Policy', avatar: '✅', pos: 'bottom: 10%; left: 6%' },
+  { title: 'Trusted Sellers',        sub: 'Top rated sellers',       avatar: '⭐', pos: 'top: 6%; left: 2%' },
+  { title: 'Buy Used Safely',        sub: 'Certified devices',       avatar: '🛡️', pos: 'top: 28%; left: -2%' },
+  { title: '24/7 Support',           sub: "We're here",              avatar: '🎧', pos: 'top: 10%; right: 4%' },
+  { title: 'Secure Payments',        sub: '100% protected',          avatar: '🔒', pos: 'top: 38%; right: -2%' },
+  { title: 'Best Prices',            sub: 'Guaranteed',              avatar: '💰', pos: 'bottom: 28%; right: 0%' },
+  { title: 'Satisfaction Guarantee', sub: '7 Days Return Policy',    avatar: '✅', pos: 'bottom: 10%; left: 6%' },
 ];
 
 export default function HeroSection() {
@@ -56,7 +56,7 @@ export default function HeroSection() {
                 {STATS.map(s => (
                   <div key={s.label} className="hero-stat">
                     <div className="hero-stat-icon">
-                      <s.Icon size={20} color="#6C5CE7" />
+                      <s.Icon size={20} color="#FF6B00" />
                     </div>
                     <div className="hero-stat-value">{s.value}</div>
                     <div className="hero-stat-label">{s.label}</div>
@@ -80,37 +80,37 @@ export default function HeroSection() {
               <div className="phones-wrap">
                 {/* Back-left phone */}
                 <div className="phone phone-left">
-                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #1a1a2e 0%, #16213e 100%)' }}>
-                    <div style={{ width: '70%', height: '6px', background: 'rgba(108,92,231,0.5)', borderRadius: '3px', marginBottom: '8px' }} />
+                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #1a0e00 0%, #2d1800 100%)' }}>
+                    <div style={{ width: '70%', height: '6px', background: 'rgba(255,107,0,0.55)', borderRadius: '3px', marginBottom: '8px' }} />
                     <div style={{ width: '50%', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px' }} />
-                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(108,92,231,0.3) 0%, rgba(139,124,246,0.2) 100%)', borderRadius: '8px', marginTop: '12px' }} />
+                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(255,107,0,0.25) 0%, rgba(255,140,51,0.15) 100%)', borderRadius: '8px', marginTop: '12px' }} />
                   </div>
                 </div>
 
                 {/* Center phone */}
                 <div className="phone phone-center">
                   <div className="phone-notch" />
-                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #0f0f23 0%, #1a0533 100%)' }}>
-                    <div style={{ width: '60%', height: '6px', background: 'rgba(167,139,250,0.6)', borderRadius: '3px', marginBottom: '6px' }} />
+                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #0f0800 0%, #1a0d00 100%)' }}>
+                    <div style={{ width: '60%', height: '6px', background: 'rgba(255,140,51,0.65)', borderRadius: '3px', marginBottom: '6px' }} />
                     <div style={{ width: '40%', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', marginBottom: '10px' }} />
-                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(108,92,231,0.4) 0%, rgba(167,139,250,0.3) 100%)', borderRadius: '8px' }} />
+                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(255,107,0,0.35) 0%, rgba(255,160,80,0.25) 100%)', borderRadius: '8px' }} />
                   </div>
                   <div className="phone-home-bar" />
                 </div>
 
                 {/* Back-right phone */}
                 <div className="phone phone-right">
-                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 100%)' }}>
-                    <div style={{ width: '65%', height: '6px', background: 'rgba(196,187,255,0.5)', borderRadius: '3px', marginBottom: '8px' }} />
+                  <div className="phone-screen" style={{ background: 'linear-gradient(160deg, #1c0f00 0%, #2e1800 100%)' }}>
+                    <div style={{ width: '65%', height: '6px', background: 'rgba(255,180,100,0.5)', borderRadius: '3px', marginBottom: '8px' }} />
                     <div style={{ width: '45%', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px' }} />
-                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.25) 100%)', borderRadius: '8px', marginTop: '12px' }} />
+                    <div style={{ flex: 1, background: 'linear-gradient(135deg, rgba(229,90,0,0.3) 0%, rgba(255,107,0,0.2) 100%)', borderRadius: '8px', marginTop: '12px' }} />
                   </div>
                 </div>
               </div>
 
               {/* Floating badges */}
               {FLOAT_BADGES.map((b, i) => (
-                <div key={b.title} className="float-badge" style={{ cssText: b.pos } as React.CSSProperties}
+                <div key={b.title} className="float-badge"
                   // @ts-ignore
                   style={{ position: 'absolute', ...(Object.fromEntries(b.pos.split(';').map(p => p.trim().split(':')).map(([k,v]) => [k.trim(), v?.trim()]).filter(([k]) => k))), background: '#fff', borderRadius: '12px', padding: '8px 12px', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', gap: '8px', animation: `float-y ${2.2 + i*0.25}s ease-in-out infinite alternate`, zIndex: 2 }}
                 >
@@ -128,7 +128,7 @@ export default function HeroSection() {
 
       <style>{`
         .hero-section {
-          background: #F5F3FF;
+          background: #FFF3E8;
           padding: 4rem 0 3.5rem;
           overflow: hidden;
         }
@@ -153,7 +153,6 @@ export default function HeroSection() {
           line-height: 1.65;
           margin: 0 0 1.75rem;
         }
-        /* Search */
         .hero-search-form {
           display: flex;
           align-items: center;
@@ -175,7 +174,7 @@ export default function HeroSection() {
         .hero-search-input::placeholder { color: #9CA3AF; }
         .hero-search-btn {
           padding: 0.625rem 1.5rem;
-          background: #6C5CE7; color: #fff;
+          background: #FF6B00; color: #fff;
           border: none; border-radius: 8px;
           font-size: 0.9375rem; font-weight: 600;
           cursor: pointer; white-space: nowrap;
@@ -183,8 +182,7 @@ export default function HeroSection() {
           transition: background 0.15s;
           flex-shrink: 0;
         }
-        .hero-search-btn:hover { background: #5A4BD1; }
-        /* Stats */
+        .hero-search-btn:hover { background: #E55A00; }
         .hero-stats {
           display: flex;
           gap: 0;
@@ -200,11 +198,11 @@ export default function HeroSection() {
         .hero-stat + .hero-stat::before {
           content: '';
           position: absolute; left: 0; top: 20%; bottom: 20%;
-          width: 1px; background: #DDD8FF;
+          width: 1px; background: #FFD0A0;
         }
         .hero-stat-icon {
           width: 40px; height: 40px;
-          background: #EDE9FE;
+          background: #FFF0E0;
           border-radius: 10px;
           display: flex; align-items: center; justify-content: center;
           margin-bottom: 6px;
@@ -222,7 +220,6 @@ export default function HeroSection() {
         .hero-cta-row {
           display: flex; gap: 0.75rem; flex-wrap: wrap;
         }
-        /* Right visual */
         .hero-right {
           display: none;
           position: relative;
@@ -233,11 +230,10 @@ export default function HeroSection() {
         .hero-glow {
           position: absolute;
           width: 340px; height: 340px;
-          background: radial-gradient(circle, rgba(108,92,231,0.15) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(255,107,0,0.15) 0%, transparent 70%);
           border-radius: 50%;
           left: 50%; top: 50%; transform: translate(-50%, -50%);
         }
-        /* Phones */
         .phones-wrap {
           position: relative;
           width: 240px; height: 360px;
@@ -260,7 +256,7 @@ export default function HeroSection() {
         }
         .phone-left {
           width: 100px; height: 190px;
-          background: #1a1a2e;
+          background: #1a0e00;
           left: -50px; top: 20px;
           z-index: 2;
           transform: rotate(-8deg);
@@ -269,7 +265,7 @@ export default function HeroSection() {
         }
         .phone-right {
           width: 100px; height: 190px;
-          background: #1e1b4b;
+          background: #1c0f00;
           right: -50px; top: 20px;
           z-index: 2;
           transform: rotate(8deg);

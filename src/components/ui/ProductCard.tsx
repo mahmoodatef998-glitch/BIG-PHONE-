@@ -20,7 +20,7 @@ const BRAND_GRADIENT: Record<string, [string, string]> = {
 };
 
 function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; category?: string }) {
-  const [c1, c2] = BRAND_GRADIENT[brandSlug ?? ''] ?? ['#6C5CE7', '#8B7CF6'];
+  const [c1, c2] = BRAND_GRADIENT[brandSlug ?? ''] ?? ['#FF6B00', '#FF8C33'];
   const isTablet = category === 'tablet';
   const isAudio  = category === 'airpods';
   return (
@@ -68,7 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div style={{ padding: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', flex: 1 }}>
         {product.brand && (
-          <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6C5CE7' }}>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#FF6B00' }}>
             {product.brand.name}
           </span>
         )}
@@ -88,7 +88,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {(product.price_aed && product.show_price !== false) ? (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.125rem' }}>
-            <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#6C5CE7', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#FF6B00', letterSpacing: '-0.02em' }}>
               AED {product.price_aed.toLocaleString()}
             </span>
             <span style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>/unit</span>
@@ -132,11 +132,11 @@ export default function ProductCard({ product }: { product: Product }) {
         .pcard-quote-btn {
           flex: 1; display: flex; align-items: center; justify-content: center;
           padding: 0.625rem; border-radius: 8px;
-          background: #6C5CE7; color: #fff;
+          background: #FF6B00; color: #fff;
           font-size: 0.8125rem; font-weight: 700;
           text-decoration: none; transition: background 0.15s; min-height: 40px;
         }
-        .pcard-quote-btn:hover { background: #5A4BD1; }
+        .pcard-quote-btn:hover { background: #E55A00; }
         .pcard-wa-btn {
           width: 40px; height: 40px; border-radius: 8px;
           background: #ECFDF5; color: #10B981; border: 1.5px solid #A7F3D0;

@@ -34,14 +34,14 @@ export default function Footer() {
               <Link href="/" className="footer-logo">
                 <div style={{
                   width: '38px', height: '38px',
-                  background: 'linear-gradient(135deg, #6C5CE7, #8B7CF6)',
+                  background: 'linear-gradient(135deg, #E55A00, #FF8C33)',
                   borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <span style={{ color: '#fff', fontWeight: 900, fontSize: '17px', letterSpacing: '-0.04em' }}>B</span>
                 </div>
                 <div>
                   <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>BIG PHONE</span>
-                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#8B7CF6', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Marketplace</span>
+                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Marketplace</span>
                 </div>
               </Link>
               <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#9CA3AF', maxWidth: '260px', margin: '0 0 1.5rem' }}>
@@ -54,7 +54,7 @@ export default function Footer() {
                   { Icon: Mail,   text: 'wholesale@bigphone.ae' },
                 ].map(({ Icon, text }) => (
                   <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#9CA3AF' }}>
-                    <Icon size={13} style={{ color: '#6C5CE7', flexShrink: 0 }} />
+                    <Icon size={13} style={{ color: '#FF6B00', flexShrink: 0 }} />
                     <span>{text}</span>
                   </div>
                 ))}

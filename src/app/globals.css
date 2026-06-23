@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand:      #6C5CE7;
-  --color-brand-50:   #F0EEFF;
-  --color-brand-100:  #DDD8FF;
-  --color-brand-200:  #C4BBFF;
-  --color-brand-600:  #5A4BD1;
-  --color-brand-700:  #4A3BBF;
+  --color-brand:      #FF6B00;
+  --color-brand-50:   #FFF3E8;
+  --color-brand-100:  #FFD0A0;
+  --color-brand-200:  #FFB366;
+  --color-brand-600:  #E55A00;
+  --color-brand-700:  #CC4D00;
 
   --color-surface:    #FAFAFA;
   --color-border:     #EAEAEA;
@@ -23,10 +23,10 @@
   --shadow-md:  0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg:  0 8px 24px rgba(0,0,0,0.10);
   --shadow-xl:  0 16px 40px rgba(0,0,0,0.12);
-  --shadow-brand: 0 8px 24px rgba(108,92,231,0.25);
+  --shadow-brand: 0 8px 24px rgba(255,107,0,0.25);
 }
 
-/* ─── Base ─────────────────────────────────────────────────────── */
+/* ─── Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -57,7 +57,7 @@ a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
-/* ─── Buttons ───────────────────────────────────────────────────── */
+/* ─── Buttons ──────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -76,14 +76,14 @@ input, textarea, select { font-family: inherit; }
 }
 .btn:active { transform: scale(0.97); }
 
-.btn-primary { background: #6C5CE7; color: #fff; }
-.btn-primary:hover { background: #5A4BD1; box-shadow: 0 4px 14px rgba(108,92,231,0.35); }
+.btn-primary { background: #FF6B00; color: #fff; }
+.btn-primary:hover { background: #E55A00; box-shadow: 0 4px 14px rgba(255,107,0,0.35); }
 
 .btn-secondary { background: #111827; color: #fff; }
 .btn-secondary:hover { background: #1F2937; }
 
-.btn-outline { background: transparent; color: #6C5CE7; border: 1.5px solid #6C5CE7; }
-.btn-outline:hover { background: #6C5CE7; color: #fff; }
+.btn-outline { background: transparent; color: #FF6B00; border: 1.5px solid #FF6B00; }
+.btn-outline:hover { background: #FF6B00; color: #fff; }
 
 .btn-outline-white { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.5); }
 .btn-outline-white:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
@@ -99,7 +99,7 @@ input, textarea, select { font-family: inherit; }
 .btn-xl  { padding: 1.0625rem 2rem; font-size: 1.0625rem; }
 .btn-pill { border-radius: 9999px; }
 
-/* ─── Badges ────────────────────────────────────────────────────── */
+/* ─── Badges ───────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -115,9 +115,9 @@ input, textarea, select { font-family: inherit; }
 .badge-grade-b     { background: #FEF9C3; color: #A16207; }
 .badge-certified   { background: #F3E8FF; color: #7C3AED; }
 .badge-wholesale   { background: #FEE2E2; color: #B91C1C; }
-.badge-purple      { background: #EDE9FE; color: #6C5CE7; }
+.badge-orange      { background: #FFF0E0; color: #C2410C; }
 
-/* ─── Cards ─────────────────────────────────────────────────────── */
+/* ─── Cards ─────────────────────────────────────────────── */
 .card {
   background: #fff;
   border-radius: 1rem;
@@ -129,7 +129,7 @@ input, textarea, select { font-family: inherit; }
 .card:hover {
   box-shadow: 0 8px 24px rgba(0,0,0,0.10);
   transform: translateY(-2px);
-  border-color: #C4BBFF;
+  border-color: #FFB366;
 }
 
 .card-lg { border-radius: 1.5rem; }
@@ -147,12 +147,12 @@ input, textarea, select { font-family: inherit; }
   cursor: pointer;
 }
 .pcard:hover {
-  box-shadow: 0 8px 24px rgba(108,92,231,0.12);
+  box-shadow: 0 8px 24px rgba(255,107,0,0.12);
   transform: translateY(-3px);
-  border-color: #C4BBFF;
+  border-color: #FFB366;
 }
 
-/* ─── Forms ─────────────────────────────────────────────────────── */
+/* ─── Forms ─────────────────────────────────────────────── */
 .form-input {
   width: 100%;
   padding: 0.6875rem 1rem;
@@ -165,8 +165,8 @@ input, textarea, select { font-family: inherit; }
   outline: none;
 }
 .form-input:focus {
-  border-color: #6C5CE7;
-  box-shadow: 0 0 0 3px rgba(108,92,231,0.12);
+  border-color: #FF6B00;
+  box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
 }
 .form-input::placeholder { color: #9CA3AF; }
 
@@ -174,7 +174,7 @@ input, textarea, select { font-family: inherit; }
 .form-error { font-size: 0.75rem; color: #EF4444; margin-top: 0.25rem; }
 .form-group { display: flex; flex-direction: column; }
 
-/* ─── Filter chips ──────────────────────────────────────────────── */
+/* ─── Filter chips ────────────────────────────────────────── */
 .filter-chip {
   display: inline-flex;
   align-items: center;
@@ -190,10 +190,10 @@ input, textarea, select { font-family: inherit; }
   transition: all 0.15s;
   white-space: nowrap;
 }
-.filter-chip:hover { border-color: #6C5CE7; color: #6C5CE7; background: #F0EEFF; }
-.filter-chip-active { background: #6C5CE7; border-color: #6C5CE7; color: #fff; font-weight: 600; }
+.filter-chip:hover { border-color: #FF6B00; color: #FF6B00; background: #FFF3E8; }
+.filter-chip-active { background: #FF6B00; border-color: #FF6B00; color: #fff; font-weight: 600; }
 
-/* ─── Layout ────────────────────────────────────────────────────── */
+/* ─── Layout ────────────────────────────────────────────── */
 .container-site {
   width: 100%;
   max-width: 1280px;
@@ -223,7 +223,7 @@ input, textarea, select { font-family: inherit; }
 @media (min-width: 1100px) { .inv-grid { grid-template-columns: repeat(5, 1fr); } }
 @media (min-width: 1280px) { .inv-grid { grid-template-columns: repeat(6, 1fr); } }
 
-/* ─── Divider / Skeleton ────────────────────────────────────────── */
+/* ─── Divider / Skeleton ───────────────────────────────────────── */
 .divider { border: none; border-top: 1px solid #EAEAEA; }
 
 .skeleton {
@@ -237,7 +237,7 @@ input, textarea, select { font-family: inherit; }
   100% { background-position: -200% 0; }
 }
 
-/* ─── Glassmorphism ─────────────────────────────────────────────── */
+/* ─── Glassmorphism ─────────────────────────────────────────── */
 .glass {
   background: rgba(255,255,255,0.7);
   backdrop-filter: blur(12px);
@@ -245,29 +245,29 @@ input, textarea, select { font-family: inherit; }
   border: 1px solid rgba(255,255,255,0.5);
 }
 
-/* ─── Gradient text ─────────────────────────────────────────────── */
+/* ─── Gradient text ─────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #6C5CE7, #A78BFA);
+  background: linear-gradient(135deg, #FF6B00, #FF8C33);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────── */
+/* ─── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #F9FAFB; }
 ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
-/* ─── Focus ─────────────────────────────────────────────────────── */
-:focus-visible { outline: 2px solid #6C5CE7; outline-offset: 2px; }
+/* ─── Focus ─────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid #FF6B00; outline-offset: 2px; }
 
 /* ─── Mobile bottom nav spacer ──────────────────────────────────── */
 @media (max-width: 767px) {
   .mobile-nav-spacer { padding-bottom: 4.5rem; }
 }
 
-/* ─── Reduced motion ────────────────────────────────────────────── */
+/* ─── Reduced motion ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

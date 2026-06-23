@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Smartphone, Tablet, Laptop, Headphones, Watch, Gamepad2, Music, Package } from 'lucide-react';
 
 const CATS = [
-  { label: 'Smartphones',  href: '/inventory?category=smartphone', icon: Smartphone, color: '#6C5CE7', bg: '#F0EEFF' },
+  { label: 'Smartphones',  href: '/inventory?category=smartphone', icon: Smartphone, color: '#FF6B00', bg: '#FFF3E8' },
   { label: 'Tablets',      href: '/inventory?category=tablet',     icon: Tablet,     color: '#3B82F6', bg: '#EFF6FF' },
   { label: 'Laptops',      href: '/inventory?category=laptop',     icon: Laptop,     color: '#10B981', bg: '#ECFDF5' },
   { label: 'Earbuds',      href: '/inventory?category=airpods',    icon: Headphones, color: '#F59E0B', bg: '#FFFBEB' },
@@ -18,10 +18,10 @@ export default function CategoriesSection() {
       <div className="container-site">
         <div className="section-header">
           <div>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#6C5CE7', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Shop by Category</p>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Shop by Category</p>
             <h2 className="section-title">Top Categories</h2>
           </div>
-          <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6C5CE7', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
+          <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#FF6B00', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
             View All →
           </Link>
         </div>
@@ -63,10 +63,10 @@ export default function CategoriesSection() {
           text-decoration: none; transition: all 0.18s; cursor: pointer; gap: 0.75rem;
         }
         .cat-card:hover {
-          border-color: var(--cc, #6C5CE7);
-          box-shadow: 0 6px 20px rgba(108,92,231,0.12);
+          border-color: var(--cc, #FF6B00);
+          box-shadow: 0 6px 20px rgba(255,107,0,0.10);
           transform: translateY(-3px);
-          background: var(--cc-bg, #F0EEFF);
+          background: var(--cc-bg, #FFF3E8);
         }
         .cat-icon {
           width: 56px; height: 56px; border-radius: 1rem;

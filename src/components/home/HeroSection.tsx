@@ -27,7 +27,7 @@ export default function HeroSection() {
               {/* Eyebrow */}
               <div className="hero-eyebrow">
                 <span className="hero-eyebrow-dot" />
-                UAE’s #1 B2B Mobile Platform
+                UAE's #1 B2B Mobile Platform
               </div>
 
               {/* Headline */}
@@ -230,14 +230,15 @@ export default function HeroSection() {
         .hero-img-wrap {
           position: relative; z-index: 1;
           width: 100%;
-          max-width: 480px;
-          aspect-ratio: 1 / 1;     /* square — matches 716×716 source */
+          max-width: 528px;
+          aspect-ratio: 1 / 1;
+          margin-top: -24px;
           animation: heroFloat 8s ease-in-out infinite;
         }
 
         @keyframes heroFloat {
           0%, 100% { transform: translateY(0); }
-          50%       { transform: translateY(-10px); }
+          50%       { transform: translateY(-12px); }
         }
 
         /* ─── Responsive ──────────────────────── */
@@ -251,7 +252,7 @@ export default function HeroSection() {
         }
 
         @media (min-width: 1200px) {
-          .hero-img-wrap { max-width: 520px; }
+          .hero-img-wrap { max-width: 572px; }
           .hero-right { height: 560px; }
         }
       `}</style>

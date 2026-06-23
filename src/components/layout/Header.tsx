@@ -2,257 +2,351 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, User, Menu, X, ChevronDown, Smartphone, Tablet, Headphones, Laptop, Watch, Gamepad2 } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Menu, X, Search, MessageCircle, ChevronDown, Globe, LayoutDashboard } from 'lucide-react';
 
-const CATEGORIES_DROP = [
-  { label: 'Smartphones',   href: '/inventory?category=smartphone',  Icon: Smartphone },
-  { label: 'Tablets',       href: '/inventory?category=tablet',      Icon: Tablet },
-  { label: 'Accessories',   href: '/inventory?category=accessory',   Icon: Headphones },
-  { label: 'Laptops',       href: '/inventory?category=laptop',      Icon: Laptop },
-  { label: 'Smart Watches', href: '/inventory?category=watch',       Icon: Watch },
-  { label: 'Gaming',        href: '/inventory?category=gaming',      Icon: Gamepad2 },
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/inventory', label: 'Inventory' },
+  { href: '/brands', label: 'Brands', hasDropdown: true },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
 ];
 
-function CamelLogo({ size = 68 }: { size?: number }) {
-  const showH = Math.round(size * 0.64);
-  return (
-    <div style={{ width: size, height: showH, overflow: 'hidden', flexShrink: 0, lineHeight: 0 }}>
-      <Image
-        src="/images/WhatsApp Image 2026-06-22 at 10.49.38 PM.jpeg"
-        alt="BIG PHONE camel logo"
-        width={size}
-        height={size}
-        priority
-        style={{
-          width: size,
-          height: size,
-          objectFit: 'cover',
-          objectPosition: 'center top',
-          display: 'block',
-        }}
-      />
-    </div>
-  );
-}
+const brandLinks = [
+  { href: '/brands/apple',   label: 'Apple' },
+  { href: '/brands/samsung', label: 'Samsung' },
+  { href: '/brands/xiaomi',  label: 'Xiaomi' },
+  { href: '/brands/huawei',  label: 'Huawei' },
+  { href: '/brands/oppo',    label: 'Oppo' },
+  { href: '/brands/vivo',    label: 'Vivo' },
+];
+
+const categoryPills = [
+  { label: 'Smartphones',  href: '/inventory?category=smartphone' },
+  { label: 'Tablets',      href: '/inventory?category=tablet' },
+  { label: 'Accessories',  href: '/inventory?category=accessory' },
+  { label: 'Apple',        href: '/inventory?brand=apple' },
+  { label: 'Samsung',      href: '/inventory?brand=samsung' },
+  { label: 'Xiaomi',       href: '/inventory?brand=xiaomi' },
+  { label: 'Huawei',       href: '/inventory?brand=huawei' },
+];
+
+const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function Header() {
-  const { t, toggle, isRTL } = useLanguage();
-  const [menuOpen,   setMenuOpen]   = useState(false);
-  const [catOpen,    setCatOpen]    = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [scrolled,   setScrolled]   = useState(false);
-  const [search,     setSearch]     = useState('');
+  const [search, setSearch] = useState('');
+  const [brandsOpen, setBrandsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 4);
-    window.addEventListener('scroll', fn, { passive: true });
-    return () => window.removeEventListener('scroll', fn);
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); setSearchOpen(false); }, [pathname]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setSearchOpen(false);
+  }, [pathname]);
 
-  const active = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
-  const NAV = [
-    { href: '/',                        label: 'Home' },
-    { href: '/inventory',               label: 'Marketplace' },
-    { href: '/brands',                  label: 'Stores' },
-    { href: '/inventory?featured=true', label: 'Deals' },
-  ];
+  const isCategoryActive = (href: string) =>
+    pathname + (typeof window !== 'undefined' ? window.location.search : '') === href;
 
   return (
     <>
-      <header className="site-header" style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: '#fff',
-        borderBottom: '1px solid #EAEAEA',
-        boxShadow: scrolled ? '0 2px 16px rgba(0,0,0,0.07)' : 'none',
-        transition: 'box-shadow 0.2s',
-      }}>
-        <div className="container-site">
-          <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
+      <header
+        style={{
+          position: 'sticky', top: 0, zIndex: 50,
+          background: '#fff', borderBottom: '1px solid #DDE3EA',
+          boxShadow: scrolled ? '0 2px 12px 0 rgba(13,27,42,0.1)' : 'none',
+          transition: 'box-shadow 0.2s',
+        }}
+      >
+        {/* Announcement bar */}
+        <div style={{ background: '#0B1829', padding: '7px 0' }}>
+          <div className="container-site">
+            <p style={{
+              fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8',
+              textAlign: 'center', margin: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+              flexWrap: 'wrap',
+            }}>
+              <Globe size={12} style={{ color: '#0066FF', flexShrink: 0 }} />
+              <span style={{ color: '#fff' }}>Global Export</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>50+ Countries</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>MOQ from 5 Units</span>
+              <span style={{ color: '#334155' }}>·</span>
+              <span>WhatsApp 24/7</span>
+            </p>
+          </div>
+        </div>
 
-            {/* ── Logo ────────────────────────────── */}
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
-              <CamelLogo size={72} />
-              <div style={{ lineHeight: 1 }}>
-                <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
-                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>MARKETPLACE</div>
+        {/* Main header bar */}
+        <div className="container-site">
+          <div style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '1.5rem' }}>
+
+            {/* Logo */}
+            <Link
+              href="/"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                textDecoration: 'none', flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: '34px', height: '34px', background: '#0B1829',
+                borderRadius: '8px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ color: '#0066FF', fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>B</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#0B1829', letterSpacing: '-0.03em' }}>BIG PHONE</span>
               </div>
             </Link>
 
-            {/* ── Desktop Nav ────────────────────── */}
-            <nav className="hdr-nav">
-              {NAV.map(item => (
-                <Link key={item.href} href={item.href} className={`hdr-link${active(item.href) ? ' hdr-link-active' : ''}`}>
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Categories dropdown */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={() => setCatOpen(true)}
-                onMouseLeave={() => setCatOpen(false)}
-              >
-                <button className="hdr-link" style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer' }}>
-                  Categories <ChevronDown size={13} />
-                </button>
-                {catOpen && (
-                  <div style={{
-                    position: 'absolute', top: '100%', left: 0, marginTop: '2px',
-                    background: '#fff', border: '1px solid #EAEAEA',
-                    borderRadius: '0.75rem', boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
-                    padding: '0.5rem', minWidth: '200px', zIndex: 100,
-                  }}>
-                    {CATEGORIES_DROP.map(c => (
-                      <Link key={c.href} href={c.href} className="cat-drop-item">
-                        <div style={{ width: '28px', height: '28px', background: '#FFF3E8', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <c.Icon size={14} style={{ color: '#FF6B00' }} />
-                        </div>
-                        {c.label}
-                      </Link>
-                    ))}
+            {/* Desktop Nav */}
+            <nav style={{ alignItems: 'center', gap: '0.125rem', flex: 1, display: 'none' }} className="md-nav">
+              {navLinks.map((link) => (
+                link.hasDropdown ? (
+                  <div key={link.href} style={{ position: 'relative' }}
+                    onMouseEnter={() => setBrandsOpen(true)}
+                    onMouseLeave={() => setBrandsOpen(false)}
+                  >
+                    <button style={{
+                      display: 'flex', alignItems: 'center', gap: '0.25rem',
+                      padding: '0.5rem 0.75rem', borderRadius: '0.375rem',
+                      border: 'none', background: 'transparent',
+                      fontSize: '0.875rem', fontWeight: 500,
+                      color: isActive(link.href) ? '#0066FF' : '#4B5563',
+                      cursor: 'pointer', transition: 'color 0.15s',
+                    }}>
+                      {link.label}
+                      <ChevronDown size={14} />
+                    </button>
+                    {brandsOpen && (
+                      <div style={{
+                        position: 'absolute', top: '100%', left: 0,
+                        background: '#fff', border: '1px solid #DDE3EA',
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 8px 24px -4px rgba(13,27,42,0.15)',
+                        padding: '0.5rem', minWidth: '160px', zIndex: 100,
+                      }}>
+                        {brandLinks.map(b => (
+                          <Link key={b.href} href={b.href} className="dropdown-link">
+                            {b.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-
-              <Link href="/rfq" className="hdr-link" style={{ color: '#FF6B00', fontWeight: 700 }}>Get a Quote</Link>
+                ) : (
+                  <Link key={link.href} href={link.href} style={{
+                    padding: '0.5rem 0.75rem', borderRadius: '0.375rem',
+                    fontSize: '0.875rem', fontWeight: 500,
+                    color: isActive(link.href) ? '#0066FF' : '#4B5563',
+                    transition: 'color 0.15s, background 0.15s',
+                    textDecoration: 'none',
+                  }}>
+                    {link.label}
+                  </Link>
+                )
+              ))}
             </nav>
 
-            {/* ── Right actions ───────────────────── */}
+            {/* Right side actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-              <button onClick={toggle} className="hdr-icon-btn" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
-                {t.header.switchLang}
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                style={{
+                  width: '36px', height: '36px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: '0.375rem', border: '1px solid #DDE3EA',
+                  background: '#fff', color: '#4B5563',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                aria-label="Search"
+              >
+                <Search size={16} />
               </button>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label="Search">
-                <Search size={17} />
-              </button>
-              <Link href="/login" className="hdr-login hdr-login-desktop">
-                <User size={15} />
-                Sign In
+
+              <Link href="/admin" className="admin-btn">
+                <LayoutDashboard size={15} />
+                <span className="admin-btn-label">Admin</span>
               </Link>
-              <button onClick={() => setMenuOpen(!menuOpen)} className="hdr-icon-btn hdr-hamburger" aria-label="Menu">
+
+              <a
+                href={`https://wa.me/${WHATSAPP}`}
+                target="_blank" rel="noopener noreferrer"
+                className="btn btn-sm header-wa-btn"
+                style={{ background: '#00A850', color: '#fff', gap: '0.375rem', display: 'none' }}
+              >
+                <MessageCircle size={14} />
+                <span>WhatsApp</span>
+              </a>
+
+              <Link
+                href="/rfq"
+                className="btn btn-primary btn-sm header-quote-btn"
+                style={{ display: 'none' }}
+              >
+                Get Quote
+              </Link>
+
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                style={{
+                  width: '36px', height: '36px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: '0.375rem', border: '1px solid #DDE3EA',
+                  background: '#fff', color: '#4B5563', cursor: 'pointer',
+                }}
+                aria-label="Menu"
+              >
                 {menuOpen ? <X size={18} /> : <Menu size={18} />}
               </button>
             </div>
           </div>
 
-          {/* Search bar */}
+          {/* Search bar (expandable) */}
           {searchOpen && (
             <div style={{ paddingBottom: '0.75rem' }}>
               <form action="/inventory" method="get" style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                <Search size={16} style={{
+                  position: 'absolute', left: '0.75rem', top: '50%',
+                  transform: 'translateY(-50%)', color: '#8B9DB5',
+                }} />
                 <input
-                  autoFocus type="search" name="search"
-                  value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder={t.header.searchPlaceholder}
+                  autoFocus
+                  type="search"
+                  name="search"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search iPhone 15, Samsung S24, iPad..."
                   className="form-input"
-                  style={{ paddingLeft: '2.75rem' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '1rem' }}
                 />
               </form>
             </div>
           )}
         </div>
 
-        {/* Mobile drawer */}
-        {menuOpen && (
-          <div style={{ background: '#fff', borderTop: '1px solid #EAEAEA', padding: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              {NAV.map(item => (
-                <Link key={item.href} href={item.href} style={{
-                  display: 'block', padding: '0.75rem 1rem', borderRadius: '0.625rem',
-                  fontSize: '0.9375rem', fontWeight: active(item.href) ? 700 : 500,
-                  color: active(item.href) ? '#FF6B00' : '#111827',
-                  background: active(item.href) ? '#FFF3E8' : 'transparent', textDecoration: 'none',
-                }}>{item.label}</Link>
-              ))}
-              {CATEGORIES_DROP.map(c => (
-                <Link key={c.href} href={c.href} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.625rem', fontSize: '0.9375rem', color: '#374151', textDecoration: 'none' }}>
-                  <c.Icon size={16} style={{ color: '#FF6B00' }} /> {c.label}
+        {/* Category strip — desktop only */}
+        <div className="category-strip cat-strip-desktop">
+          <div className="container-site">
+            <div style={{
+              display: 'flex', gap: '0.5rem', padding: '0.5rem 0',
+              overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none',
+            }}>
+              {categoryPills.map((pill) => (
+                <Link
+                  key={pill.href}
+                  href={pill.href}
+                  className={`cat-pill${isCategoryActive(pill.href) ? ' cat-pill-active' : ''}`}
+                >
+                  {pill.label}
                 </Link>
               ))}
-              <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
-              <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>Get a Quote</Link>
-              <Link href="/login" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>
-                <User size={16} /> Sign In / Register
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div style={{
+            background: '#fff', borderTop: '1px solid #DDE3EA', padding: '1rem',
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              {navLinks.map(link => (
+                <Link key={link.href} href={link.href} style={{
+                  display: 'block', padding: '0.75rem 1rem', borderRadius: '0.5rem',
+                  fontSize: '0.9375rem', fontWeight: 500,
+                  color: isActive(link.href) ? '#0066FF' : '#1A2332',
+                  background: isActive(link.href) ? '#E5F0FF' : 'transparent',
+                  textDecoration: 'none',
+                }}>
+                  {link.label}
+                </Link>
+              ))}
+              <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #DDE3EA' }} />
+              <Link href="/admin" style={{
+                display: 'flex', alignItems: 'center', gap: '0.625rem',
+                padding: '0.75rem 1rem', borderRadius: '0.5rem',
+                fontSize: '0.9375rem', fontWeight: 500,
+                color: '#0B1829', background: '#F1F5F9',
+                textDecoration: 'none',
+              }}>
+                <LayoutDashboard size={17} style={{ color: '#0066FF' }} />
+                Admin Dashboard
               </Link>
-              <button onClick={toggle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #EAEAEA', background: '#FAFAFA', color: '#374151', fontSize: '0.9375rem', fontWeight: 600, cursor: 'pointer' }}>
-                {isRTL ? 'Switch to English' : 'التبديل إلى العربية'}
-              </button>
+              <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center' }}>
+                Request a Quote
+              </Link>
+              <a
+                href={`https://wa.me/${WHATSAPP}`}
+                target="_blank" rel="noopener noreferrer"
+                className="btn btn-whatsapp"
+                style={{ textAlign: 'center' }}
+              >
+                <MessageCircle size={16} />
+                Chat on WhatsApp
+              </a>
             </div>
           </div>
         )}
       </header>
 
-      {/* Mobile bottom nav */}
-      <nav className="mob-bottom-nav">
-        {[
-          { href: '/',          Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>, label: 'Home' },
-          { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: 'Shop' },
-          { href: '/rfq',        Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>, label: 'Quote' },
-          { href: '/inventory?featured=true', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>, label: 'Deals' },
-          { href: '/login',      Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: 'Sign In' },
-        ].map(item => (
-          <Link key={item.href} href={item.href} style={{
-            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-            padding: '0.5rem 0.25rem', gap: '3px',
-            color: active(item.href) ? '#FF6B00' : '#9CA3AF',
-            fontSize: '0.625rem', fontWeight: 600, textDecoration: 'none',
-          }}>
-            <item.Icon /> {item.label}
-          </Link>
-        ))}
-      </nav>
-
       <style>{`
-        .hdr-nav { display: none; align-items: center; gap: 0; }
-        .hdr-link {
-          padding: 0.5rem 0.75rem;
-          font-size: 0.875rem; font-weight: 500; color: #374151;
-          text-decoration: none; border-radius: 0.375rem;
-          transition: color 0.15s, background 0.15s; white-space: nowrap;
-        }
-        .hdr-link:hover { color: #FF6B00; background: #FFF3E8; }
-        .hdr-link-active { color: #FF6B00 !important; font-weight: 600; }
-        .hdr-icon-btn {
-          width: 38px; height: 38px;
-          display: inline-flex; align-items: center; justify-content: center;
-          border-radius: 50%; border: 1.5px solid #EAEAEA;
-          background: #fff; color: #374151; cursor: pointer;
-          transition: all 0.15s; font-family: inherit; flex-shrink: 0;
-        }
-        .hdr-icon-btn:hover { border-color: #FF6B00; color: #FF6B00; background: #FFF3E8; }
-        .hdr-login {
-          display: none; align-items: center; gap: 0.375rem;
-          padding: 0.5rem 1rem; border-radius: 9999px;
-          border: 1.5px solid #FF6B00; color: #FF6B00;
-          font-size: 0.8125rem; font-weight: 700;
-          text-decoration: none; transition: all 0.18s; white-space: nowrap;
-        }
-        .hdr-login:hover { background: #FF6B00; color: #fff; }
-        .cat-drop-item {
-          display: flex; align-items: center; gap: 0.625rem;
-          padding: 0.5rem 0.75rem; border-radius: 0.5rem;
-          font-size: 0.875rem; color: #374151; text-decoration: none;
-          transition: background 0.12s, color 0.12s;
-        }
-        .cat-drop-item:hover { background: #FFF3E8; color: #FF6B00; }
-        .hdr-hamburger { display: inline-flex !important; }
-        .mob-bottom-nav {
-          position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-          background: #fff; border-top: 1px solid #EAEAEA;
-          display: flex; padding-bottom: env(safe-area-inset-bottom);
-        }
+        .cat-strip-desktop { display: none; }
         @media (min-width: 768px) {
-          .hdr-nav { display: flex !important; }
-          .hdr-login-desktop { display: inline-flex !important; }
-          .hdr-hamburger { display: none !important; }
-          .mob-bottom-nav { display: none !important; }
+          .md-nav { display: flex !important; }
+          header button[aria-label="Menu"] { display: none !important; }
+          .header-wa-btn { display: inline-flex !important; }
+          .header-quote-btn { display: inline-flex !important; }
+          .cat-strip-desktop { display: block; }
         }
+        .cat-strip-desktop div::-webkit-scrollbar { display: none; }
+        .cat-pill {
+          display: inline-flex; align-items: center;
+          padding: 0.375rem 0.875rem; border-radius: 9999px;
+          border: 1.5px solid #DDE3EA; background: #fff; color: #4B5563;
+          font-size: 0.8125rem; font-weight: 600;
+          white-space: nowrap; text-decoration: none;
+          transition: all 0.15s; flex-shrink: 0;
+        }
+        .cat-pill:hover { border-color: #0066FF; color: #0066FF; background: #E5F0FF; }
+        .cat-pill-active { border-color: #0066FF !important; color: #0066FF !important; background: #E5F0FF !important; }
+        .dropdown-link {
+          display: block; padding: 0.5rem 0.75rem;
+          font-size: 0.875rem; color: #4B5563;
+          border-radius: 0.375rem; text-decoration: none;
+          transition: background 0.1s, color 0.1s;
+        }
+        .dropdown-link:hover { background: #E5F0FF; color: #0066FF; }
+        .admin-btn {
+          display: inline-flex; align-items: center; gap: 0.375rem;
+          height: 36px; padding: 0 0.75rem;
+          border-radius: 0.375rem;
+          background: #0B1829; color: #fff;
+          font-size: 0.8125rem; font-weight: 700;
+          border: none; text-decoration: none;
+          transition: background 0.15s;
+          white-space: nowrap;
+        }
+        .admin-btn:hover { background: #0066FF !important; }
+        .admin-btn-label { display: none; }
+        @media (min-width: 768px) { .admin-btn-label { display: inline; } }
       `}</style>
     </>
   );

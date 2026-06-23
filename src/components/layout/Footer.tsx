@@ -1,132 +1,147 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { MapPin, Mail, Phone } from 'lucide-react';
+import { MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
 
-const LINKS = {
-  marketplace: [
-    { label: 'Browse All',       href: '/inventory' },
-    { label: 'Brands',           href: '/brands' },
-    { label: 'New Arrivals',     href: '/inventory?condition=brand-new' },
-    { label: 'Deals',            href: '/inventory?featured=true' },
-    { label: 'Request a Quote',  href: '/rfq' },
-  ],
-  categories: [
-    { label: 'Smartphones', href: '/inventory?category=smartphone' },
-    { label: 'Tablets',     href: '/inventory?category=tablet' },
-    { label: 'Accessories', href: '/inventory?category=accessory' },
-    { label: 'Laptops',     href: '/inventory?category=laptop' },
-  ],
-  support: [
-    { label: 'Contact Us', href: '/contact' },
-    { label: 'About Us',   href: '/about' },
-    { label: 'Admin',      href: '/admin' },
-  ],
-};
+const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function Footer() {
-  const year = new Date().getFullYear();
   return (
-    <>
-      <footer style={{ background: '#111827', color: '#D1D5DB' }}>
-        <div className="container-site" style={{ paddingTop: '3.5rem', paddingBottom: '2.5rem' }}>
-          <div className="footer-grid">
-            {/* Brand */}
-            <div className="footer-brand-col">
-              <Link href="/" className="footer-logo">
-                {/* Camel mark on dark background — invert for visibility */}
-                <div style={{
-                  width: '64px',
-                  height: '42px',
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  lineHeight: 0,
-                  borderRadius: '6px',
-                  background: 'rgba(255,255,255,0.06)',
-                }}>
-                  <Image
-                    src="/images/WhatsApp Image 2026-06-22 at 10.49.38 PM.jpeg"
-                    alt="BIG PHONE"
-                    width={64}
-                    height={64}
-                    style={{
-                      width: '64px',
-                      height: '64px',
-                      objectFit: 'cover',
-                      objectPosition: 'center top',
-                      display: 'block',
-                      filter: 'brightness(0.9) contrast(1.05)',
-                    }}
-                  />
-                </div>
-                <div>
-                  <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>BIG PHONE</span>
-                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Marketplace</span>
-                </div>
-              </Link>
-              <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#9CA3AF', maxWidth: '260px', margin: '0 0 1.5rem' }}>
-                UAE’s trusted B2B platform for buying and selling wholesale mobile devices from verified suppliers.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                {[
-                  { Icon: MapPin, text: 'Dubai, United Arab Emirates' },
-                  { Icon: Phone,  text: `+${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000'}` },
-                  { Icon: Mail,   text: 'wholesale@bigphone.ae' },
-                ].map(({ Icon, text }) => (
-                  <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#9CA3AF' }}>
-                    <Icon size={13} style={{ color: '#FF6B00', flexShrink: 0 }} />
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <footer style={{ background: '#0F172A', color: '#94a3b8', marginTop: 'auto' }}>
+      <div className="container-site" style={{ padding: '3.5rem 1rem 2rem' }}>
+        <div className="footer-grid">
 
-            {/* Link columns */}
-            {(Object.entries({ Marketplace: LINKS.marketplace, Categories: LINKS.categories, Support: LINKS.support }) as [string, { label: string; href: string }[]][]).map(([title, items]) => (
-              <div key={title}>
-                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fff', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1rem' }}>{title}</h4>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                  {items.map(item => (
-                    <li key={item.href}>
-                      <Link href={item.href} className="footer-link">{item.label}</Link>
-                    </li>
-                  ))}
-                </ul>
+          {/* Brand */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <div style={{
+                width: '32px', height: '32px',
+                background: '#0B1829', borderRadius: '8px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ color: '#0066FF', fontWeight: 800, fontSize: '14px' }}>B</span>
               </div>
+              <span style={{ color: '#fff', fontWeight: 800, fontSize: '1.0625rem', letterSpacing: '-0.02em' }}>BIG PHONE</span>
+            </div>
+            <p style={{ fontSize: '0.875rem', lineHeight: 1.7, maxWidth: '280px', color: '#94a3b8' }}>
+              Leading B2B wholesale supplier of refurbished and brand new smartphones, tablets and accessories.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+              <a
+                href={`https://wa.me/${WHATSAPP}`}
+                target="_blank" rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-sm"
+              >
+                <MessageCircle size={14} /> WhatsApp
+              </a>
+              <a
+                href="mailto:info@bigphone.ae"
+                className="btn btn-sm footer-email-btn"
+              >
+                <Mail size={14} /> Email Us
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="footer-col-heading">Quick Links</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {[
+                { href: '/inventory', label: 'Browse Inventory' },
+                { href: '/brands',    label: 'Shop by Brand' },
+                { href: '/rfq',       label: 'Request Quotation' },
+                { href: '/about',     label: 'About Us' },
+                { href: '/contact',   label: 'Contact' },
+              ].map(l => (
+                <li key={l.href}>
+                  <Link href={l.href} className="footer-link">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Brands */}
+          <div>
+            <h3 className="footer-col-heading">Top Brands</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {['Apple', 'Samsung', 'Xiaomi', 'Huawei', 'Oppo', 'Vivo'].map(brand => (
+                <li key={brand}>
+                  <Link href={`/brands/${brand.toLowerCase()}`} className="footer-link">{brand} Devices</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="footer-col-heading">Contact</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <li style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start' }}>
+                <MapPin size={15} style={{ color: '#0066FF', flexShrink: 0, marginTop: '2px' }} />
+                <span style={{ fontSize: '0.875rem' }}>Dubai, United Arab Emirates</span>
+              </li>
+              <li style={{ display: 'flex', gap: '0.625rem', alignItems: 'center' }}>
+                <Phone size={15} style={{ color: '#0066FF', flexShrink: 0 }} />
+                <a href={`tel:+${WHATSAPP}`} className="footer-link">+{WHATSAPP}</a>
+              </li>
+              <li style={{ display: 'flex', gap: '0.625rem', alignItems: 'center' }}>
+                <Mail size={15} style={{ color: '#0066FF', flexShrink: 0 }} />
+                <a href="mailto:info@bigphone.ae" className="footer-link">info@bigphone.ae</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          marginTop: '2.5rem', paddingTop: '1.5rem',
+          display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem',
+        }}>
+          <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
+            © {new Date().getFullYear()} BIG PHONE. All rights reserved.
+          </p>
+          <div style={{ display: 'flex', gap: '1.25rem' }}>
+            {['Privacy Policy', 'Terms of Service'].map(t => (
+              <span key={t} style={{ fontSize: '0.8125rem', color: '#64748B' }}>{t}</span>
             ))}
           </div>
         </div>
-
-        <div style={{ borderTop: '1px solid #1F2937', padding: '1.25rem 0' }}>
-          <div className="container-site" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <p style={{ fontSize: '0.8125rem', color: '#6B7280', margin: 0 }}>
-              &copy; {year} BIG PHONE. All rights reserved.
-            </p>
-            <div style={{ display: 'flex', gap: '1.25rem' }}>
-              {['Privacy Policy', 'Terms of Service'].map(t => (
-                <span key={t} style={{ fontSize: '0.8125rem', color: '#6B7280', cursor: 'pointer' }}>{t}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
+      </div>
 
       <style>{`
         .footer-grid {
-          display: grid; grid-template-columns: 1fr; gap: 2.5rem;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
         }
-        @media (min-width: 640px)  { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
-        .footer-brand-col { grid-column: span 1; }
-        .footer-logo {
-          display: inline-flex; align-items: center; gap: 0.625rem;
-          margin-bottom: 1.25rem; text-decoration: none;
+        @media (min-width: 640px) {
+          .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem 3rem; }
+        }
+        @media (min-width: 1024px) {
+          .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+        }
+        .footer-col-heading {
+          color: #fff;
+          font-size: 0.875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin: 0 0 1rem;
         }
         .footer-link {
-          font-size: 0.875rem; color: #9CA3AF;
-          text-decoration: none; transition: color 0.15s;
+          font-size: 0.875rem;
+          color: #94a3b8;
+          text-decoration: none;
+          transition: color 0.15s;
         }
         .footer-link:hover { color: #fff; }
+        .footer-email-btn {
+          background: rgba(255,255,255,0.08) !important;
+          color: #fff !important;
+          border: 1px solid rgba(255,255,255,0.15) !important;
+        }
       `}</style>
-    </>
+    </footer>
   );
 }

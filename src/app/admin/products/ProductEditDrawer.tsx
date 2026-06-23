@@ -7,35 +7,18 @@ import { createClient } from '@/lib/supabase/client';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
-async function ensureBucket(): Promise<boolean> {
-  try {
-    const res = await fetch('/api/admin/setup-storage', { method: 'POST' });
-    const json = await res.json();
-    return json.ok === true;
-  } catch {
-    return false;
-  }
-}
-
 async function uploadToStorage(file: File): Promise<string | null> {
-  const supabase = createClient();
-  const ext = file.name.split('.').pop() ?? 'jpg';
-  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-  const doUpload = () =>
-    supabase.storage.from('product-images').upload(path, file, { contentType: file.type, upsert: false });
-
-  let { error } = await doUpload();
-
-  if (error?.message?.toLowerCase().includes('bucket')) {
-    const ready = await ensureBucket();
-    if (!ready) { console.error('[upload] bucket setup failed'); return null; }
-    ({ error } = await doUpload());
+  const form = new FormData();
+  form.append('file', file);
+  try {
+    const res = await fetch('/api/admin/upload-image', { method: 'POST', body: form });
+    const json = await res.json();
+    if (!json.ok) { console.error('[upload]', json.error); return null; }
+    return json.url as string;
+  } catch (e) {
+    console.error('[upload]', e);
+    return null;
   }
-
-  if (error) { console.error('[upload]', error.message); return null; }
-  const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-  return data.publicUrl;
 }
 
 type FormState = {
@@ -206,7 +189,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         setStatus('error');
         setErrorMsg(
           error.message.includes('price_aed') || error.message.includes('show_price')
-            ? 'Run this SQL in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
+            ? 'Run SQL migration in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
             : error.message
         );
         return;
@@ -219,7 +202,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         setStatus('error');
         setErrorMsg(
           error.message.includes('price_aed') || error.message.includes('show_price')
-            ? 'Run this SQL in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
+            ? 'Run SQL migration in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
             : error.message
         );
         return;
@@ -311,7 +294,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
         {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
-          {/* Images */}
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -355,7 +337,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             )}
           </SectionCard>
 
-          {/* Basic Info */}
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
@@ -391,7 +372,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* Inventory */}
           <SectionCard icon={Package} title="Inventory">
             <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '0.5rem' }}>
               <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
@@ -451,7 +431,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* Condition & Specs */}
           <SectionCard icon={Cpu} title="Condition & Specs">
             <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
@@ -480,7 +459,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
             </div>
           </SectionCard>
 
-          {/* Status */}
           <SectionCard icon={ToggleLeft} title="Status">
             <Toggle checked={form.is_featured} onChange={v => set('is_featured', v)} label="Featured product" />
             <Toggle checked={form.is_active} onChange={v => set('is_active', v)} label="Active (visible on site)" />

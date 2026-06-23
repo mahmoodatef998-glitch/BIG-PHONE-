@@ -1,6 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? '');
 const FROM = `BIG PHONE <${process.env.RESEND_FROM_EMAIL ?? 'noreply@bigphone.ae'}>`;
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? 'info@bigphone.ae';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
@@ -98,6 +97,7 @@ function buyerHtml(d: RFQEmailData): string {
 
 export async function sendAdminRFQNotification(data: RFQEmailData): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await resend.emails.send({
       from: FROM,
@@ -112,6 +112,7 @@ export async function sendAdminRFQNotification(data: RFQEmailData): Promise<void
 
 export async function sendBuyerRFQConfirmation(data: RFQEmailData): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await resend.emails.send({
       from: FROM,

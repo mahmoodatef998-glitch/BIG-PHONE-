@@ -1,17 +1,14 @@
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { LanguageProvider } from '@/contexts/LanguageContext';
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <LanguageProvider>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Header />
-        <main style={{ flex: 1 }}>
-          {children}
-        </main>
-        <Footer />
-      </div>
-    </LanguageProvider>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Header />
+      <main style={{ flex: 1 }}>
+        {children}
+      </main>
+      <Footer />
+    </div>
   );
 }

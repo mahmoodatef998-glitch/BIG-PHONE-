@@ -16,32 +16,32 @@ const FLOAT_BADGES = [
   {
     Icon: ShieldCheck, color: '#10B981', bg: '#ECFDF5',
     label: 'Secure Payments', sub: '100% protected',
-    pos: { top: '2%', left: '-4%' }, delay: 0,
+    pos: { top: '5%', left: '-2%' }, delay: 0,
   },
   {
     Icon: Star, color: '#F59E0B', bg: '#FFFBEB',
     label: '4.9 ★ Rated', sub: '2,000+ reviews',
-    pos: { top: '30%', left: '-10%' }, delay: 0.6,
+    pos: { top: '34%', left: '-8%' }, delay: 0.6,
   },
   {
     Icon: Truck, color: '#3B82F6', bg: '#EFF6FF',
     label: 'Fast Delivery', sub: 'Same-day dispatch',
-    pos: { top: '4%', right: '-4%' }, delay: 1.1,
+    pos: { top: '5%', right: '-2%' }, delay: 1.1,
   },
   {
     Icon: RefreshCcw, color: '#8B5CF6', bg: '#F5F3FF',
     label: '7-Day Returns', sub: 'Hassle-free policy',
-    pos: { top: '44%', right: '-10%' }, delay: 1.7,
+    pos: { top: '42%', right: '-8%' }, delay: 1.7,
   },
   {
     Icon: Package, color: '#FF6B00', bg: '#FFF3E8',
     label: '10K+ Products', sub: 'Always in stock',
-    pos: { bottom: '20%', right: '-4%' }, delay: 2.2,
+    pos: { bottom: '18%', right: '-2%' }, delay: 2.2,
   },
   {
     Icon: BadgeCheck, color: '#0EA5E9', bg: '#F0F9FF',
     label: 'Verified Sellers', sub: 'KYC approved',
-    pos: { bottom: '4%', left: '2%' }, delay: 2.8,
+    pos: { bottom: '4%', left: '4%' }, delay: 2.8,
   },
 ];
 
@@ -54,10 +54,10 @@ export default function HeroSection() {
         <div className="container-site">
           <div className="hero-grid">
 
-            {/* ── Left content ─────────────────────────── */}
+            {/* ── Left content ───────────────────── */}
             <div className="hero-left">
 
-              {/* Eyebrow label */}
+              {/* Eyebrow */}
               <div className="hero-eyebrow">
                 <span className="hero-eyebrow-dot" />
                 UAE’s #1 B2B Mobile Platform
@@ -75,20 +75,20 @@ export default function HeroSection() {
                 from 500+ verified UAE suppliers.
               </p>
 
-              {/* Search bar */}
+              {/* Search */}
               <form action="/inventory" method="get" className="hero-search-form">
                 <Search size={18} className="hero-search-icon" />
                 <input
                   type="search" name="search"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search iPhone, Samsung, Xiaomi..."
+                  placeholder="Search iPhone, Samsung, Xiaomi…"
                   className="hero-search-input"
                 />
                 <button type="submit" className="hero-search-btn">Search</button>
               </form>
 
-              {/* Stats row */}
+              {/* Stats */}
               <div className="hero-stats">
                 {STATS.map(s => (
                   <div key={s.label} className="hero-stat">
@@ -108,10 +108,12 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* ── Right — iPhone photo ───────────────── */}
+            {/* ── Right — iPhone showcase ─────────── */}
             <div className="hero-right">
-              {/* Orange glow blob */}
-              <div className="hero-glow" />
+
+              {/* Deep orange ambient glow */}
+              <div className="hero-glow-outer" />
+              <div className="hero-glow-inner" />
 
               {/* Floating badge cards */}
               {FLOAT_BADGES.map((b, i) => (
@@ -119,16 +121,16 @@ export default function HeroSection() {
                   key={b.label}
                   style={{
                     position: 'absolute', ...b.pos,
-                    background: 'rgba(255,255,255,0.92)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
+                    background: 'rgba(255,255,255,0.93)',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
                     borderRadius: '14px',
                     padding: '10px 14px',
                     boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-                    border: '1px solid rgba(255,255,255,0.8)',
+                    border: '1px solid rgba(255,255,255,0.85)',
                     display: 'flex', alignItems: 'center', gap: '10px',
                     animation: `floatBadge ${5.5 + i * 0.5}s ease-in-out ${b.delay}s infinite alternate`,
-                    zIndex: 3,
+                    zIndex: 4,
                   }}
                 >
                   <div style={{
@@ -149,28 +151,36 @@ export default function HeroSection() {
                 </div>
               ))}
 
-              {/* iPhone photo */}
+              {/* iPhone — bg removed via mix-blend-mode: screen */}
               <div className="iphone-photo-wrap">
                 <Image
                   src="/images/images (4).jpg"
                   alt="iPhone — BIG PHONE Marketplace"
-                  width={300}
-                  height={520}
+                  width={440}
+                  height={780}
                   priority
-                  style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+                  style={{
+                    objectFit: 'contain',
+                    width: '100%',
+                    height: '100%',
+                    /* Removes the black background on the light hero bg */
+                    mixBlendMode: 'screen',
+                    /* Restore color vibrancy after screen blend lightening */
+                    filter: 'saturate(1.8) contrast(1.25) brightness(1.08)',
+                  }}
                 />
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
       </section>
 
       <style>{`
-        /* ─── Section ───────────────────────────────────── */
+        /* ─── Section ────────────────────────────── */
         .hero-section {
           background-color: #FFF3E8;
-          background-image: radial-gradient(circle, rgba(255,107,0,0.15) 1px, transparent 1px);
+          background-image: radial-gradient(circle, rgba(255,107,0,0.14) 1px, transparent 1px);
           background-size: 28px 28px;
           padding: 4.5rem 0 4rem;
           overflow: hidden;
@@ -183,7 +193,7 @@ export default function HeroSection() {
         }
         .hero-left { max-width: 560px; }
 
-        /* ─── Eyebrow ─────────────────────────────────── */
+        /* ─── Eyebrow ─────────────────────────── */
         .hero-eyebrow {
           display: inline-flex; align-items: center; gap: 0.5rem;
           background: #fff; border: 1.5px solid #FFD0A0;
@@ -201,7 +211,7 @@ export default function HeroSection() {
           50%       { opacity: 0.4; transform: scale(0.7); }
         }
 
-        /* ─── Heading ─────────────────────────────────── */
+        /* ─── Heading ─────────────────────────── */
         .hero-heading {
           font-size: clamp(2.25rem, 5vw, 3.5rem);
           font-weight: 800; line-height: 1.08;
@@ -214,7 +224,7 @@ export default function HeroSection() {
           line-height: 1.7; margin: 0 0 1.75rem;
         }
 
-        /* ─── Search ─────────────────────────────────── */
+        /* ─── Search ─────────────────────────── */
         .hero-search-form {
           display: flex; align-items: center;
           background: #fff; border: 1.5px solid #E5E7EB;
@@ -244,7 +254,7 @@ export default function HeroSection() {
         }
         .hero-search-btn:hover { background: #E55A00; }
 
-        /* ─── Stats ──────────────────────────────────── */
+        /* ─── Stats ─────────────────────────── */
         .hero-stats { display: flex; gap: 0; margin-bottom: 2rem; flex-wrap: wrap; }
         .hero-stat {
           display: flex; flex-direction: column;
@@ -262,44 +272,58 @@ export default function HeroSection() {
           margin-bottom: 5px;
         }
         .hero-stat-value  { font-size: 1.3125rem; font-weight: 800; color: #111827; letter-spacing: -0.02em; line-height: 1; }
-        .hero-stat-label  { font-size: 0.625rem;  color: #9CA3AF; font-weight: 500; margin-top: 2px; white-space: nowrap; }
+        .hero-stat-label  { font-size: 0.625rem; color: #9CA3AF; font-weight: 500; margin-top: 2px; white-space: nowrap; }
         .hero-cta-row     { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
-        /* ─── Right column ─────────────────────────────── */
+        /* ─── Right column ─────────────────────── */
         .hero-right {
           display: none; position: relative;
-          height: 470px;
+          height: 640px;
           align-items: center; justify-content: center;
         }
-        .hero-glow {
-          position: absolute; width: 380px; height: 380px;
-          background: radial-gradient(circle, rgba(255,107,0,0.22) 0%, rgba(255,140,50,0.08) 50%, transparent 70%);
+
+        /* Double-layer ambient glow */
+        .hero-glow-outer {
+          position: absolute;
+          width: 500px; height: 500px;
+          background: radial-gradient(circle,
+            rgba(255,107,0,0.28) 0%,
+            rgba(255,140,50,0.12) 40%,
+            transparent 70%);
           border-radius: 50%;
           left: 50%; top: 50%; transform: translate(-50%,-50%);
           pointer-events: none; z-index: 0;
         }
-
-        /* ─── iPhone photo ────────────────────────────── */
-        .iphone-photo-wrap {
-          position: relative; z-index: 1;
-          width: 270px; height: 450px;
-          animation: phoneFloat 8s ease-in-out infinite;
-          filter:
-            drop-shadow(0 50px 70px rgba(0,0,0,0.4))
-            drop-shadow(0 12px 30px rgba(255,107,0,0.25));
+        .hero-glow-inner {
+          position: absolute;
+          width: 260px; height: 260px;
+          background: radial-gradient(circle,
+            rgba(255,107,0,0.2) 0%,
+            transparent 70%);
+          border-radius: 50%;
+          left: 50%; top: 58%; transform: translate(-50%,-50%);
+          pointer-events: none; z-index: 0;
+          filter: blur(24px);
         }
 
-        /* ─── Animations ─────────────────────────────── */
+        /* ─── iPhone photo ───────────────────── */
+        .iphone-photo-wrap {
+          position: relative; z-index: 2;
+          width: 360px; height: 620px;
+          animation: phoneFloat 8s ease-in-out infinite;
+        }
+
+        /* ─── Animations ─────────────────────── */
         @keyframes phoneFloat {
           0%, 100% { transform: translateY(0)    rotate(0deg); }
-          50%       { transform: translateY(-6px) rotate(0.3deg); }
+          50%       { transform: translateY(-8px) rotate(0.4deg); }
         }
         @keyframes floatBadge {
           from { transform: translateY(0); }
-          to   { transform: translateY(-4px); }
+          to   { transform: translateY(-5px); }
         }
 
-        /* ─── Responsive ─────────────────────────────── */
+        /* ─── Responsive ─────────────────────── */
         @media (min-width: 900px) {
           .hero-grid { grid-template-columns: 1fr 1fr; }
           .hero-right { display: flex !important; }

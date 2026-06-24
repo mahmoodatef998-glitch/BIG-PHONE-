@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy } from 'lucide-react';
 import type { Product, Brand } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
-import { createClient } from '@/lib/supabase/client';
 import ProductEditDrawer from './ProductEditDrawer';
 
 interface Props {
@@ -74,36 +73,30 @@ export default function ProductsClient({ products, brands }: Props) {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product? This cannot be undone.')) return;
     setDeletingId(id);
-    const supabase = createClient();
-    await supabase.from('products').delete().eq('id', id);
+    const res = await fetch('/api/admin/products/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      alert('Delete failed: ' + (j.error ?? 'Unknown error'));
+    }
     router.refresh();
     setDeletingId(null);
   };
 
   const handleDuplicate = async (product: Product) => {
     setDuplicatingId(product.id);
-    const supabase = createClient();
-    await supabase.from('products').insert({
-      brand_id: product.brand_id,
-      name: product.name + ' (Copy)',
-      slug: product.slug + '-copy-' + Date.now().toString(36),
-      model: product.model,
-      category: product.category,
-      subcategory: product.subcategory,
-      condition: product.condition,
-      storage: product.storage,
-      color: product.color,
-      battery_health: product.battery_health,
-      stock_quantity: product.stock_quantity,
-      moq: product.moq,
-      country_of_origin: product.country_of_origin,
-      warranty: product.warranty,
-      description: product.description,
-      specifications: product.specifications,
-      images: product.images,
-      is_featured: false,
-      is_active: false,
+    const res = await fetch('/api/admin/products/duplicate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product),
     });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      alert('Duplicate failed: ' + (j.error ?? 'Unknown error'));
+    }
     router.refresh();
     setDuplicatingId(null);
   };
@@ -111,8 +104,15 @@ export default function ProductsClient({ products, brands }: Props) {
   const saveStock = async (productId: string) => {
     const val = parseInt(editingStockValue);
     if (!isNaN(val) && val >= 0) {
-      const supabase = createClient();
-      await supabase.from('products').update({ stock_quantity: val }).eq('id', productId);
+      const res = await fetch('/api/admin/products/stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productId, stock_quantity: val }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert('Stock update failed: ' + (j.error ?? 'Unknown error'));
+      }
       router.refresh();
     }
     setEditingStockId(null);
@@ -122,7 +122,6 @@ export default function ProductsClient({ products, brands }: Props) {
     <>
       <div style={{ padding: '2rem' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.025em' }}>Products</h1>
@@ -143,7 +142,6 @@ export default function ProductsClient({ products, brands }: Props) {
               border: 'none', borderRadius: '0.5rem', fontWeight: 700,
               fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
               boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
-              transition: 'background 0.15s',
             }}
             onClick={() => setEditingProduct(makeEmpty(brands))}
           >
@@ -151,7 +149,6 @@ export default function ProductsClient({ products, brands }: Props) {
           </button>
         </div>
 
-        {/* Filter bar */}
         <div style={{
           background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem',
           padding: '0.875rem 1.25rem', marginBottom: '1.25rem',
@@ -160,17 +157,9 @@ export default function ProductsClient({ products, brands }: Props) {
           <div style={{ position: 'relative', flex: 1, minWidth: '180px' }}>
             <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input
-              type="search"
-              placeholder="Search by model or name…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              aria-label="Search products"
-              style={{
-                width: '100%', padding: '0.5rem 0.875rem 0.5rem 2.25rem',
-                border: '1px solid #E2E8F0', borderRadius: '0.5rem',
-                fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box',
-                color: '#111827',
-              }}
+              type="search" placeholder="Search by model or name…" value={search}
+              onChange={e => setSearch(e.target.value)} aria-label="Search products"
+              style={{ width: '100%', padding: '0.5rem 0.875rem 0.5rem 2.25rem', border: '1px solid #E2E8F0', borderRadius: '0.5rem', fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box', color: '#111827' }}
             />
           </div>
           <div style={{ position: 'relative' }}>
@@ -199,47 +188,30 @@ export default function ProductsClient({ products, brands }: Props) {
           )}
         </div>
 
-        {/* Table */}
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
                   {['Product', 'Brand', 'Condition', 'Storage', 'Stock', 'MOQ', 'Featured', ''].map(col => (
-                    <th key={col} style={{
-                      padding: '0.75rem 1rem', textAlign: 'left',
-                      fontSize: '0.6875rem', fontWeight: 700, color: '#6B7280',
-                      textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap',
-                    }}>{col}</th>
+                    <th key={col} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.6875rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{col}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>
-                      No products match your filters.
-                    </td>
-                  </tr>
+                  <tr><td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No products match your filters.</td></tr>
                 ) : filtered.map((product, i) => {
                   const isLow = product.stock_quantity > 0 && product.stock_quantity < product.moq;
                   const isOut = product.stock_quantity === 0;
                   return (
                     <tr key={product.id}
-                      style={{
-                        borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
-                        borderLeft: isLow ? '3px solid #f97316' : isOut ? '3px solid #ef4444' : '3px solid transparent',
-                      }}
+                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', borderLeft: isLow ? '3px solid #f97316' : isOut ? '3px solid #ef4444' : '3px solid transparent' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                    >
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{
-                            width: '40px', height: '40px', flexShrink: 0,
-                            borderRadius: '0.375rem', overflow: 'hidden',
-                            border: '1px solid #E2E8F0', background: '#F8FAFC',
-                          }}>
+                          <div style={{ width: '40px', height: '40px', flexShrink: 0, borderRadius: '0.375rem', overflow: 'hidden', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
                             {product.images[0] ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={product.images[0]} alt={product.model} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -248,12 +220,8 @@ export default function ProductsClient({ products, brands }: Props) {
                             )}
                           </div>
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111827', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {product.model}
-                            </div>
-                            <Link href={`/products/${product.slug}`} target="_blank" style={{ fontSize: '0.75rem', color: '#FF6B00', textDecoration: 'none' }}>
-                              View →
-                            </Link>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111827', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.model}</div>
+                            <Link href={`/products/${product.slug}`} target="_blank" style={{ fontSize: '0.75rem', color: '#FF6B00', textDecoration: 'none' }}>View →</Link>
                           </div>
                         </div>
                       </td>
@@ -278,14 +246,11 @@ export default function ProductsClient({ products, brands }: Props) {
                       </td>
                       <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>{product.moq}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: product.is_featured ? '#16a34a' : '#94a3b8' }}>
-                          {product.is_featured ? 'Yes' : 'No'}
-                        </span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: product.is_featured ? '#16a34a' : '#94a3b8' }}>{product.is_featured ? 'Yes' : 'No'}</span>
                       </td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
-                          <button onClick={() => handleDuplicate(product)} aria-label={`Duplicate ${product.model}`}
-                            disabled={duplicatingId === product.id}
+                          <button onClick={() => handleDuplicate(product)} aria-label={`Duplicate ${product.model}`} disabled={duplicatingId === product.id}
                             style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#6B7280', border: '1px solid #E2E8F0', borderRadius: '0.375rem', cursor: 'pointer', opacity: duplicatingId === product.id ? 0.5 : 1 }}>
                             <Copy size={13} />
                           </button>
@@ -293,8 +258,7 @@ export default function ProductsClient({ products, brands }: Props) {
                             style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFF0E0', color: '#FF6B00', border: '1px solid #FFD0A0', borderRadius: '0.375rem', cursor: 'pointer' }}>
                             <Edit2 size={13} />
                           </button>
-                          <button onClick={() => handleDelete(product.id)} aria-label={`Delete ${product.model}`}
-                            disabled={deletingId === product.id}
+                          <button onClick={() => handleDelete(product.id)} aria-label={`Delete ${product.model}`} disabled={deletingId === product.id}
                             style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: '0.375rem', cursor: 'pointer', opacity: deletingId === product.id ? 0.5 : 1 }}>
                             <Trash2 size={13} />
                           </button>

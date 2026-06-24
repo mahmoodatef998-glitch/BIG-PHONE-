@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy, CheckSquare, Square, Layers } from 'lucide-react';
 import type { Product, Brand, Collection } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductEditDrawer from './ProductEditDrawer';
@@ -61,6 +61,11 @@ export default function ProductsClient({ products, brands, collections }: Props)
   const [editingStockId, setEditingStockId] = useState<string | null>(null);
   const [editingStockValue, setEditingStockValue] = useState('');
 
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkSectionId, setBulkSectionId] = useState('');
+
   const filtered = useMemo(() => {
     return products.filter(p => {
       const matchSearch = !search || p.model.toLowerCase().includes(search.toLowerCase()) || p.name.toLowerCase().includes(search.toLowerCase());
@@ -72,6 +77,49 @@ export default function ProductsClient({ products, brands, collections }: Props)
   }, [products, search, brandFilter, conditionFilter, collectionFilter]);
 
   const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity < p.moq).length;
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(p => selectedIds.has(p.id));
+  const someSelected = selectedIds.size > 0;
+
+  const toggleAll = () => {
+    if (allFilteredSelected) {
+      const next = new Set(selectedIds);
+      filtered.forEach(p => next.delete(p.id));
+      setSelectedIds(next);
+    } else {
+      const next = new Set(selectedIds);
+      filtered.forEach(p => next.add(p.id));
+      setSelectedIds(next);
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkAction = async (action: string, payload?: Record<string, unknown>) => {
+    if (!selectedIds.size) return;
+    if (action === 'delete' && !confirm(`Delete ${selectedIds.size} product(s)? This cannot be undone.`)) return;
+    setBulkLoading(true);
+    try {
+      const res = await fetch('/api/admin/products/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ids: Array.from(selectedIds), payload }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert('Bulk action failed: ' + (j.error ?? 'Unknown error'));
+      } else {
+        setSelectedIds(new Set());
+        router.refresh();
+      }
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product? This cannot be undone.')) return;
@@ -119,6 +167,10 @@ export default function ProductsClient({ products, brands, collections }: Props)
       router.refresh();
     }
     setEditingStockId(null);
+  };
+
+  const checkboxStyle: React.CSSProperties = {
+    width: '16px', height: '16px', cursor: 'pointer', accentColor: '#FF6B00',
   };
 
   return (
@@ -199,11 +251,85 @@ export default function ProductsClient({ products, brands, collections }: Props)
           )}
         </div>
 
+        {/* Bulk action bar */}
+        {someSelected && (
+          <div style={{
+            position: 'sticky', top: '1rem', zIndex: 30,
+            background: '#1E293B', color: '#fff',
+            borderRadius: '0.75rem', padding: '0.75rem 1.25rem',
+            marginBottom: '0.75rem',
+            display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          }}>
+            <span style={{ fontSize: '0.875rem', fontWeight: 700, marginRight: '0.25rem' }}>
+              {selectedIds.size} selected
+            </span>
+            <div style={{ width: '1px', height: '20px', background: '#334155' }} />
+            <button
+              disabled={bulkLoading}
+              onClick={() => handleBulkAction('activate')}
+              style={{ padding: '0.375rem 0.875rem', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', opacity: bulkLoading ? 0.6 : 1 }}>
+              Activate
+            </button>
+            <button
+              disabled={bulkLoading}
+              onClick={() => handleBulkAction('deactivate')}
+              style={{ padding: '0.375rem 0.875rem', background: '#64748b', color: '#fff', border: 'none', borderRadius: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', opacity: bulkLoading ? 0.6 : 1 }}>
+              Deactivate
+            </button>
+            {collections.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <Layers size={13} color="#94a3b8" />
+                <select
+                  value={bulkSectionId}
+                  onChange={e => setBulkSectionId(e.target.value)}
+                  style={{ padding: '0.375rem 0.5rem', background: '#334155', color: '#fff', border: '1px solid #475569', borderRadius: '0.375rem', fontSize: '0.8125rem', cursor: 'pointer', outline: 'none' }}
+                  aria-label="Move to section">
+                  <option value="">Move to section…</option>
+                  {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  <option value="__none__">Remove from section</option>
+                </select>
+                {bulkSectionId && (
+                  <button
+                    disabled={bulkLoading}
+                    onClick={() => {
+                      handleBulkAction('set-collection', { collection_id: bulkSectionId === '__none__' ? null : bulkSectionId });
+                      setBulkSectionId('');
+                    }}
+                    style={{ padding: '0.375rem 0.75rem', background: '#FF6B00', color: '#fff', border: 'none', borderRadius: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', opacity: bulkLoading ? 0.6 : 1 }}>
+                    Apply
+                  </button>
+                )}
+              </div>
+            )}
+            <div style={{ flex: 1 }} />
+            <button
+              disabled={bulkLoading}
+              onClick={() => handleBulkAction('delete')}
+              style={{ padding: '0.375rem 0.875rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', opacity: bulkLoading ? 0.6 : 1 }}>
+              Delete
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              style={{ padding: '0.375rem 0.5rem', background: 'transparent', color: '#94a3b8', border: '1px solid #334155', borderRadius: '0.375rem', fontSize: '0.8125rem', cursor: 'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        )}
+
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
+                  <th style={{ padding: '0.75rem 0.75rem 0.75rem 1rem', width: '40px' }}>
+                    <button
+                      onClick={toggleAll}
+                      aria-label={allFilteredSelected ? 'Deselect all' : 'Select all'}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: allFilteredSelected ? '#FF6B00' : '#94a3b8' }}>
+                      {allFilteredSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+                    </button>
+                  </th>
                   {['Product', 'Brand', 'Condition', 'Storage', 'Stock', 'MOQ', 'Featured', ''].map(col => (
                     <th key={col} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.6875rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{col}</th>
                   ))}
@@ -211,15 +337,29 @@ export default function ProductsClient({ products, brands, collections }: Props)
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No products match your filters.</td></tr>
+                  <tr><td colSpan={9} style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No products match your filters.</td></tr>
                 ) : filtered.map((product, i) => {
                   const isLow = product.stock_quantity > 0 && product.stock_quantity < product.moq;
                   const isOut = product.stock_quantity === 0;
+                  const isSelected = selectedIds.has(product.id);
                   return (
                     <tr key={product.id}
-                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', borderLeft: isLow ? '3px solid #f97316' : isOut ? '3px solid #ef4444' : '3px solid transparent' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                      style={{
+                        borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
+                        borderLeft: isSelected ? '3px solid #FF6B00' : isLow ? '3px solid #f97316' : isOut ? '3px solid #ef4444' : '3px solid transparent',
+                        background: isSelected ? '#FFF8F3' : 'transparent',
+                        transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#FAFAFA'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = isSelected ? '#FFF8F3' : 'transparent'; }}>
+                      <td style={{ padding: '0.75rem 0.75rem 0.75rem 1rem' }}>
+                        <button
+                          onClick={() => toggleOne(product.id)}
+                          aria-label={isSelected ? `Deselect ${product.model}` : `Select ${product.model}`}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: isSelected ? '#FF6B00' : '#94a3b8' }}>
+                          {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+                        </button>
+                      </td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{ width: '40px', height: '40px', flexShrink: 0, borderRadius: '0.375rem', overflow: 'hidden', border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
@@ -282,7 +422,10 @@ export default function ProductsClient({ products, brands, collections }: Props)
             </table>
           </div>
           <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>Showing {filtered.length} product{filtered.length !== 1 ? 's' : ''}</span>
+            <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>
+              Showing {filtered.length} product{filtered.length !== 1 ? 's' : ''}
+              {someSelected && <span style={{ marginLeft: '0.5rem', color: '#FF6B00', fontWeight: 600 }}>· {selectedIds.size} selected</span>}
+            </span>
             <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Click stock to edit inline · Click edit for full details</span>
           </div>
         </div>

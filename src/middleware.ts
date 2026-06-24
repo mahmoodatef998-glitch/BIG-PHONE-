@@ -3,14 +3,19 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isAdminLogin = pathname === '/admin/login';
-  const isAdminRoute = pathname.startsWith('/admin');
+  const isAdminLogin    = pathname === '/admin/login';
+  const isAdminRoute    = pathname.startsWith('/admin');
+  const isAdminApiRoute = pathname.startsWith('/api/admin');
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const adminEmail   = process.env.ADMIN_EMAIL; // optional whitelist
 
-  // If Supabase is not configured, block all admin routes except login
+  // If Supabase not configured, block everything admin-related
   if (!supabaseUrl || !supabaseKey) {
+    if (isAdminApiRoute) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     if (isAdminRoute && !isAdminLogin) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
@@ -39,19 +44,32 @@ export async function middleware(request: NextRequest) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (isAdminRoute && !isAdminLogin && !user) {
+    // If ADMIN_EMAIL is set, only that email is authorised
+    const isAuthorized = !!user && (!adminEmail || user.email === adminEmail);
+
+    // API routes → 401 JSON (not a redirect)
+    if (isAdminApiRoute && !isAuthorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Admin pages → redirect to login
+    if (isAdminRoute && !isAdminLogin && !isAuthorized) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
       return NextResponse.redirect(url);
     }
 
-    if (isAdminLogin && user) {
+    // Already authenticated → skip login page
+    if (isAdminLogin && isAuthorized) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin';
       return NextResponse.redirect(url);
     }
   } catch {
-    // Auth check failed — redirect to login to be safe
+    // Auth check failed — fail closed
+    if (isAdminApiRoute) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     if (isAdminRoute && !isAdminLogin) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
@@ -63,5 +81,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };

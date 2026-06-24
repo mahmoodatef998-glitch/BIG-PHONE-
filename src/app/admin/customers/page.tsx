@@ -36,12 +36,13 @@ export default async function AdminCustomersPage() {
 
   rfqs.forEach(rfq => {
     const key = rfq.email;
+    const interest = rfq.product_interest ?? null;
     if (map.has(key)) {
       const c = map.get(key)!;
       c.rfq_count++;
       if (rfq.created_at > c.last_activity) c.last_activity = rfq.created_at;
-      if (c.products.length < 3 && !c.products.includes(rfq.product_interest))
-        c.products.push(rfq.product_interest);
+      if (interest && c.products.length < 3 && !c.products.includes(interest))
+        c.products.push(interest);
     } else {
       map.set(key, {
         company_name: rfq.company_name,
@@ -51,7 +52,7 @@ export default async function AdminCustomersPage() {
         country: rfq.country,
         rfq_count: 1,
         last_activity: rfq.created_at,
-        products: [rfq.product_interest],
+        products: interest ? [interest] : [],
       });
     }
   });
@@ -146,6 +147,7 @@ export default async function AdminCustomersPage() {
                             <div key={pi} style={{ fontSize: '0.75rem', color: '#6B7280', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p}</div>
                           ))}
                           {c.products.length > 2 && <div style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>+{c.products.length - 2} more</div>}
+                          {c.products.length === 0 && <div style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>—</div>}
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem', textAlign: 'center' }}>

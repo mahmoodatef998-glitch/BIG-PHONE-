@@ -74,11 +74,11 @@ export default function ImageDropZone({ existingImages, onExistingChange, onNewF
               <img
                 src={url}
                 alt="New upload preview"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.5rem', border: '2px solid #2563EB' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.5rem', border: '2px solid #FF6B00' }}
               />
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0,
-                background: 'rgba(37,99,235,0.8)', borderRadius: '0 0 6px 6px',
+                background: 'rgba(255,107,0,0.85)', borderRadius: '0 0 6px 6px',
                 padding: '2px',
                 fontSize: '9px', fontWeight: 700, color: '#fff',
                 textAlign: 'center', letterSpacing: '0.04em',
@@ -115,18 +115,18 @@ export default function ImageDropZone({ existingImages, onExistingChange, onNewF
         onClick={() => inputRef.current?.click()}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
         style={{
-          border: `2px dashed ${dragging ? '#2563EB' : '#CBD5E1'}`,
+          border: `2px dashed ${dragging ? '#FF6B00' : '#CBD5E1'}`,
           borderRadius: '0.625rem',
           padding: '1.5rem 1rem',
           textAlign: 'center',
           cursor: 'pointer',
-          background: dragging ? '#eff6ff' : '#FAFAFA',
+          background: dragging ? '#FFF3E8' : '#FAFAFA',
           transition: 'border-color 0.15s, background 0.15s',
           outline: 'none',
         }}
       >
-        <Upload size={20} style={{ color: dragging ? '#2563EB' : '#94a3b8', margin: '0 auto 0.5rem', display: 'block' }} />
-        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: dragging ? '#2563EB' : '#475569', margin: 0 }}>
+        <Upload size={20} style={{ color: dragging ? '#FF6B00' : '#94a3b8', margin: '0 auto 0.5rem', display: 'block' }} />
+        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: dragging ? '#FF6B00' : '#475569', margin: 0 }}>
           {dragging ? 'Drop to upload' : 'Drag & drop images here'}
         </p>
         <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0.25rem 0 0' }}>

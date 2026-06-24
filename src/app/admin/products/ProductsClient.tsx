@@ -4,13 +4,14 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy } from 'lucide-react';
-import type { Product, Brand } from '@/types';
+import type { Product, Brand, Collection } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductEditDrawer from './ProductEditDrawer';
 
 interface Props {
   products: Product[];
   brands: Brand[];
+  collections: Collection[];
 }
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -48,11 +49,12 @@ function makeEmpty(brands: Brand[]): Product {
   };
 }
 
-export default function ProductsClient({ products, brands }: Props) {
+export default function ProductsClient({ products, brands, collections }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
+  const [collectionFilter, setCollectionFilter] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
@@ -64,9 +66,10 @@ export default function ProductsClient({ products, brands }: Props) {
       const matchSearch = !search || p.model.toLowerCase().includes(search.toLowerCase()) || p.name.toLowerCase().includes(search.toLowerCase());
       const matchBrand = !brandFilter || p.brand?.slug === brandFilter;
       const matchCond = !conditionFilter || p.condition === conditionFilter;
-      return matchSearch && matchBrand && matchCond;
+      const matchCollection = !collectionFilter || (p as Product & { collection_id?: string | null }).collection_id === collectionFilter;
+      return matchSearch && matchBrand && matchCond && matchCollection;
     });
-  }, [products, search, brandFilter, conditionFilter]);
+  }, [products, search, brandFilter, conditionFilter, collectionFilter]);
 
   const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity < p.moq).length;
 
@@ -180,8 +183,16 @@ export default function ProductsClient({ products, brands }: Props) {
             </select>
             <ChevronDown size={13} style={{ position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)', color: '#64748B', pointerEvents: 'none' }} />
           </div>
-          {(search || brandFilter || conditionFilter) && (
-            <button onClick={() => { setSearch(''); setBrandFilter(''); setConditionFilter(''); }}
+          <div style={{ position: 'relative' }}>
+            <select value={collectionFilter} onChange={e => setCollectionFilter(e.target.value)} aria-label="Filter by section"
+              style={{ padding: '0.5rem 2rem 0.5rem 0.875rem', border: '1px solid #E2E8F0', borderRadius: '0.5rem', fontSize: '0.875rem', color: '#374151', appearance: 'none', cursor: 'pointer', outline: 'none', background: '#fff' }}>
+              <option value="">All Sections</option>
+              {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <ChevronDown size={13} style={{ position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)', color: '#64748B', pointerEvents: 'none' }} />
+          </div>
+          {(search || brandFilter || conditionFilter || collectionFilter) && (
+            <button onClick={() => { setSearch(''); setBrandFilter(''); setConditionFilter(''); setCollectionFilter(''); }}
               style={{ fontSize: '0.8125rem', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
               Clear
             </button>
@@ -280,6 +291,7 @@ export default function ProductsClient({ products, brands }: Props) {
       <ProductEditDrawer
         product={editingProduct}
         brands={brands}
+        collections={collections}
         isNew={editingProduct?.id === '__new__'}
         onClose={() => setEditingProduct(null)}
       />

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Product, Brand, RFQ } from "@/types";
+import type { Product, Brand, RFQ, Collection } from "@/types";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -68,6 +68,13 @@ const MOCK_RFQS: RFQ[] = [
   { id: '3', company_name: 'Dubai Phone Mart', contact_person: 'Sarah Johnson', country: 'UAE', phone: '+971501234567', email: 'sarah@dubaiphone.ae', product_interest: 'Mixed iPhone 14 Lot', quantity: 200, message: 'Various colors and storage', status: 'quoted', created_at: '2024-01-14T16:45:00Z' },
   { id: '4', company_name: 'Global Mobile KE', contact_person: 'James Mwangi', country: 'Kenya', phone: '+254701234567', email: 'james@globalmobile.ke', product_interest: 'Xiaomi 13 Pro 256GB', quantity: 30, message: 'Nairobi delivery required', status: 'new', created_at: '2024-01-14T09:00:00Z' },
   { id: '5', company_name: 'Horizon Phones PK', contact_person: 'Ali Raza', country: 'Pakistan', phone: '+923001234567', email: 'ali@horizonphones.pk', product_interest: 'Huawei P60 Pro', quantity: 25, message: 'Karachi port delivery', status: 'closed', created_at: '2024-01-13T14:30:00Z' },
+];
+
+const MOCK_COLLECTIONS: Collection[] = [
+  { id: 'c1', name: 'New Arrivals',     slug: 'new-arrivals',     description: 'Latest additions to our wholesale catalog', image_url: null, sort_order: 1, is_active: true,  created_at: '2024-01-01', updated_at: '2024-01-01' },
+  { id: 'c2', name: 'Best Sellers',     slug: 'best-sellers',     description: 'Most popular wholesale items',              image_url: null, sort_order: 2, is_active: true,  created_at: '2024-01-01', updated_at: '2024-01-01' },
+  { id: 'c3', name: 'Accessories',      slug: 'accessories',      description: 'Chargers, cases, protectors & more',        image_url: null, sort_order: 3, is_active: true,  created_at: '2024-01-01', updated_at: '2024-01-01' },
+  { id: 'c4', name: 'Refurbished Deals', slug: 'refurbished-deals', description: 'Grade A and certified refurbished',       image_url: null, sort_order: 4, is_active: false, created_at: '2024-01-01', updated_at: '2024-01-01' },
 ];
 
 export async function getProducts(filters?: Partial<{
@@ -160,6 +167,34 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   const { data, error } = await db().from('brands').select('*').eq('slug', slug).eq('is_active', true).maybeSingle();
   if (error) { console.error('[getBrandBySlug]', error.message); return null; }
   return (data as Brand) ?? null;
+}
+
+export async function getBrandsAdmin(): Promise<Brand[]> {
+  if (!USE_SUPABASE) return MOCK_BRANDS;
+  const { data, error } = await db().from('brands').select('*').order('sort_order', { ascending: true });
+  if (error) { console.error('[getBrandsAdmin]', error.message); return []; }
+  return (data ?? []) as Brand[];
+}
+
+export async function getCollections(): Promise<Collection[]> {
+  if (!USE_SUPABASE) return MOCK_COLLECTIONS.filter(c => c.is_active);
+  const { data, error } = await db().from('collections').select('*').eq('is_active', true).order('sort_order', { ascending: true });
+  if (error) { console.error('[getCollections]', error.message); return []; }
+  return (data ?? []) as Collection[];
+}
+
+export async function getCollectionsAdmin(): Promise<Collection[]> {
+  if (!USE_SUPABASE) return MOCK_COLLECTIONS;
+  const { data, error } = await db().from('collections').select('*').order('sort_order', { ascending: true });
+  if (error) { console.error('[getCollectionsAdmin]', error.message); return []; }
+  return (data ?? []) as Collection[];
+}
+
+export async function getSettings(): Promise<Record<string, string>> {
+  if (!USE_SUPABASE) return {};
+  const { data } = await db().from('site_settings').select('key, value');
+  if (!data) return {};
+  return Object.fromEntries((data as { key: string; value: string | null }[]).map(r => [r.key, r.value ?? '']));
 }
 
 export async function getRFQs(): Promise<RFQ[]> {

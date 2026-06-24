@@ -5,17 +5,18 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Package, Tag, FileText,
-  Users, Settings, LogOut, ExternalLink, ChevronRight,
+  Users, Settings, LogOut, ExternalLink, ChevronRight, Layers,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 const NAV = [
-  { href: '/admin',           label: 'Dashboard',    icon: LayoutDashboard, exact: true },
-  { href: '/admin/products',  label: 'Products',     icon: Package },
-  { href: '/admin/brands',    label: 'Brands',       icon: Tag },
-  { href: '/admin/rfqs',      label: 'RFQ Requests', icon: FileText },
-  { href: '/admin/customers', label: 'Customers',    icon: Users },
-  { href: '/admin/settings',  label: 'Settings',     icon: Settings },
+  { href: '/admin',             label: 'Dashboard',    icon: LayoutDashboard, exact: true },
+  { href: '/admin/products',    label: 'Products',     icon: Package },
+  { href: '/admin/brands',      label: 'Brands',       icon: Tag },
+  { href: '/admin/collections', label: 'Sections',     icon: Layers },
+  { href: '/admin/rfqs',        label: 'RFQ Requests', icon: FileText },
+  { href: '/admin/customers',   label: 'Customers',    icon: Users },
+  { href: '/admin/settings',    label: 'Settings',     icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

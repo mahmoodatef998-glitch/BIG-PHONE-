@@ -138,6 +138,13 @@ export async function getBrands(): Promise<Brand[]> {
   return (data ?? []) as Brand[];
 }
 
+export async function getBrandsAdmin(): Promise<Brand[]> {
+  if (!USE_SUPABASE) return MOCK_BRANDS;
+  const { data, error } = await db().from('brands').select('*').order('sort_order', { ascending: true });
+  if (error) { console.error('[getBrandsAdmin]', error.message); return []; }
+  return (data ?? []) as Brand[];
+}
+
 export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   if (!USE_SUPABASE) return MOCK_BRANDS.find(b => b.slug === slug) ?? null;
   const { data, error } = await db().from('brands').select('*').eq('slug', slug).eq('is_active', true).single();

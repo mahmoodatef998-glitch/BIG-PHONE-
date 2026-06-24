@@ -3,9 +3,9 @@ import Link from 'next/link';
 import {
   Package, FileText, Tag, AlertTriangle,
   Clock, CheckCircle2, XCircle,
-  ArrowRight, Plus, Users, Settings, ChevronRight,
+  ArrowRight, Plus, Users, Settings, ChevronRight, Layers,
 } from 'lucide-react';
-import { getProducts, getBrands, getRFQs } from '@/lib/data';
+import { getProductsAdmin, getBrands, getRFQs, getCollectionsAdmin } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 
@@ -24,8 +24,8 @@ const STATUS: Record<string, { label: string; bg: string; color: string; dot: st
 };
 
 export default async function AdminDashboard() {
-  const [products, brands, rfqs] = await Promise.all([
-    getProducts(), getBrands(), getRFQs(),
+  const [products, brands, rfqs, collections] = await Promise.all([
+    getProductsAdmin(), getBrands(), getRFQs(), getCollectionsAdmin(),
   ]);
 
   const totalStock  = products.reduce((s, p) => s + p.stock_quantity, 0);
@@ -54,7 +54,7 @@ export default async function AdminDashboard() {
     {
       label: 'Brands',
       value: brands.length,
-      sub: `${products.length} products listed`,
+      sub: `${collections.length} active sections`,
       icon: Tag,
       color: '#8B5CF6', bg: '#F5F3FF', border: '#8B5CF6',
       href: '/admin/brands',
@@ -70,17 +70,18 @@ export default async function AdminDashboard() {
   ];
 
   const quickActions = [
-    { href: '/admin/products',  icon: Package,  label: 'Manage Products',  color: '#FF6B00', bg: '#FFF0E0' },
-    { href: '/admin/rfqs',      icon: FileText,  label: 'RFQ Inbox',        color: '#F59E0B', bg: '#FFFBEB' },
-    { href: '/admin/brands',    icon: Tag,       label: 'Edit Brands',      color: '#8B5CF6', bg: '#F5F3FF' },
-    { href: '/admin/customers', icon: Users,     label: 'Customers',        color: '#10B981', bg: '#ECFDF5' },
-    { href: '/admin/settings',  icon: Settings,  label: 'Settings',         color: '#6B7280', bg: '#F3F4F6' },
+    { href: '/admin/products',    icon: Package,  label: 'Manage Products',  color: '#FF6B00', bg: '#FFF0E0' },
+    { href: '/admin/rfqs',        icon: FileText,  label: 'RFQ Inbox',        color: '#F59E0B', bg: '#FFFBEB' },
+    { href: '/admin/brands',      icon: Tag,       label: 'Edit Brands',      color: '#8B5CF6', bg: '#F5F3FF' },
+    { href: '/admin/collections', icon: Layers,    label: 'Sections',         color: '#0EA5E9', bg: '#F0F9FF' },
+    { href: '/admin/customers',   icon: Users,     label: 'Customers',        color: '#10B981', bg: '#ECFDF5' },
+    { href: '/admin/settings',    icon: Settings,  label: 'Settings',         color: '#6B7280', bg: '#F3F4F6' },
   ];
 
   return (
     <div style={{ padding: '1.75rem 2rem' }}>
 
-      {/* ── Page header ──────────────────────────────────────── */}
+      {/* ── Page header ──────────────────────────────────────────────────── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem',
@@ -106,7 +107,7 @@ export default async function AdminDashboard() {
         </Link>
       </div>
 
-      {/* ── KPI Cards ─────────────────────────────────────────── */}
+      {/* ── KPI Cards ─────────────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {kpis.map(k => (
           <Link key={k.label} href={k.href} style={{
@@ -138,7 +139,7 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* ── Main two-column grid ──────────────────────────────── */}
+      {/* ── Main two-column grid ────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.25rem', marginBottom: '1.25rem' }}>
 
         {/* Recent RFQs table */}
@@ -291,7 +292,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Inventory Table ───────────────────────────────────── */}
+      {/* ── Inventory Table ──────────────────────────────────────────────────────── */}
       <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
         <div style={{
           padding: '1rem 1.25rem', borderBottom: '1px solid #F3F4F6',
@@ -326,7 +327,6 @@ export default async function AdminDashboard() {
               {products.slice(0, 10).map((p, i) => {
                 const out = p.stock_quantity === 0;
                 const low = p.stock_quantity > 0 && p.stock_quantity < p.moq;
-                const ok  = p.stock_quantity >= p.moq;
                 return (
                   <tr key={p.id} style={{ borderBottom: i < 9 ? '1px solid #F9FAFB' : 'none' }}>
                     <td style={{ padding: '0.75rem 1rem' }}>

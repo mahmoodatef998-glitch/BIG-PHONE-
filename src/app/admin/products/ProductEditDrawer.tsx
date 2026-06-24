@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
-import type { Product, Brand, Condition, Category } from '@/types';
+import type { Product, Brand, Collection, Condition, Category } from '@/types';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
@@ -26,6 +26,7 @@ type FormState = {
   battery_health: string; stock_quantity: string; moq: string;
   country_of_origin: string; warranty: string; description: string;
   price_aed: string; show_price: boolean;
+  collection_id: string;
   is_featured: boolean; is_active: boolean; images: string[];
 };
 
@@ -39,6 +40,7 @@ function field(product: Product): FormState {
     country_of_origin: product.country_of_origin, warranty: product.warranty ?? '',
     description: product.description ?? '',
     price_aed: product.price_aed?.toString() ?? '', show_price: product.show_price ?? true,
+    collection_id: (product as Product & { collection_id?: string | null }).collection_id ?? '',
     is_featured: product.is_featured,
     is_active: product.is_active, images: [...product.images],
   };
@@ -54,6 +56,7 @@ function generateSlug(form: FormState): string {
 interface Props {
   product: Product | null;
   brands: Brand[];
+  collections: Collection[];
   isNew?: boolean;
   onClose: () => void;
 }
@@ -103,7 +106,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
-export default function ProductEditDrawer({ product, brands, isNew, onClose }: Props) {
+export default function ProductEditDrawer({ product, brands, collections, isNew, onClose }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState | null>(null);
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -172,6 +175,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
       description: form.description || null,
       price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
       show_price: form.show_price,
+      collection_id: form.collection_id || null,
       is_featured: form.is_featured,
       is_active: form.is_active,
       images: finalImages,
@@ -338,7 +342,7 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                 <input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" />
               </div>
             </div>
-            <div style={row2}>
+            <div style={{ ...row2, marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-brand" style={labelStyle}>Brand</label>
                 <select id="edit-brand" style={inp} value={form.brand_id} onChange={e => set('brand_id', e.target.value)}>
@@ -356,6 +360,15 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
                 </select>
               </div>
             </div>
+            {collections.length > 0 && (
+              <div>
+                <label htmlFor="edit-collection" style={labelStyle}>Section</label>
+                <select id="edit-collection" style={inp} value={form.collection_id} onChange={e => set('collection_id', e.target.value)}>
+                  <option value="">No section</option>
+                  {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            )}
           </SectionCard>
 
           <SectionCard icon={Package} title="Inventory">

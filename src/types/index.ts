@@ -15,10 +15,23 @@ export interface Brand {
   created_at: string;
 }
 
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Product {
   id: string;
   brand_id: string;
   brand?: Brand;
+  collection_id?: string | null;
   name: string;
   slug: string;
   model: string;

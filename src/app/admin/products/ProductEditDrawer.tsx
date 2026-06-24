@@ -3,11 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import type { Product, Brand, Condition, Category } from '@/types';
-import { createClient } from '@/lib/supabase/client';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
 
-async function uploadToStorage(file: File): Promise<string | null> {
+async function uploadImage(file: File): Promise<string | null> {
   const form = new FormData();
   form.append('file', file);
   try {
@@ -150,18 +149,17 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     let finalImages = [...form.images];
     if (newFiles.length > 0) {
       setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
-      const uploads = await Promise.all(newFiles.map(uploadToStorage));
+      const uploads = await Promise.all(newFiles.map(uploadImage));
       const uploaded = uploads.filter(Boolean) as string[];
       finalImages = [...finalImages, ...uploaded];
       if (uploaded.length < newFiles.length) {
         const failed = newFiles.length - uploaded.length;
-        setErrorMsg(`${failed} image${failed > 1 ? 's' : ''} failed to upload. Others were saved.`);
+        setErrorMsg(`${failed} image${failed > 1 ? 's' : ''} failed to upload.`);
       }
       setUploadProgress('');
     }
 
-    const supabase = createClient();
-    const payload = {
+    const payload: Record<string, unknown> = {
       brand_id: form.brand_id,
       name: form.name, model: form.model, color: form.color || null,
       category: form.category, condition: form.condition,
@@ -180,39 +178,32 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
     };
 
     if (isNew) {
-      const { error } = await supabase.from('products').insert({
-        ...payload,
-        slug: generateSlug(form),
-        subcategory: null,
-      });
-      if (error) {
-        setStatus('error');
-        setErrorMsg(
-          error.message.includes('price_aed') || error.message.includes('show_price')
-            ? 'Run SQL migration in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
-            : error.message
-        );
-        return;
-      }
-    } else {
-      const { error } = await supabase.from('products')
-        .update({ ...payload, updated_at: new Date().toISOString() })
-        .eq('id', product.id);
-      if (error) {
-        setStatus('error');
-        setErrorMsg(
-          error.message.includes('price_aed') || error.message.includes('show_price')
-            ? 'Run SQL migration in Supabase Dashboard → SQL Editor: ALTER TABLE products ADD COLUMN IF NOT EXISTS price_aed numeric(10,2); ALTER TABLE products ADD COLUMN IF NOT EXISTS show_price boolean NOT NULL DEFAULT true; NOTIFY pgrst, \'reload schema\';'
-            : error.message
-        );
-        return;
-      }
+      payload.slug = generateSlug(form);
+      payload.subcategory = null;
+    }
 
-      if (syncVariants && finalImages.length > 0) {
-        await supabase.from('products')
-          .update({ images: finalImages, updated_at: new Date().toISOString() })
-          .eq('model', product.model).neq('id', product.id);
-      }
+    const res = await fetch('/api/admin/products/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: isNew ? 'insert' : 'update', id: product.id, payload }),
+    });
+    const json = await res.json();
+
+    if (!json.ok) {
+      setStatus('error');
+      setErrorMsg(json.error ?? 'Failed to save product');
+      return;
+    }
+
+    if (!isNew && syncVariants && finalImages.length > 0) {
+      await fetch('/api/admin/products/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sync-variants',
+          payload: { images: finalImages, model: product.model, exclude_id: product.id },
+        }),
+      });
     }
 
     setStatus('success');
@@ -222,13 +213,11 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
 
   return (
     <>
-      {/* Backdrop */}
       <div onClick={onClose} aria-hidden="true" style={{
         position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)',
         zIndex: 40, backdropFilter: 'blur(2px)',
       }} />
 
-      {/* Drawer */}
       <div ref={drawerRef} role="dialog" aria-modal="true" aria-label={isNew ? 'Add Product' : product.model}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
@@ -238,7 +227,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           boxShadow: '-8px 0 32px rgba(15,23,42,0.16)',
         }}>
 
-        {/* Drawer header */}
         <div style={{
           padding: '1rem 1.5rem',
           background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)',
@@ -277,11 +265,10 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           </button>
         </div>
 
-        {/* Error banner */}
         {status === 'error' && (
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '0.75rem 1.5rem', flexShrink: 0 }}>
             <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0, marginTop: '2px' }} />
-            <span style={{ fontSize: '0.8125rem', color: '#991b1b', lineHeight: 1.5 }}>{errorMsg || 'Failed to save. Check your Supabase connection.'}</span>
+            <span style={{ fontSize: '0.8125rem', color: '#991b1b', lineHeight: 1.5 }}>{errorMsg || 'Failed to save.'}</span>
           </div>
         )}
         {status === 'success' && errorMsg && (
@@ -291,7 +278,6 @@ export default function ProductEditDrawer({ product, brands, isNew, onClose }: P
           </div>
         )}
 
-        {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
           <SectionCard icon={ImageIcon} title="Product Images">

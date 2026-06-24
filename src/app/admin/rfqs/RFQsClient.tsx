@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Mail, Phone, Globe, Calendar, MessageCircle } from 'lucide-react';
 import type { RFQ } from '@/types';
-import { createClient } from '@/lib/supabase/client';
 
 void FileText;
 
@@ -13,10 +12,10 @@ interface Props {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  new: { label: 'New', bg: '#fef9c3', color: '#92400e' },
+  new:       { label: 'New',       bg: '#fef9c3', color: '#92400e' },
   contacted: { label: 'Contacted', bg: '#dbeafe', color: '#1e40af' },
-  quoted: { label: 'Quoted', bg: '#f3e8ff', color: '#6b21a8' },
-  closed: { label: 'Closed', bg: '#f0fdf4', color: '#166534' },
+  quoted:    { label: 'Quoted',    bg: '#f3e8ff', color: '#6b21a8' },
+  closed:    { label: 'Closed',    bg: '#f0fdf4', color: '#166534' },
 };
 
 const FILTER_OPTIONS = ['all', 'new', 'contacted', 'quoted', 'closed'];
@@ -46,9 +45,10 @@ export default function RFQsClient({ rfqs }: Props) {
                 borderRadius: '9999px',
                 fontSize: '0.8125rem',
                 fontWeight: activeFilter === s ? 700 : 500,
-                background: activeFilter === s ? '#0F172A' : '#fff',
+                background: activeFilter === s ? '#FF6B00' : '#fff',
                 color: activeFilter === s ? '#fff' : '#374151',
-                border: '1px solid #E2E8F0',
+                border: '1px solid',
+                borderColor: activeFilter === s ? '#FF6B00' : '#E2E8F0',
                 cursor: 'pointer',
                 textTransform: 'capitalize',
               }}
@@ -109,8 +109,15 @@ export default function RFQsClient({ rfqs }: Props) {
                     value={rfq.status}
                     onChange={async e => {
                       const s = e.target.value as RFQ['status'];
-                      const sb = createClient();
-                      await sb.from('rfqs').update({ status: s }).eq('id', rfq.id);
+                      const res = await fetch('/api/admin/rfqs/update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: rfq.id, status: s }),
+                      });
+                      if (!res.ok) {
+                        const j = await res.json().catch(() => ({}));
+                        alert('Status update failed: ' + (j.error ?? 'Unknown error'));
+                      }
                       router.refresh();
                     }}
                     style={{
@@ -134,8 +141,8 @@ export default function RFQsClient({ rfqs }: Props) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.375rem',
                       padding: '0.5rem 0.75rem',
-                      background: '#eff6ff', color: '#2563EB',
-                      border: '1px solid #bfdbfe', borderRadius: '0.5rem',
+                      background: '#FFF3E8', color: '#FF6B00',
+                      border: '1px solid #FFE4CC', borderRadius: '0.5rem',
                       fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none',
                     }}
                   >

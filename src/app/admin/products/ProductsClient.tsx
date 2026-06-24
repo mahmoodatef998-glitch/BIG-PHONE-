@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy } from 'lucide-react';
 import type { Product, Brand } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
-import { createClient } from '@/lib/supabase/client';
 import ProductEditDrawer from './ProductEditDrawer';
 
 interface Props {
@@ -74,36 +73,30 @@ export default function ProductsClient({ products, brands }: Props) {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product? This cannot be undone.')) return;
     setDeletingId(id);
-    const supabase = createClient();
-    await supabase.from('products').delete().eq('id', id);
+    const res = await fetch('/api/admin/products/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      alert('Delete failed: ' + (j.error ?? 'Unknown error'));
+    }
     router.refresh();
     setDeletingId(null);
   };
 
   const handleDuplicate = async (product: Product) => {
     setDuplicatingId(product.id);
-    const supabase = createClient();
-    await supabase.from('products').insert({
-      brand_id: product.brand_id,
-      name: product.name + ' (Copy)',
-      slug: product.slug + '-copy-' + Date.now().toString(36),
-      model: product.model,
-      category: product.category,
-      subcategory: product.subcategory,
-      condition: product.condition,
-      storage: product.storage,
-      color: product.color,
-      battery_health: product.battery_health,
-      stock_quantity: product.stock_quantity,
-      moq: product.moq,
-      country_of_origin: product.country_of_origin,
-      warranty: product.warranty,
-      description: product.description,
-      specifications: product.specifications,
-      images: product.images,
-      is_featured: false,
-      is_active: false,
+    const res = await fetch('/api/admin/products/duplicate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product),
     });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      alert('Duplicate failed: ' + (j.error ?? 'Unknown error'));
+    }
     router.refresh();
     setDuplicatingId(null);
   };
@@ -111,8 +104,15 @@ export default function ProductsClient({ products, brands }: Props) {
   const saveStock = async (productId: string) => {
     const val = parseInt(editingStockValue);
     if (!isNaN(val) && val >= 0) {
-      const supabase = createClient();
-      await supabase.from('products').update({ stock_quantity: val }).eq('id', productId);
+      const res = await fetch('/api/admin/products/stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productId, stock_quantity: val }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert('Stock update failed: ' + (j.error ?? 'Unknown error'));
+      }
       router.refresh();
     }
     setEditingStockId(null);
@@ -136,9 +136,9 @@ export default function ProductsClient({ products, brands }: Props) {
           <button
             style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.625rem 1.125rem', background: '#2563EB', color: '#fff',
+              padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
               border: 'none', borderRadius: '0.5rem', fontWeight: 600,
-              fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0, transition: 'background 0.15s',
+              fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
             }}
             onClick={() => setEditingProduct(makeEmpty(brands))}
           >
@@ -277,7 +277,7 @@ export default function ProductsClient({ products, brands }: Props) {
                               if (e.key === 'Enter') saveStock(product.id);
                               if (e.key === 'Escape') setEditingStockId(null);
                             }}
-                            style={{ width: '72px', padding: '0.25rem 0.5rem', border: '2px solid #2563EB', borderRadius: '0.375rem', fontSize: '0.875rem', outline: 'none' }}
+                            style={{ width: '72px', padding: '0.25rem 0.5rem', border: '2px solid #FF6B00', borderRadius: '0.375rem', fontSize: '0.875rem', outline: 'none' }}
                           />
                         ) : (
                           <div
@@ -298,19 +298,19 @@ export default function ProductsClient({ products, brands }: Props) {
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
                           <button onClick={() => handleDuplicate(product)} aria-label={`Duplicate ${product.model}`} disabled={duplicatingId === product.id}
-                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s', opacity: duplicatingId === product.id ? 0.5 : 1 }}
+                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '0.375rem', cursor: 'pointer', opacity: duplicatingId === product.id ? 0.5 : 1 }}
                             onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
                             onMouseLeave={e => (e.currentTarget.style.background = '#f8fafc')}>
                             <Copy size={13} />
                           </button>
                           <button onClick={() => setEditingProduct(product)} aria-label={`Edit ${product.model}`}
-                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eff6ff', color: '#2563EB', border: '1px solid #bfdbfe', borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s' }}
-                            onMouseEnter={e => (e.currentTarget.style.background = '#dbeafe')}
-                            onMouseLeave={e => (e.currentTarget.style.background = '#eff6ff')}>
+                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFF3E8', color: '#FF6B00', border: '1px solid #FFE4CC', borderRadius: '0.375rem', cursor: 'pointer' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = '#FFE4CC')}
+                            onMouseLeave={e => (e.currentTarget.style.background = '#FFF3E8')}>
                             <Edit2 size={13} />
                           </button>
                           <button onClick={() => handleDelete(product.id)} aria-label={`Delete ${product.model}`} disabled={deletingId === product.id}
-                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '0.375rem', cursor: 'pointer', transition: 'background 0.15s', opacity: deletingId === product.id ? 0.5 : 1 }}
+                            style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '0.375rem', cursor: 'pointer', opacity: deletingId === product.id ? 0.5 : 1 }}
                             onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                             onMouseLeave={e => (e.currentTarget.style.background = '#fef2f2')}>
                             <Trash2 size={13} />

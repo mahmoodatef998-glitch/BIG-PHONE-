@@ -10,7 +10,7 @@ import { formatCondition } from '@/lib/utils';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts } from '@/lib/data';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;

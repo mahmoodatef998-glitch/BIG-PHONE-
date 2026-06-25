@@ -5,7 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
 import { getBrandBySlug, getProducts, getBrands } from '@/lib/data';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 type BrandPageProps = { params: Promise<{ slug: string }> };

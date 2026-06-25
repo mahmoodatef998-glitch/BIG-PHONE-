@@ -9,7 +9,7 @@ import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CTASection from '@/components/home/CTASection';
 import { getBrands, getProducts } from '@/lib/data';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [brands, featuredProducts, popularProducts] = await Promise.all([

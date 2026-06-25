@@ -24,8 +24,9 @@ const STATUS: Record<string, { label: string; bg: string; color: string; dot: st
   closed:    { label: 'Closed',    bg: '#F1F5F9', color: '#475569', dot: '#9CA3AF' },
 };
 
-function waLink(phone: string, company: string, product: string, qty: number | null) {
-  const msg = `Hello ${company}!\n\nThank you for your RFQ for *${product}*${qty ? ` (Qty: ${qty})` : ''}.\n\nOur team will share the best wholesale price shortly.\n\nBest regards,\nBIG PHONE Team`;
+function waLink(phone: string, company: string, product: string | null, qty: number | null) {
+  const productLabel = product ?? 'your requested product';
+  const msg = `Hello ${company}!\n\nThank you for your RFQ for *${productLabel}*${qty ? ` (Qty: ${qty})` : ''}.\n\nOur team will share the best wholesale price shortly.\n\nBest regards,\nBIG PHONE Team`;
   return `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -62,7 +63,7 @@ export default async function AdminDashboard() {
   const mentions: Record<string, number> = {};
   rfqs.forEach(r => {
     KEYWORDS.forEach(kw => {
-      if (r.product_interest.toLowerCase().includes(kw.toLowerCase())) {
+      if (r.product_interest?.toLowerCase().includes(kw.toLowerCase())) {
         mentions[kw] = (mentions[kw] || 0) + 1;
       }
     });
@@ -252,7 +253,7 @@ export default async function AdminDashboard() {
                         <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{rfq.email}</div>
                       </td>
                       <td style={{ padding: '0.75rem 1rem' }}>
-                        <div style={{ fontSize: '0.8125rem', color: '#374151', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rfq.product_interest}</div>
+                        <div style={{ fontSize: '0.8125rem', color: '#374151', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rfq.product_interest ?? '—'}</div>
                         {rfq.quantity && <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Qty: {rfq.quantity}</div>}
                       </td>
                       <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151', whiteSpace: 'nowrap' }}>{rfq.country}</td>

@@ -1,12 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Product, Brand, RFQ, Collection } from "@/types";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 
+// Anon client — for public reads and public RFQ submissions
 function db() {
   return createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+// Service-role client — bypasses RLS, server-side only
+function adminDb() {
+  return createAdminClient();
 }
 
 const MOCK_BRANDS: Brand[] = [
@@ -77,6 +84,8 @@ const MOCK_COLLECTIONS: Collection[] = [
   { id: 'c4', name: 'Refurbished Deals', slug: 'refurbished-deals', description: 'Grade A and certified refurbished',       image_url: null, sort_order: 4, is_active: false, created_at: '2024-01-01', updated_at: '2024-01-01' },
 ];
 
+// ─── Public functions (anon key) ───────────────────────────────────────────────
+
 export async function getProducts(filters?: Partial<{
   brand: string; condition: string; category: string; featured: boolean; search: string; limit: number;
 }>): Promise<Product[]> {
@@ -121,16 +130,6 @@ export async function getProducts(filters?: Partial<{
   return products;
 }
 
-export async function getProductsAdmin(): Promise<Product[]> {
-  if (!USE_SUPABASE) return MOCK_PRODUCTS;
-  const { data, error } = await db()
-    .from('products')
-    .select('*, brand:brands(*)')
-    .order('created_at', { ascending: false });
-  if (error) { console.error('[getProductsAdmin]', error.message); return []; }
-  return (data ?? []) as Product[];
-}
-
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!USE_SUPABASE) return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
   const { data, error } = await db().from('products').select('*, brand:brands(*)').eq('slug', slug).eq('is_active', true).maybeSingle();
@@ -143,16 +142,6 @@ export async function getAllProductSlugs(): Promise<string[]> {
   const { data, error } = await db().from('products').select('slug').eq('is_active', true);
   if (error) { console.error('[getAllProductSlugs]', error.message); return []; }
   return (data ?? []).map((row: { slug: string }) => row.slug);
-}
-
-export async function getProductsGroupedByBrand(): Promise<{ brand: Brand; products: Product[]; total: number }[]> {
-  const [brands, products] = await Promise.all([getBrands(), getProducts()]);
-  const result: { brand: Brand; products: Product[]; total: number }[] = [];
-  for (const brand of brands) {
-    const bp = products.filter(p => p.brand?.slug === brand.slug || p.brand_id === brand.id);
-    if (bp.length > 0) result.push({ brand, products: bp, total: bp.length });
-  }
-  return result;
 }
 
 export async function getBrands(): Promise<Brand[]> {
@@ -169,13 +158,6 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   return (data as Brand) ?? null;
 }
 
-export async function getBrandsAdmin(): Promise<Brand[]> {
-  if (!USE_SUPABASE) return MOCK_BRANDS;
-  const { data, error } = await db().from('brands').select('*').order('sort_order', { ascending: true });
-  if (error) { console.error('[getBrandsAdmin]', error.message); return []; }
-  return (data ?? []) as Brand[];
-}
-
 export async function getCollections(): Promise<Collection[]> {
   if (!USE_SUPABASE) return MOCK_COLLECTIONS.filter(c => c.is_active);
   const { data, error } = await db().from('collections').select('*').eq('is_active', true).order('sort_order', { ascending: true });
@@ -183,27 +165,17 @@ export async function getCollections(): Promise<Collection[]> {
   return (data ?? []) as Collection[];
 }
 
-export async function getCollectionsAdmin(): Promise<Collection[]> {
-  if (!USE_SUPABASE) return MOCK_COLLECTIONS;
-  const { data, error } = await db().from('collections').select('*').order('sort_order', { ascending: true });
-  if (error) { console.error('[getCollectionsAdmin]', error.message); return []; }
-  return (data ?? []) as Collection[];
+export async function getProductsGroupedByBrand(): Promise<{ brand: Brand; products: Product[]; total: number }[]> {
+  const [brands, products] = await Promise.all([getBrands(), getProducts()]);
+  const result: { brand: Brand; products: Product[]; total: number }[] = [];
+  for (const brand of brands) {
+    const bp = products.filter(p => p.brand?.slug === brand.slug || p.brand_id === brand.id);
+    if (bp.length > 0) result.push({ brand, products: bp, total: bp.length });
+  }
+  return result;
 }
 
-export async function getSettings(): Promise<Record<string, string>> {
-  if (!USE_SUPABASE) return {};
-  const { data } = await db().from('site_settings').select('key, value');
-  if (!data) return {};
-  return Object.fromEntries((data as { key: string; value: string | null }[]).map(r => [r.key, r.value ?? '']));
-}
-
-export async function getRFQs(): Promise<RFQ[]> {
-  if (!USE_SUPABASE) return MOCK_RFQS;
-  const { data, error } = await db().from('rfqs').select('*').order('created_at', { ascending: false });
-  if (error) { console.error('[getRFQs]', error.message); return []; }
-  return (data ?? []) as RFQ[];
-}
-
+// Public RFQ submission — anon key is fine (policy: "Anyone can submit RFQ")
 export async function submitRFQ(data: Omit<RFQ, 'id' | 'status' | 'created_at'>): Promise<{ success: boolean; id?: string; error?: string }> {
   if (!USE_SUPABASE) {
     console.log('[RFQ submitted - no Supabase]', data);
@@ -212,4 +184,45 @@ export async function submitRFQ(data: Omit<RFQ, 'id' | 'status' | 'created_at'>)
   const { data: row, error } = await db().from('rfqs').insert([{ ...data, status: 'new' }]).select('id').single();
   if (error) { console.error('[submitRFQ]', error.message); return { success: false, error: error.message }; }
   return { success: true, id: row.id };
+}
+
+// ─── Admin functions (service-role key — bypasses RLS) ─────────────────────────
+
+export async function getProductsAdmin(): Promise<Product[]> {
+  if (!USE_SUPABASE) return MOCK_PRODUCTS;
+  const { data, error } = await adminDb()
+    .from('products')
+    .select('*, brand:brands(*)')
+    .order('created_at', { ascending: false });
+  if (error) { console.error('[getProductsAdmin]', error.message); return []; }
+  return (data ?? []) as Product[];
+}
+
+export async function getBrandsAdmin(): Promise<Brand[]> {
+  if (!USE_SUPABASE) return MOCK_BRANDS;
+  const { data, error } = await adminDb().from('brands').select('*').order('sort_order', { ascending: true });
+  if (error) { console.error('[getBrandsAdmin]', error.message); return []; }
+  return (data ?? []) as Brand[];
+}
+
+export async function getCollectionsAdmin(): Promise<Collection[]> {
+  if (!USE_SUPABASE) return MOCK_COLLECTIONS;
+  const { data, error } = await adminDb().from('collections').select('*').order('sort_order', { ascending: true });
+  if (error) { console.error('[getCollectionsAdmin]', error.message); return []; }
+  return (data ?? []) as Collection[];
+}
+
+export async function getRFQs(): Promise<RFQ[]> {
+  if (!USE_SUPABASE) return MOCK_RFQS;
+  // Must use service-role client: rfqs table has no SELECT policy for anon users
+  const { data, error } = await adminDb().from('rfqs').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('[getRFQs]', error.message); return []; }
+  return (data ?? []) as RFQ[];
+}
+
+export async function getSettings(): Promise<Record<string, string>> {
+  if (!USE_SUPABASE) return {};
+  const { data } = await adminDb().from('site_settings').select('key, value');
+  if (!data) return {};
+  return Object.fromEntries((data as { key: string; value: string | null }[]).map(r => [r.key, r.value ?? '']));
 }

@@ -179,11 +179,55 @@ create trigger collections_updated_at
   before update on collections
   for each row execute function update_updated_at();
 
+-- site_settings: migrate legacy tables to key/value schema (safe to re-run)
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'site_settings'
+  ) then
+    -- Common legacy column names → rename in place
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'setting_key'
+    ) and not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'key'
+    ) then
+      alter table site_settings rename column setting_key to key;
+    end if;
+
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'setting_value'
+    ) and not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'value'
+    ) then
+      alter table site_settings rename column setting_value to value;
+    end if;
+
+    -- Still wrong shape (e.g. id/name/value rows) → recreate; defaults are re-seeded below
+    if not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'key'
+    ) or not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'value'
+    ) then
+      drop table site_settings;
+    end if;
+  end if;
+end $$;
+
 create table if not exists site_settings (
   key        text primary key,
   value      text,
   updated_at timestamptz not null default now()
 );
+
+alter table site_settings add column if not exists value text;
+alter table site_settings add column if not exists updated_at timestamptz not null default now();
 
 drop trigger if exists site_settings_updated_at on site_settings;
 create trigger site_settings_updated_at

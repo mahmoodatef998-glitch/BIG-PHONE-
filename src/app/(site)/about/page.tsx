@@ -82,7 +82,7 @@ export default function AboutPage() {
         <div className="container-site">
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <h2 className="section-title">Our Refurbishment Standards</h2>
-            <p className="section-subtitle">We never use the word "used" — every device is professionally graded</p>
+            <p className="section-subtitle">We never use the word &ldquo;used&rdquo; — every device is professionally graded</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', maxWidth: '800px', margin: '0 auto' }}>
             {[

@@ -53,16 +53,19 @@ export default function Header() {
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); setSearchOpen(false); }, [pathname]);
-
-  const active = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+  const closeNav = () => {
+    setMenuOpen(false);
+    setSearchOpen(false);
+  };
 
   const NAV = [
-    { href: '/',                        label: 'Home' },
-    { href: '/inventory',               label: 'Marketplace' },
-    { href: '/brands',                  label: 'Stores' },
-    { href: '/inventory?featured=true', label: 'Deals' },
+    { href: '/',          label: 'Home' },
+    { href: '/inventory', label: 'Inventory' },
+    { href: '/brands',    label: 'Brands' },
+    { href: '/inventory?featured=true', label: 'Featured' },
   ];
+
+  const active = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
     <>
@@ -77,18 +80,18 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
 
             {/* ── Logo ────────────────────────────── */}
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
+            <Link href="/" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
               <CamelLogo size={72} />
               <div style={{ lineHeight: 1 }}>
                 <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
-                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>MARKETPLACE</div>
+                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>WHOLESALE</div>
               </div>
             </Link>
 
             {/* ── Desktop Nav ────────────────────── */}
             <nav className="hdr-nav">
               {NAV.map(item => (
-                <Link key={item.href} href={item.href} className={`hdr-link${active(item.href) ? ' hdr-link-active' : ''}`}>
+                <Link key={item.href} href={item.href} onClick={closeNav} className={`hdr-link${active(item.href) ? ' hdr-link-active' : ''}`}>
                   {item.label}
                 </Link>
               ))}
@@ -109,7 +112,7 @@ export default function Header() {
                     padding: '0.5rem', minWidth: '200px', zIndex: 100,
                   }}>
                     {CATEGORIES_DROP.map(c => (
-                      <Link key={c.href} href={c.href} className="cat-drop-item">
+                      <Link key={c.href} href={c.href} onClick={closeNav} className="cat-drop-item">
                         <div style={{ width: '28px', height: '28px', background: '#FFF3E8', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <c.Icon size={14} style={{ color: '#FF6B00' }} />
                         </div>
@@ -120,7 +123,7 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/rfq" className="hdr-link" style={{ color: '#FF6B00', fontWeight: 700 }}>Get a Quote</Link>
+              <Link href="/rfq" onClick={closeNav} className="hdr-link" style={{ color: '#FF6B00', fontWeight: 700 }}>Get a Quote</Link>
             </nav>
 
             {/* ── Right actions ───────────────────── */}
@@ -131,7 +134,7 @@ export default function Header() {
               <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label="Search">
                 <Search size={17} />
               </button>
-              <Link href="/login" className="hdr-login hdr-login-desktop">
+              <Link href="/admin/login" className="hdr-login hdr-login-desktop">
                 <User size={15} />
                 Sign In
               </Link>
@@ -163,7 +166,7 @@ export default function Header() {
           <div style={{ background: '#fff', borderTop: '1px solid #EAEAEA', padding: '1rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {NAV.map(item => (
-                <Link key={item.href} href={item.href} style={{
+                <Link key={item.href} href={item.href} onClick={closeNav} style={{
                   display: 'block', padding: '0.75rem 1rem', borderRadius: '0.625rem',
                   fontSize: '0.9375rem', fontWeight: active(item.href) ? 700 : 500,
                   color: active(item.href) ? '#FF6B00' : '#111827',
@@ -171,14 +174,14 @@ export default function Header() {
                 }}>{item.label}</Link>
               ))}
               {CATEGORIES_DROP.map(c => (
-                <Link key={c.href} href={c.href} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.625rem', fontSize: '0.9375rem', color: '#374151', textDecoration: 'none' }}>
+                <Link key={c.href} href={c.href} onClick={closeNav} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.625rem', fontSize: '0.9375rem', color: '#374151', textDecoration: 'none' }}>
                   <c.Icon size={16} style={{ color: '#FF6B00' }} /> {c.label}
                 </Link>
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
-              <Link href="/rfq" className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>Get a Quote</Link>
-              <Link href="/login" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>
-                <User size={16} /> Sign In / Register
+              <Link href="/rfq" onClick={closeNav} className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>Get a Quote</Link>
+              <Link href="/admin/login" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>
+                <User size={16} /> Admin Sign In
               </Link>
               <button onClick={toggle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #EAEAEA', background: '#FAFAFA', color: '#374151', fontSize: '0.9375rem', fontWeight: 600, cursor: 'pointer' }}>
                 {isRTL ? 'Switch to English' : 'التبديل إلى العربية'}
@@ -195,7 +198,7 @@ export default function Header() {
           { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: 'Shop' },
           { href: '/rfq',        Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>, label: 'Quote' },
           { href: '/inventory?featured=true', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>, label: 'Deals' },
-          { href: '/login',      Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: 'Sign In' },
+          { href: '/admin/login', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: 'Admin' },
         ].map(item => (
           <Link key={item.href} href={item.href} style={{
             flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',

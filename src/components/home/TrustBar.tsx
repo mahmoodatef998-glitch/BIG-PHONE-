@@ -1,10 +1,10 @@
 import { ShieldCheck, RotateCcw, Truck, BadgeCheck } from 'lucide-react';
 
 const ITEMS = [
-  { icon: ShieldCheck, label: '100% Secure',     sub: 'Payments protected' },
-  { icon: RotateCcw,   label: '7 Days Return',   sub: 'Hassle-free returns' },
-  { icon: Truck,       label: 'Fast Delivery',   sub: 'Same-day dispatch' },
-  { icon: BadgeCheck,  label: 'Trusted Sellers', sub: 'Verified merchants' },
+  { icon: ShieldCheck, label: 'Verified Stock',   sub: 'Live inventory counts' },
+  { icon: RotateCcw,   label: 'Grade A/B/Cert', sub: 'Professional grading' },
+  { icon: Truck,       label: 'Global Export',  sub: '50+ countries served' },
+  { icon: BadgeCheck,  label: 'MOQ from 5',     sub: 'Flexible wholesale lots' },
 ];
 
 export default function TrustBar() {

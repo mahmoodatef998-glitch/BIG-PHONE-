@@ -169,10 +169,6 @@ export default function ProductsClient({ products, brands, collections }: Props)
     setEditingStockId(null);
   };
 
-  const checkboxStyle: React.CSSProperties = {
-    width: '16px', height: '16px', cursor: 'pointer', accentColor: '#FF6B00',
-  };
-
   return (
     <>
       <div style={{ padding: '2rem' }}>
@@ -431,13 +427,16 @@ export default function ProductsClient({ products, brands, collections }: Props)
         </div>
       </div>
 
-      <ProductEditDrawer
-        product={editingProduct}
-        brands={brands}
-        collections={collections}
-        isNew={editingProduct?.id === '__new__'}
-        onClose={() => setEditingProduct(null)}
-      />
+      {editingProduct && (
+        <ProductEditDrawer
+          key={editingProduct.id}
+          product={editingProduct}
+          brands={brands}
+          collections={collections}
+          isNew={editingProduct.id === '__new__'}
+          onClose={() => setEditingProduct(null)}
+        />
+      )}
     </>
   );
 }

@@ -108,7 +108,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 
 export default function ProductEditDrawer({ product, brands, collections, isNew, onClose }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState | null>(null);
+  const [form, setForm] = useState<FormState>(() => field(product!));
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [syncVariants, setSyncVariants] = useState(false);
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -117,26 +117,15 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (product) {
-      setForm(field(product));
-      setNewFiles([]);
-      setStatus('idle');
-      setSyncVariants(false);
-      setUploadProgress('');
-      setErrorMsg('');
-    }
-  }, [product]);
-
-  useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  if (!product || !form) return null;
+  if (!product) return null;
 
   const set = (key: keyof FormState, val: FormState[keyof FormState]) =>
-    setForm(prev => prev ? { ...prev, [key]: val } : prev);
+    setForm(prev => ({ ...prev, [key]: val }));
 
   const handleSave = async () => {
     if (!form) return;

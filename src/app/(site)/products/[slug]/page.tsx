@@ -10,7 +10,7 @@ import { formatCondition } from '@/lib/utils';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts } from '@/lib/data';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
@@ -57,6 +57,9 @@ export default async function ProductPage(props: ProductPageProps) {
   const isAudio  = product.category === 'airpods';
 
   const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
+  const priceValidUntil = product.updated_at
+    ? new Date(new Date(product.updated_at).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : undefined;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -71,7 +74,7 @@ export default async function ProductPage(props: ProductPageProps) {
       priceCurrency: 'AED',
       ...(product.price_aed && product.show_price !== false ? {
         price: product.price_aed,
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priceValidUntil,
       } : {}),
       availability: product.stock_quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: 'BIG PHONE' },

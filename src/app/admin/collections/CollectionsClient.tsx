@@ -70,12 +70,21 @@ export default function CollectionsClient({ collections, productCountByCollectio
 
   const isNew = editing === '__new__';
 
-  useEffect(() => {
-    if (!editing) return;
-    if (editing === '__new__') { setForm(makeEmpty()); setSlugEdited(false); }
-    else { setForm(fromCollection(editing as Collection)); setSlugEdited(true); }
-    setStatus('idle'); setErrorMsg('');
-  }, [editing]);
+  const openNew = () => {
+    setForm(makeEmpty());
+    setSlugEdited(false);
+    setStatus('idle');
+    setErrorMsg('');
+    setEditing('__new__');
+  };
+
+  const openEdit = (c: Collection) => {
+    setForm(fromCollection(c));
+    setSlugEdited(true);
+    setStatus('idle');
+    setErrorMsg('');
+    setEditing(c);
+  };
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') setEditing(null); };
@@ -146,7 +155,7 @@ export default function CollectionsClient({ collections, productCountByCollectio
               Organize your storefront — New Arrivals, Best Sellers, Accessories, etc.
             </p>
           </div>
-          <button onClick={() => setEditing('__new__')} style={{
+          <button onClick={openNew} style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
             border: 'none', borderRadius: '0.5rem', fontWeight: 700,
@@ -164,7 +173,7 @@ export default function CollectionsClient({ collections, productCountByCollectio
             <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
               Create sections like &ldquo;New Arrivals&rdquo; to organize your storefront.
             </p>
-            <button onClick={() => setEditing('__new__')} style={{
+            <button onClick={openNew} style={{
               padding: '0.625rem 1.25rem', background: '#FF6B00', color: '#fff',
               border: 'none', borderRadius: '0.5rem', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
             }}>Create First Section</button>
@@ -203,7 +212,7 @@ export default function CollectionsClient({ collections, productCountByCollectio
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.375rem', gap: '0.5rem' }}>
                       <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#111827' }}>{c.name}</div>
                       <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
-                        <button onClick={() => setEditing(c)} aria-label={`Edit ${c.name}`} style={{
+                        <button onClick={() => openEdit(c)} aria-label={`Edit ${c.name}`} style={{
                           width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                           background: '#FFF0E0', color: '#FF6B00', border: '1px solid #FFD0A0',
                           borderRadius: '0.375rem', cursor: 'pointer',

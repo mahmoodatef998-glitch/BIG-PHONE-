@@ -60,11 +60,11 @@ export default function Footer() {
                 </div>
                 <div>
                   <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>BIG PHONE</span>
-                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Marketplace</span>
+                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Wholesale</span>
                 </div>
               </Link>
               <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#9CA3AF', maxWidth: '260px', margin: '0 0 1.5rem' }}>
-                UAE's trusted B2B platform for buying and selling wholesale mobile devices from verified suppliers.
+                UAE&apos;s trusted B2B wholesale supplier for new and refurbished mobile devices. Global export from Dubai.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {[

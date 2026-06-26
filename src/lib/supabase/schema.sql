@@ -153,7 +153,11 @@ insert into brands (id, name, slug, description, is_active, sort_order) values
   ('00000000-0000-0000-0000-000000000004', 'Huawei',  'huawei',  'Huawei P and Mate series',                      true, 4),
   ('00000000-0000-0000-0000-000000000005', 'Oppo',    'oppo',    'Oppo Find and Reno series',                     true, 5),
   ('00000000-0000-0000-0000-000000000006', 'Vivo',    'vivo',    'Vivo X and V series smartphones',               true, 6)
-on conflict (id) do nothing;
+on conflict (slug) do update set
+  name        = excluded.name,
+  description = excluded.description,
+  is_active   = excluded.is_active,
+  sort_order  = excluded.sort_order;
 
 create table if not exists collections (
   id          uuid primary key default uuid_generate_v4(),
@@ -205,7 +209,11 @@ insert into collections (id, name, slug, description, sort_order, is_active) val
   ('00000000-0000-0000-0000-000000000102', 'Best Sellers',      'best-sellers',      'Most popular wholesale items',              2, true),
   ('00000000-0000-0000-0000-000000000103', 'Accessories',       'accessories',       'Chargers, cables, earphones & more',        3, true),
   ('00000000-0000-0000-0000-000000000104', 'Refurbished Deals', 'refurbished-deals', 'Grade A and certified refurbished',        4, false)
-on conflict (id) do nothing;
+on conflict (slug) do update set
+  name        = excluded.name,
+  description = excluded.description,
+  sort_order  = excluded.sort_order,
+  is_active   = excluded.is_active;
 
 insert into site_settings (key, value) values
   ('store_name',           'BIG PHONE'),

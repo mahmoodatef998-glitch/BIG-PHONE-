@@ -8,6 +8,10 @@ import type { Product, Brand, Collection } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductEditDrawer from './ProductEditDrawer';
 import { useAdminToast } from '@/components/admin/AdminToast';
+import AdminPagination from '@/components/admin/AdminPagination';
+import { usePagination } from '@/lib/admin/pagination';
+
+const PAGE_SIZE = 25;
 
 interface Props {
   products: Product[];
@@ -52,7 +56,7 @@ function makeEmpty(brands: Brand[]): Product {
 
 export default function ProductsClient({ products, brands, collections }: Props) {
   const router = useRouter();
-  const { error: toastError } = useAdminToast();
+  const { error: toastError, success: toastSuccess } = useAdminToast();
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
@@ -77,6 +81,9 @@ export default function ProductsClient({ products, brands, collections }: Props)
       return matchSearch && matchBrand && matchCond && matchCollection;
     });
   }, [products, search, brandFilter, conditionFilter, collectionFilter]);
+
+  const paginationKey = `${search}|${brandFilter}|${conditionFilter}|${collectionFilter}`;
+  const { paginated, page, setPage, totalPages, total, pageSize, hasMultiplePages } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
   const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity < p.moq).length;
 
@@ -116,6 +123,13 @@ export default function ProductsClient({ products, brands, collections }: Props)
         toastError('Bulk action failed: ' + (j.error ?? 'Unknown error'));
       } else {
         setSelectedIds(new Set());
+        const labels: Record<string, string> = {
+          delete: `${selectedIds.size} product(s) deleted`,
+          activate: `${selectedIds.size} product(s) activated`,
+          deactivate: `${selectedIds.size} product(s) hidden`,
+          assign_section: `${selectedIds.size} product(s) assigned to section`,
+        };
+        toastSuccess(labels[action] ?? 'Bulk action completed');
         router.refresh();
       }
     } finally {
@@ -134,6 +148,8 @@ export default function ProductsClient({ products, brands, collections }: Props)
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       toastError('Delete failed: ' + (j.error ?? 'Unknown error'));
+    } else {
+      toastSuccess('Product deleted');
     }
     router.refresh();
     setDeletingId(null);
@@ -149,6 +165,8 @@ export default function ProductsClient({ products, brands, collections }: Props)
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       toastError('Duplicate failed: ' + (j.error ?? 'Unknown error'));
+    } else {
+      toastSuccess(`"${product.model}" duplicated`);
     }
     router.refresh();
     setDuplicatingId(null);
@@ -165,6 +183,8 @@ export default function ProductsClient({ products, brands, collections }: Props)
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         toastError('Stock update failed: ' + (j.error ?? 'Unknown error'));
+      } else {
+        toastSuccess('Stock updated');
       }
       router.refresh();
     }
@@ -336,20 +356,19 @@ export default function ProductsClient({ products, brands, collections }: Props)
               <tbody>
                 {filtered.length === 0 ? (
                   <tr><td colSpan={9} style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No products match your filters.</td></tr>
-                ) : filtered.map((product, i) => {
+                ) : paginated.map((product, i) => {
                   const isLow = product.stock_quantity > 0 && product.stock_quantity < product.moq;
                   const isOut = product.stock_quantity === 0;
                   const isSelected = selectedIds.has(product.id);
                   return (
                     <tr key={product.id}
+                      className="products-row"
                       style={{
-                        borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
+                        borderBottom: i < paginated.length - 1 ? '1px solid #F1F5F9' : 'none',
                         borderLeft: isSelected ? '3px solid #FF6B00' : isLow ? '3px solid #f97316' : isOut ? '3px solid #ef4444' : '3px solid transparent',
                         background: isSelected ? '#FFF8F3' : 'transparent',
                         transition: 'background 0.1s',
-                      }}
-                      onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#FAFAFA'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = isSelected ? '#FFF8F3' : 'transparent'; }}>
+                      }}>
                       <td style={{ padding: '0.75rem 0.75rem 0.75rem 1rem' }}>
                         <button
                           onClick={() => toggleOne(product.id)}
@@ -419,15 +438,31 @@ export default function ProductsClient({ products, brands, collections }: Props)
               </tbody>
             </table>
           </div>
-          <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>
-              Showing {filtered.length} product{filtered.length !== 1 ? 's' : ''}
-              {someSelected && <span style={{ marginLeft: '0.5rem', color: '#FF6B00', fontWeight: 600 }}>· {selectedIds.size} selected</span>}
-            </span>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Click stock to edit inline · Click edit for full details</span>
+          <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8125rem', color: '#6B7280' }}>
+                {hasMultiplePages
+                  ? `${total} product${total !== 1 ? 's' : ''} total`
+                  : `Showing ${filtered.length} product${filtered.length !== 1 ? 's' : ''}`}
+                {someSelected && <span style={{ marginLeft: '0.5rem', color: '#FF6B00', fontWeight: 600 }}>· {selectedIds.size} selected</span>}
+              </span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Click stock to edit inline · Click edit for full details</span>
+            </div>
+            <AdminPagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={setPage}
+            />
           </div>
         </div>
       </div>
+
+      <style>{`
+        .products-row:hover { background: #FAFAFA !important; }
+        tr.products-row[style*="FFF8F3"]:hover { background: #FFF8F3 !important; }
+      `}</style>
 
       {editingProduct && (
         <ProductEditDrawer
@@ -437,6 +472,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
           collections={collections}
           isNew={editingProduct.id === '__new__'}
           onClose={() => setEditingProduct(null)}
+          onSaved={toastSuccess}
         />
       )}
     </>

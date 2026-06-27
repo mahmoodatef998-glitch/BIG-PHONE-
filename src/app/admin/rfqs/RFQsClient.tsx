@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Mail, Phone, Globe, Calendar, MessageCircle, Download, Search, X } from 'lucide-react';
 import type { RFQ } from '@/types';
 import { useAdminToast } from '@/components/admin/AdminToast';
+import AdminPagination from '@/components/admin/AdminPagination';
+import { usePagination } from '@/lib/admin/pagination';
+
+const PAGE_SIZE = 10;
 
 interface Props {
   rfqs: RFQ[];
@@ -51,6 +55,9 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
       return matchesStatus && matchesEmail;
     });
   }, [rfqs, activeFilter, emailSearch]);
+
+  const paginationKey = `${activeFilter}|${emailSearch}`;
+  const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -113,7 +120,7 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {filtered.length === 0 ? (
           <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No RFQs match this filter.</div>
-        ) : filtered.map(rfq => {
+        ) : paginated.map(rfq => {
           const statusCfg = STATUS_CONFIG[rfq.status];
           return (
             <div key={rfq.id} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', padding: '1.25rem' }}>
@@ -187,6 +194,16 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
             </div>
           );
         })}
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+        <AdminPagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

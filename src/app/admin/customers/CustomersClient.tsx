@@ -10,6 +10,10 @@ import {
   topCustomerCountries,
 } from '@/lib/admin/customers';
 import { customerInitial, timeAgo, waLink } from '@/lib/admin/utils';
+import AdminPagination from '@/components/admin/AdminPagination';
+import { usePagination } from '@/lib/admin/pagination';
+
+const PAGE_SIZE = 15;
 
 interface Props {
   customers: AdminCustomer[];
@@ -57,6 +61,9 @@ export default function CustomersClient({ customers }: Props) {
       );
     });
   }, [customers, search, tierFilter]);
+
+  const paginationKey = `${search}|${tierFilter}`;
+  const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -157,7 +164,7 @@ export default function CustomersClient({ customers }: Props) {
                         : 'No customers match your search or filter.'}
                     </td>
                   </tr>
-                ) : filtered.map(c => {
+                ) : paginated.map(c => {
                   const tier = customerTier(c.rfq_count);
                   return (
                     <tr key={c.email.toLowerCase()} className="customers-row">
@@ -247,6 +254,15 @@ export default function CustomersClient({ customers }: Props) {
                 })}
               </tbody>
             </table>
+          </div>
+          <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+            <AdminPagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={setPage}
+            />
           </div>
         </div>
 

@@ -59,6 +59,7 @@ interface Props {
   collections: Collection[];
   isNew?: boolean;
   onClose: () => void;
+  onSaved?: (message: string) => void;
 }
 
 const labelStyle: React.CSSProperties = {
@@ -106,7 +107,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
-export default function ProductEditDrawer({ product, brands, collections, isNew, onClose }: Props) {
+export default function ProductEditDrawer({ product, brands, collections, isNew, onClose, onSaved }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(() => field(product!));
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -200,6 +201,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
     }
 
     setStatus('success');
+    onSaved?.(isNew ? 'Product created' : 'Product saved');
     router.refresh();
     setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
   };

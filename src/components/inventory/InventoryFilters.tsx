@@ -1,150 +1,244 @@
 'use client';
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
+import { inventoryHref } from '@/lib/inventory-url';
+
+const BRAND_ACCENT: Record<string, string> = {
+  apple:   '#1C1C1E',
+  samsung: '#1428A0',
+  xiaomi:  '#FF6900',
+  huawei:  '#CF0A2C',
+  oppo:    '#1D3461',
+  vivo:    '#415FFF',
+};
 
 const CATEGORIES = [
-  { value: '',            label: 'All Products' },
   { value: 'smartphone', label: 'Smartphones' },
   { value: 'tablet',     label: 'Tablets' },
   { value: 'airpods',    label: 'Audio' },
   { value: 'accessory',  label: 'Accessories' },
 ];
 
-const BRANDS = ['Apple', 'Samsung', 'Xiaomi', 'Huawei', 'Oppo', 'Vivo'];
-
-const CONDITIONS = [
+const CONDITION_OPTIONS = [
+  { value: '',                      label: 'All conditions' },
   { value: 'brand-new',             label: 'Brand New' },
-  { value: 'certified-refurbished', label: 'Certified' },
+  { value: 'refurbished',           label: 'All Refurbished' },
+  { value: 'certified-refurbished', label: 'Certified Refurbished' },
   { value: 'refurbished-grade-a',   label: 'Grade A' },
   { value: 'refurbished-grade-b',   label: 'Grade B' },
 ];
 
 const SORT_OPTIONS = [
-  { value: 'newest',     label: 'Newest First' },
-  { value: 'stock-high', label: 'Most Stock' },
-  { value: 'stock-low',  label: 'Least Stock' },
+  { value: 'newest',     label: 'Newest first' },
+  { value: 'stock-high', label: 'Most stock' },
+  { value: 'stock-low',  label: 'Least stock' },
   { value: 'brand',      label: 'Brand A–Z' },
 ];
 
-export default function InventoryFilters({ count }: { count: number }) {
-  const router   = useRouter();
+type BrandTab = { slug: string; name: string };
+
+type Props = {
+  count: number;
+  brands: BrandTab[];
+};
+
+const selectStyle: React.CSSProperties = {
+  border: '1.5px solid #DDE3EA',
+  borderRadius: '8px',
+  padding: '0.45rem 2rem 0.45rem 0.75rem',
+  minHeight: '40px',
+  fontSize: '0.8125rem',
+  fontWeight: 600,
+  color: '#374151',
+  background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%234B5563' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E\") no-repeat right 0.625rem center",
+  appearance: 'none',
+  cursor: 'pointer',
+  width: '100%',
+};
+
+export default function InventoryFilters({ count, brands }: Props) {
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const updateParam = useCallback((key: string, value: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) params.set(key, value);
-    else params.delete(key);
-    if (key === 'condition') params.delete('refurbished');
-    if (key === 'refurbished' && value) params.delete('condition');
-    params.delete('page');
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [router, pathname, searchParams]);
+  const pushParams = useCallback((updates: Record<string, string | null | undefined>) => {
+    router.push(inventoryHref(searchParams, updates), { scroll: false });
+  }, [router, searchParams]);
 
   const clearAll = () => router.push(pathname, { scroll: false });
 
-  const category  = searchParams.get('category') ?? '';
-  const brand     = searchParams.get('brand')    ?? '';
-  const condition = searchParams.get('condition') ?? '';
+  const brand       = searchParams.get('brand') ?? '';
+  const category    = searchParams.get('category') ?? '';
+  const condition   = searchParams.get('condition') ?? '';
   const refurbished = searchParams.get('refurbished') === '1' || searchParams.get('refurbished') === 'true';
-  const featured = searchParams.get('featured') === 'true';
+  const featured    = searchParams.get('featured') === 'true';
+  const inStock     = searchParams.get('inStock') === '1' || searchParams.get('inStock') === 'true';
   const excludeBrand = searchParams.get('excludeBrand') ?? '';
-  const searchQ = searchParams.get('search') ?? '';
-  const sort      = searchParams.get('sort')      ?? 'newest';
-  const hasFilters = !!(category || brand || condition || refurbished || featured || excludeBrand || searchQ);
+  const searchQ     = searchParams.get('search') ?? '';
+  const collection  = searchParams.get('collection') ?? '';
+  const sort        = searchParams.get('sort') ?? 'newest';
 
-  const activeFilters: { key: string; label: string }[] = [];
-  if (featured) activeFilters.push({ key: 'featured', label: 'Featured' });
-  if (refurbished) activeFilters.push({ key: 'refurbished', label: 'Refurbished' });
-  if (category)  activeFilters.push({ key: 'category',  label: CATEGORIES.find(c => c.value === category)?.label  ?? category });
-  if (brand)     activeFilters.push({ key: 'brand',     label: brand.charAt(0).toUpperCase() + brand.slice(1) });
-  if (excludeBrand) activeFilters.push({ key: 'excludeBrand', label: `Excl. ${excludeBrand.charAt(0).toUpperCase()}${excludeBrand.slice(1)}` });
-  if (condition) activeFilters.push({ key: 'condition', label: CONDITIONS.find(c => c.value === condition)?.label ?? condition });
-  if (searchQ) activeFilters.push({ key: 'search', label: `"${searchQ}"` });
+  const conditionSelectValue = refurbished ? 'refurbished' : condition;
+
+  const hasFilters = !!(
+    brand || category || condition || refurbished || featured || inStock ||
+    excludeBrand || searchQ || collection
+  );
+
+  const brandName = useMemo(
+    () => brands.find(b => b.slug === brand)?.name ?? (brand ? brand.charAt(0).toUpperCase() + brand.slice(1) : ''),
+    [brands, brand],
+  );
+
+  const activeFilters: { key: string; label: string; clear: Record<string, null> }[] = [];
+  if (featured) activeFilters.push({ key: 'featured', label: 'Featured', clear: { featured: null } });
+  if (inStock) activeFilters.push({ key: 'inStock', label: 'In stock', clear: { inStock: null } });
+  if (refurbished) activeFilters.push({ key: 'refurbished', label: 'Refurbished', clear: { refurbished: null } });
+  if (category) {
+    activeFilters.push({
+      key: 'category',
+      label: CATEGORIES.find(c => c.value === category)?.label ?? category,
+      clear: { category: null },
+    });
+  }
+  if (brand) activeFilters.push({ key: 'brand', label: brandName, clear: { brand: null } });
+  if (excludeBrand) {
+    activeFilters.push({
+      key: 'excludeBrand',
+      label: `Excl. ${excludeBrand.charAt(0).toUpperCase()}${excludeBrand.slice(1)}`,
+      clear: { excludeBrand: null },
+    });
+  }
+  if (condition) {
+    activeFilters.push({
+      key: 'condition',
+      label: CONDITION_OPTIONS.find(c => c.value === condition)?.label ?? condition,
+      clear: { condition: null },
+    });
+  }
+  if (searchQ) activeFilters.push({ key: 'search', label: `"${searchQ}"`, clear: { search: null } });
+  if (collection) activeFilters.push({ key: 'collection', label: 'Collection', clear: { collection: null } });
+
+  const toggleBool = (key: 'featured' | 'inStock' | 'refurbished', active: boolean) => {
+    if (key === 'refurbished') {
+      pushParams({ refurbished: active ? null : '1', condition: null });
+      return;
+    }
+    pushParams({ [key]: active ? null : key === 'featured' ? 'true' : '1' });
+  };
+
+  const handleConditionChange = (value: string) => {
+    if (!value) {
+      pushParams({ condition: null, refurbished: null });
+    } else if (value === 'refurbished') {
+      pushParams({ refurbished: '1', condition: null });
+    } else {
+      pushParams({ condition: value, refurbished: null });
+    }
+  };
 
   return (
     <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA' }}>
-      <div className="container-site">
+      <div className="container-site" style={{ padding: '0.875rem 0 0.625rem' }}>
 
-        {/* ── Main chip row ─────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 0' }}>
-
-          {/* Scrollable chips area */}
-          <div className="inv-chip-row">
-
-            {/* Category group */}
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat.value}
-                onClick={() => updateParam('category', cat.value || null)}
-                className={`inv-chip${category === cat.value ? ' inv-chip-on' : ''}`}
-              >
-                {cat.label}
-              </button>
-            ))}
-
-            <span className="inv-sep" />
-
-            {/* Brand group */}
-            {BRANDS.map(b => (
-              <button
-                key={b}
-                onClick={() => updateParam('brand', brand === b.toLowerCase() ? null : b.toLowerCase())}
-                className={`inv-chip${brand === b.toLowerCase() ? ' inv-chip-on' : ''}`}
-              >
-                {b}
-              </button>
-            ))}
-
-            <span className="inv-sep" />
-
-            {/* Condition group */}
-            {CONDITIONS.map(c => (
-              <button
-                key={c.value}
-                onClick={() => updateParam('condition', condition === c.value ? null : c.value)}
-                className={`inv-chip${condition === c.value ? ' inv-chip-on' : ''}`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Sort select — pinned right */}
-          <div style={{ flexShrink: 0 }}>
-            <select
-              value={sort}
-              onChange={e => updateParam('sort', e.target.value)}
-              style={{
-                border: '1.5px solid #DDE3EA',
-                borderRadius: '8px',
-                padding: '0.4rem 2.25rem 0.4rem 0.75rem',
-                minHeight: '44px',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                color: '#374151',
-                background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%234B5563' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E\") no-repeat right 0.625rem center",
-                appearance: 'none',
-                cursor: 'pointer',
-                minWidth: '140px',
-              }}
+        {/* Brand — single place to pick manufacturer */}
+        <FilterSection label="Brand">
+          <div className="inv-brand-row">
+            <button
+              type="button"
+              onClick={() => pushParams({ brand: null })}
+              className={`inv-brand-tab${!brand ? ' inv-brand-tab-on' : ''}`}
             >
-              {SORT_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+              All
+            </button>
+            {brands.map(tab => {
+              const isActive = brand === tab.slug;
+              const accent = BRAND_ACCENT[tab.slug] ?? '#0066FF';
+              return (
+                <button
+                  key={tab.slug}
+                  type="button"
+                  onClick={() => pushParams({ brand: isActive ? null : tab.slug })}
+                  className={`inv-brand-tab${isActive ? ' inv-brand-tab-on' : ''}`}
+                  style={isActive ? { color: accent, borderBottomColor: accent } : undefined}
+                >
+                  {tab.name}
+                </button>
+              );
+            })}
+          </div>
+        </FilterSection>
+
+        {/* Quick toggles — one tap, obvious meaning */}
+        <FilterSection label="Show">
+          <div className="inv-pill-row">
+            <TogglePill
+              label="Featured"
+              active={featured}
+              onClick={() => toggleBool('featured', featured)}
+            />
+            <TogglePill
+              label="In stock"
+              active={inStock}
+              onClick={() => toggleBool('inStock', inStock)}
+            />
+            <TogglePill
+              label="Refurbished"
+              active={refurbished}
+              onClick={() => toggleBool('refurbished', refurbished)}
+            />
+          </div>
+        </FilterSection>
+
+        {/* Type + condition + sort — one compact row */}
+        <div className="inv-refine-row">
+          <FilterSection label="Type" compact>
+            <div className="inv-pill-row">
+              {CATEGORIES.map(cat => (
+                <TogglePill
+                  key={cat.value}
+                  label={cat.label}
+                  active={category === cat.value}
+                  onClick={() => pushParams({ category: category === cat.value ? null : cat.value })}
+                  size="sm"
+                />
               ))}
-            </select>
+            </div>
+          </FilterSection>
+
+          <div className="inv-refine-controls">
+            <FilterSection label="Condition" compact>
+              <select
+                value={conditionSelectValue}
+                onChange={e => handleConditionChange(e.target.value)}
+                style={selectStyle}
+                aria-label="Filter by condition"
+              >
+                {CONDITION_OPTIONS.map(o => (
+                  <option key={o.value || 'all'} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </FilterSection>
+
+            <FilterSection label="Sort" compact>
+              <select
+                value={sort}
+                onChange={e => pushParams({ sort: e.target.value === 'newest' ? null : e.target.value })}
+                style={selectStyle}
+                aria-label="Sort products"
+              >
+                {SORT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </FilterSection>
           </div>
         </div>
 
-        {/* ── Results meta row ──────────────────────────────────── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.5rem',
-          flexWrap: 'wrap',
-          borderTop: '1px solid #F1F5F9',
-          padding: '0.375rem 0 0.625rem',
-        }}>
+        {/* Active filters summary */}
+        <div className="inv-meta-row">
           <span style={{ fontSize: '0.8125rem', color: '#64748B', fontWeight: 500 }}>
             {count} {count === 1 ? 'product' : 'products'}
           </span>
@@ -152,27 +246,16 @@ export default function InventoryFilters({ count }: { count: number }) {
           {activeFilters.map(f => (
             <button
               key={f.key}
-              onClick={() => updateParam(f.key, null)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                padding: '0.2rem 0.625rem', borderRadius: '9999px',
-                background: '#0B1829', color: '#fff',
-                fontSize: '0.75rem', fontWeight: 600,
-                border: 'none', cursor: 'pointer', transition: 'background 0.15s',
-              }}
+              type="button"
+              onClick={() => pushParams(f.clear)}
+              className="inv-active-tag"
             >
               {f.label} <X size={11} />
             </button>
           ))}
 
           {hasFilters && (
-            <button
-              onClick={clearAll}
-              style={{
-                fontSize: '0.75rem', fontWeight: 600, color: '#dc2626',
-                background: 'none', border: 'none', cursor: 'pointer', marginLeft: '0.25rem',
-              }}
-            >
+            <button type="button" onClick={clearAll} className="inv-clear-all">
               Clear all
             </button>
           )}
@@ -180,42 +263,158 @@ export default function InventoryFilters({ count }: { count: number }) {
       </div>
 
       <style>{`
-        .inv-chip-row {
+        .inv-brand-row {
           display: flex;
-          gap: 0.375rem;
+          gap: 0.25rem;
           overflow-x: auto;
-          flex: 1;
-          align-items: center;
           scrollbar-width: none;
-          padding-bottom: 2px;
+          border-bottom: 1px solid #F1F5F9;
+          margin: 0 -0.25rem;
+          padding: 0 0.25rem;
         }
-        .inv-chip-row::-webkit-scrollbar { display: none; }
-        .inv-sep {
-          display: inline-block;
-          width: 1px; height: 18px;
-          background: #DDE3EA;
+        .inv-brand-row::-webkit-scrollbar { display: none; }
+        .inv-brand-tab {
           flex-shrink: 0;
-          margin: 0 0.25rem;
+          padding: 0.5rem 0.875rem;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: #64748B;
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          transition: color 0.15s, border-color 0.15s;
         }
-        .inv-chip {
-          display: inline-flex; align-items: center;
-          white-space: nowrap;
-          padding: 0.375rem 0.875rem;
-          min-height: 44px;
+        .inv-brand-tab:hover { color: #0066FF; }
+        .inv-brand-tab-on { color: #0066FF !important; border-bottom-color: #0066FF !important; }
+
+        .inv-pill-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.375rem;
+        }
+
+        .inv-refine-row {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        @media (min-width: 768px) {
+          .inv-refine-row {
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1rem;
+          }
+        }
+        .inv-refine-controls {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+          width: 100%;
+        }
+        @media (min-width: 768px) {
+          .inv-refine-controls {
+            width: auto;
+            min-width: 320px;
+            flex-shrink: 0;
+          }
+        }
+
+        .inv-meta-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          border-top: 1px solid #F1F5F9;
+          margin-top: 0.75rem;
+          padding-top: 0.625rem;
+        }
+        .inv-active-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          padding: 0.2rem 0.625rem;
           border-radius: 9999px;
-          border: 1.5px solid #DDE3EA;
-          background: #fff; color: #4B5563;
-          font-size: 0.8125rem; font-weight: 600;
-          cursor: pointer; flex-shrink: 0;
-          transition: border-color 0.15s, color 0.15s, background 0.15s;
+          background: #0B1829;
+          color: #fff;
+          font-size: 0.75rem;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
         }
-        .inv-chip:hover { border-color: #0066FF; color: #0066FF; }
-        .inv-chip-on {
-          border-color: #0066FF !important;
-          background: #E5F0FF !important;
-          color: #0066FF !important;
+        .inv-clear-all {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #dc2626;
+          background: none;
+          border: none;
+          cursor: pointer;
+          margin-left: 0.125rem;
         }
       `}</style>
     </div>
+  );
+}
+
+function FilterSection({
+  label,
+  children,
+  compact = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <div style={{ marginBottom: compact ? 0 : '0.75rem', minWidth: 0 }}>
+      <div style={{
+        fontSize: '0.6875rem',
+        fontWeight: 700,
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+        marginBottom: '0.375rem',
+      }}>
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TogglePill({
+  label,
+  active,
+  onClick,
+  size = 'md',
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  size?: 'sm' | 'md';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        whiteSpace: 'nowrap',
+        padding: size === 'sm' ? '0.3rem 0.75rem' : '0.4rem 0.875rem',
+        minHeight: size === 'sm' ? '36px' : '40px',
+        borderRadius: '9999px',
+        border: `1.5px solid ${active ? '#0066FF' : '#DDE3EA'}`,
+        background: active ? '#E5F0FF' : '#fff',
+        color: active ? '#0066FF' : '#4B5563',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'border-color 0.15s, color 0.15s, background 0.15s',
+      }}
+    >
+      {label}
+    </button>
   );
 }

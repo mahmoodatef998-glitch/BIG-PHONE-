@@ -3,7 +3,7 @@ export type Lang = 'en' | 'ar';
 export const LANG_COOKIE = 'bp-lang';
 
 export function parseLang(value?: string | null): Lang {
-  return value === 'en' ? 'en' : 'ar';
+  return value === 'ar' ? 'ar' : 'en';
 }
 
 export function setLangCookie(lang: Lang) {

@@ -12,15 +12,15 @@ interface LangCtx {
 }
 
 const LanguageContext = createContext<LangCtx>({
-  lang: 'ar',
-  t: translations.ar,
+  lang: 'en',
+  t: translations.en,
   toggle: () => {},
-  isRTL: true,
+  isRTL: false,
 });
 
 export function LanguageProvider({
   children,
-  initialLang = 'ar',
+  initialLang = 'en',
 }: {
   children: ReactNode;
   initialLang?: Lang;

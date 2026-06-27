@@ -39,7 +39,11 @@ export function applyProductSort(
     case 'model':
       return sorted.sort((a, b) => a.model.localeCompare(b.model));
     default:
-      return sorted;
+      return sorted.sort((a, b) => {
+        const byCreated = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        if (byCreated !== 0) return byCreated;
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
   }
 }
 

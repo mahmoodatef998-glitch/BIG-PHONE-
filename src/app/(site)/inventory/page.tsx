@@ -27,11 +27,12 @@ export default async function InventoryPage(props: {
   const featured = filters.featured ?? false;
   const inStock = filters.inStock ?? false;
   const collection = sp.collection ?? '';
+  const sortByNewest = sp.sort === 'newest';
 
   const brands = await getBrands();
   const isFiltered = !!(
     search || brand || filters.condition || filters.category ||
-    refurbished || excludeBrand || featured || inStock || collection
+    refurbished || excludeBrand || featured || inStock || collection || sortByNewest
   );
 
   const [filteredProducts, groupedBrands] = await Promise.all([
@@ -114,7 +115,10 @@ export default async function InventoryPage(props: {
                 {featured && (
                   <ResultsHeading title="Featured Products" count={filteredProducts.length} />
                 )}
-                {brand && !featured && (
+                {sortByNewest && !featured && !brand && (
+                  <ResultsHeading title="New Arrivals" count={filteredProducts.length} />
+                )}
+                {brand && !featured && !sortByNewest && (
                   <ResultsHeading
                     title={brands.find(b => b.slug === brand)?.name ?? brand}
                     count={filteredProducts.length}

@@ -8,15 +8,16 @@ import TrustBar from '@/components/home/TrustBar';
 import TrustSection from '@/components/home/TrustSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CTASection from '@/components/home/CTASection';
-import { getBrands, getProducts } from '@/lib/data';
+import { getBrands, getProducts, getNewArrivals } from '@/lib/data';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [brands, featuredProducts, popularProducts, tickerProducts] = await Promise.all([
+  const [brands, featuredProducts, popularProducts, newArrivals, tickerProducts] = await Promise.all([
     getBrands(),
     getProducts({ featured: true, limit: 12 }),
     getProducts({ limit: 60 }),
+    getNewArrivals(12),
     getProducts({ limit: 30 }),
   ]);
 
@@ -27,7 +28,7 @@ export default async function HomePage() {
       <BrandsGrid brands={brands} />
       <CategoriesSection />
       <FeaturedInventory products={featuredProducts} />
-      <PopularListings products={popularProducts} />
+      <PopularListings products={popularProducts} newArrivals={newArrivals} />
       <TrustBar />
       <TrustSection />
       <WhyChooseUs />

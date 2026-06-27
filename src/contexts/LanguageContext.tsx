@@ -11,19 +11,18 @@ interface LangCtx {
 }
 
 const LanguageContext = createContext<LangCtx>({
-  lang: 'en',
-  t: translations.en,
+  lang: 'ar',
+  t: translations.ar,
   toggle: () => {},
-  isRTL: false,
+  isRTL: true,
 });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>('ar');
 
   useEffect(() => {
-    const saved = (localStorage.getItem('bp-lang') ?? 'en') as Lang;
+    const saved = (localStorage.getItem('bp-lang') ?? 'ar') as Lang;
     applyLang(saved);
-    // Hydration-safe: read persisted language after mount
     // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only locale restore
     setLang(saved);
   }, []);

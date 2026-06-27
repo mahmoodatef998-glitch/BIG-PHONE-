@@ -1,4 +1,7 @@
+'use client';
+
 import type { Product } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function stockColor(qty: number): string {
   if (qty >= 200) return '#4ADE80';
@@ -11,6 +14,8 @@ interface Props {
 }
 
 export default function LiveStockTicker({ products }: Props) {
+  const { t } = useLanguage();
+
   const items = products
     .filter(p => p.stock_quantity > 0)
     .sort((a, b) => b.stock_quantity - a.stock_quantity)
@@ -30,11 +35,11 @@ export default function LiveStockTicker({ products }: Props) {
     <div
       className="live-stock-ticker"
       role="marquee"
-      aria-label="Live wholesale stock levels"
+      aria-label={t.home.liveStockAria}
     >
       <div className="live-stock-ticker-label">
         <span className="live-stock-ticker-dot" aria-hidden="true" />
-        LIVE STOCK
+        {t.home.liveStock}
       </div>
       <div className="live-stock-ticker-track-wrap">
         <div className="live-stock-ticker-track">
@@ -42,7 +47,7 @@ export default function LiveStockTicker({ products }: Props) {
             <span key={`${item.key}-${i}`} className="live-stock-ticker-item">
               <span className="live-stock-ticker-name">{item.label}</span>
               <span className="live-stock-ticker-qty" style={{ color: item.color }}>
-                {item.qty.toLocaleString()} units
+                {item.qty.toLocaleString()} {t.common.units}
               </span>
             </span>
           ))}

@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function CTASection() {
+  const { t } = useLanguage();
+  const h = t.home;
+
   return (
     <>
       <section className="cta-section">
@@ -17,26 +23,24 @@ export default function CTASection() {
             padding: '0.375rem 1rem', marginBottom: '1.5rem',
             border: '1px solid rgba(255,255,255,0.25)',
           }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#fff', letterSpacing: '0.04em' }}>✨ Join 500+ verified suppliers</span>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#fff', letterSpacing: '0.04em' }}>{h.ctaBadge}</span>
           </div>
 
-          <h2 className="cta-heading">
-            Ready to Grow Your Electronics Business?
-          </h2>
+          <h2 className="cta-heading">{h.ctaHeading}</h2>
 
           <p style={{ fontSize: '1.0625rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, maxWidth: '480px', margin: '0 auto 2.5rem' }}>
-            Start listing your devices or browse thousands of wholesale listings from trusted UAE suppliers today.
+            {h.ctaBody}
           </p>
 
           <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/rfq" className="cta-btn cta-btn-white">
-              Start Selling <ArrowRight size={16} />
+              {h.ctaStartSelling} <ArrowRight size={16} />
             </Link>
             <Link href="/inventory" className="cta-btn cta-btn-outline">
-              Explore Marketplace
+              {h.ctaExplore}
             </Link>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn-wa">
-              <MessageCircle size={18} /> WhatsApp Us
+              <MessageCircle size={18} /> {h.ctaWhatsapp}
             </a>
           </div>
         </div>

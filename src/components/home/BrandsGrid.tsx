@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import type { Brand } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BRAND_COLORS: Record<string, string> = {
   apple:   '#1C1C1E',
@@ -11,13 +14,15 @@ const BRAND_COLORS: Record<string, string> = {
 };
 
 export default function BrandsGrid({ brands }: { brands: Brand[] }) {
+  const { t } = useLanguage();
+
   if (!brands.length) return null;
   return (
     <>
       <section className="section-sm" style={{ borderTop: '1px solid #EAEAEA', borderBottom: '1px solid #EAEAEA' }}>
         <div className="container-site">
           <p style={{ textAlign: 'center', fontSize: '0.8125rem', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            Trusted Brands Available
+            {t.home.brandsAvailable}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
             {brands.map(brand => {

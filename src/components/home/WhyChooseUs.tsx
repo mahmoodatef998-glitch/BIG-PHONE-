@@ -1,32 +1,35 @@
-import { Users, DollarSign, ShieldCheck, Zap, Search, Store } from 'lucide-react';
+'use client';
 
-const FEATURES = [
-  { icon: Users,        title: 'Verified Suppliers',    desc: 'Every seller on our platform is identity-verified and quality-approved.' },
-  { icon: DollarSign,   title: 'Wholesale Prices',      desc: 'MOQ from 5 units. Best market prices directly from UAE distributors.' },
-  { icon: ShieldCheck,  title: 'Secure Transactions',   desc: 'Escrow-style payment flow protects both buyers and sellers.' },
-  { icon: Zap,          title: 'Fast Shipping',         desc: 'Same-day dispatch from Dubai warehouses to 50+ countries.' },
-  { icon: Search,       title: 'Easy Discovery',        desc: 'Filter by brand, condition, storage, and price to find exactly what you need.' },
-  { icon: Store,        title: 'Multi-Vendor Platform', desc: 'Hundreds of vetted stores competing for your business — you always win.' },
-];
+import { Users, DollarSign, ShieldCheck, Zap, Search, Store } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function WhyChooseUs() {
+  const { t } = useLanguage();
+  const h = t.home;
+
+  const FEATURES = [
+    { icon: Users,       title: h.whyVerified,  desc: h.whyVerifiedSub },
+    { icon: DollarSign,  title: h.whyPrices,    desc: h.whyPricesSub },
+    { icon: ShieldCheck, title: h.whySecure,    desc: h.whySecureSub },
+    { icon: Zap,         title: h.whyShipping,  desc: h.whyShippingSub },
+    { icon: Search,      title: h.whyDiscovery, desc: h.whyDiscoverySub },
+    { icon: Store,       title: h.whyPlatform,  desc: h.whyPlatformSub },
+  ];
+
   return (
     <section className="section">
       <div className="container-site">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '3rem', alignItems: 'center' }} className="why-grid">
-          {/* Left: heading */}
           <div>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Why Us</p>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{h.whyEyebrow}</p>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: '1rem' }}>
-              The smarter way to source
-              <span style={{ color: '#FF6B00' }}> wholesale</span> electronics
+              {h.whyTitleFull}
             </h2>
             <p style={{ fontSize: '1rem', color: '#6B7280', lineHeight: 1.7, maxWidth: '440px' }}>
-              From verified suppliers and wholesale pricing to secure payments and fast shipping — BIG PHONE is built for serious B2B buyers.
+              {h.whySub}
             </p>
           </div>
 
-          {/* Right: feature grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
             {FEATURES.map((f, i) => (
               <div key={f.title} style={{

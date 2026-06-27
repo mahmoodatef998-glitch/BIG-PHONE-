@@ -4,29 +4,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { inventoryHref } from '@/lib/inventory-url';
-
-const CATEGORIES = [
-  { value: 'smartphone', label: 'Smartphones' },
-  { value: 'tablet',     label: 'Tablets' },
-  { value: 'airpods',    label: 'Audio' },
-  { value: 'accessory',  label: 'Accessories' },
-];
-
-const CONDITION_OPTIONS = [
-  { value: '',                      label: 'All conditions' },
-  { value: 'brand-new',             label: 'Brand New' },
-  { value: 'refurbished',           label: 'All Refurbished' },
-  { value: 'certified-refurbished', label: 'Certified Refurbished' },
-  { value: 'refurbished-grade-a',   label: 'Grade A' },
-  { value: 'refurbished-grade-b',   label: 'Grade B' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'newest',     label: 'Newest first' },
-  { value: 'stock-high', label: 'Most stock' },
-  { value: 'stock-low',  label: 'Least stock' },
-  { value: 'brand',      label: 'Brand A–Z' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type BrandTab = { slug: string; name: string };
 
@@ -36,9 +14,33 @@ type Props = {
 };
 
 export default function InventoryFilters({ count, brands }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const CATEGORIES = useMemo(() => [
+    { value: 'smartphone', label: t.inventory.typeSmartphones },
+    { value: 'tablet',     label: t.inventory.typeTablets },
+    { value: 'airpods',    label: t.inventory.typeAudio },
+    { value: 'accessory',  label: t.inventory.typeAccessories },
+  ], [t]);
+
+  const CONDITION_OPTIONS = useMemo(() => [
+    { value: '',                      label: t.conditions.allConditions },
+    { value: 'brand-new',             label: t.conditions.brandNew },
+    { value: 'refurbished',           label: t.conditions.allRefurbished },
+    { value: 'certified-refurbished', label: t.conditions.certified },
+    { value: 'refurbished-grade-a',   label: t.conditions.gradeA },
+    { value: 'refurbished-grade-b',   label: t.conditions.gradeB },
+  ], [t]);
+
+  const SORT_OPTIONS = useMemo(() => [
+    { value: 'newest',     label: t.inventory.sortNewest },
+    { value: 'stock-high', label: t.inventory.sortStockHigh },
+    { value: 'stock-low',  label: t.inventory.sortStockLow },
+    { value: 'brand',      label: t.inventory.sortBrand },
+  ], [t]);
 
   const pushParams = useCallback((updates: Record<string, string | null | undefined>) => {
     router.push(inventoryHref(searchParams, updates), { scroll: false });
@@ -70,9 +72,9 @@ export default function InventoryFilters({ count, brands }: Props) {
   );
 
   const activeFilters: { key: string; label: string; clear: Record<string, null> }[] = [];
-  if (featured) activeFilters.push({ key: 'featured', label: 'Featured', clear: { featured: null } });
-  if (inStock) activeFilters.push({ key: 'inStock', label: 'In stock', clear: { inStock: null } });
-  if (refurbished) activeFilters.push({ key: 'refurbished', label: 'Refurbished', clear: { refurbished: null } });
+  if (featured) activeFilters.push({ key: 'featured', label: t.inventory.featured, clear: { featured: null } });
+  if (inStock) activeFilters.push({ key: 'inStock', label: t.inventory.inStock, clear: { inStock: null } });
+  if (refurbished) activeFilters.push({ key: 'refurbished', label: t.inventory.refurbished, clear: { refurbished: null } });
   if (category) {
     activeFilters.push({
       key: 'category',
@@ -124,14 +126,14 @@ export default function InventoryFilters({ count, brands }: Props) {
 
         {/* Brand */}
         <div className="inv-filter-block">
-          <p className="inv-filter-heading">Brand</p>
+          <p className="inv-filter-heading">{t.inventory.brand}</p>
           <div className="inv-chip-scroll">
             <button
               type="button"
               onClick={() => pushParams({ brand: null })}
               className={chipClass(!brand)}
             >
-              All brands
+              {t.inventory.allBrands}
             </button>
             {brands.map(tab => (
               <button
@@ -148,22 +150,22 @@ export default function InventoryFilters({ count, brands }: Props) {
 
         {/* Quick filters + categories */}
         <div className="inv-filter-block">
-          <p className="inv-filter-heading">Quick filters</p>
+          <p className="inv-filter-heading">{t.inventory.quickFilters}</p>
           <div className="inv-filter-row">
             <button type="button" onClick={() => toggleBool('featured', featured)} className={chipClass(featured)}>
-              Featured
+              {t.inventory.featured}
             </button>
             <button type="button" onClick={() => toggleBool('inStock', inStock)} className={chipClass(inStock)}>
-              In stock
+              {t.inventory.inStock}
             </button>
             <button type="button" onClick={() => toggleBool('refurbished', refurbished)} className={chipClass(refurbished)}>
-              Refurbished
+              {t.inventory.refurbished}
             </button>
           </div>
         </div>
 
         <div className="inv-filter-block">
-          <p className="inv-filter-heading">Product type</p>
+          <p className="inv-filter-heading">{t.inventory.productType}</p>
           <div className="inv-chip-scroll">
             {CATEGORIES.map(cat => (
               <button
@@ -181,7 +183,7 @@ export default function InventoryFilters({ count, brands }: Props) {
         {/* Condition + sort */}
         <div className="inv-filter-controls">
           <div className="inv-select-wrap">
-            <label htmlFor="inv-condition">Condition</label>
+            <label htmlFor="inv-condition">{t.inventory.condition}</label>
             <select
               id="inv-condition"
               value={conditionSelectValue}
@@ -195,7 +197,7 @@ export default function InventoryFilters({ count, brands }: Props) {
           </div>
 
           <div className="inv-select-wrap">
-            <label htmlFor="inv-sort">Sort by</label>
+            <label htmlFor="inv-sort">{t.inventory.sortBy}</label>
             <select
               id="inv-sort"
               value={sort}
@@ -212,7 +214,7 @@ export default function InventoryFilters({ count, brands }: Props) {
         {/* Results bar */}
         <div className="inv-results-bar">
           <p className="inv-results-count">
-            {count} <span>{count === 1 ? 'product' : 'products'}</span>
+            {count} <span>{count === 1 ? t.common.product : t.common.products}</span>
           </p>
 
           {activeFilters.map(f => (
@@ -229,7 +231,7 @@ export default function InventoryFilters({ count, brands }: Props) {
 
           {hasFilters && (
             <button type="button" onClick={clearAll} className="inv-clear">
-              Clear all
+              {t.common.clearAll}
             </button>
           )}
         </div>

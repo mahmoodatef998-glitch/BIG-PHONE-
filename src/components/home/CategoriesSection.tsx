@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { Translations } from '@/lib/i18n';
 
 // ── Inline device SVG illustrations ─────────────────────────────────────
 
@@ -213,33 +217,55 @@ function AccessoriesSVG() {
 
 // ── Category data ────────────────────────────────────────────────────────
 
-const CATS = [
-  { label: 'Smartphones',  sub: 'iPhone & Android',  href: '/inventory?category=smartphone', color: '#FF6B00', bg: '#FFF3E8', Svg: SmartphoneSVG },
-  { label: 'Tablets',      sub: 'iPad & Android',    href: '/inventory?category=tablet',     color: '#3B82F6', bg: '#EFF6FF', Svg: TabletSVG },
-  { label: 'Laptops',      sub: 'Mac & Windows',     href: '/inventory?category=tablet',     color: '#10B981', bg: '#ECFDF5', Svg: LaptopSVG },
-  { label: 'Earbuds',      sub: 'AirPods & TWS',     href: '/inventory?category=airpods',    color: '#F59E0B', bg: '#FFFBEB', Svg: EarbudsSVG },
-  { label: 'Smartwatches', sub: 'Apple & Samsung',   href: '/inventory?category=smartwatch', color: '#EF4444', bg: '#FEF2F2', Svg: WatchSVG },
-  { label: 'Gaming',       sub: 'Consoles & More',   href: '/inventory?category=accessory',  color: '#8B5CF6', bg: '#F5F3FF', Svg: GamingSVG },
-  { label: 'Audio',        sub: 'HiFi Headphones',   href: '/inventory?category=airpods',      color: '#EC4899', bg: '#FDF2F8', Svg: AudioSVG },
-  { label: 'Accessories',  sub: 'Cables & Chargers', href: '/inventory?category=accessory',  color: '#64748B', bg: '#F8FAFC', Svg: AccessoriesSVG },
+const CAT_DEFS = [
+  { key: 'smartphones' as const,  href: '/inventory?category=smartphone', color: '#FF6B00', bg: '#FFF3E8', Svg: SmartphoneSVG },
+  { key: 'tablets' as const,      href: '/inventory?category=tablet',     color: '#3B82F6', bg: '#EFF6FF', Svg: TabletSVG },
+  { key: 'laptops' as const,      href: '/inventory?category=tablet',     color: '#10B981', bg: '#ECFDF5', Svg: LaptopSVG },
+  { key: 'earbuds' as const,      href: '/inventory?category=airpods',    color: '#F59E0B', bg: '#FFFBEB', Svg: EarbudsSVG },
+  { key: 'smartwatches' as const, href: '/inventory?category=smartwatch', color: '#EF4444', bg: '#FEF2F2', Svg: WatchSVG },
+  { key: 'gaming' as const,       href: '/inventory?category=accessory',  color: '#8B5CF6', bg: '#F5F3FF', Svg: GamingSVG },
+  { key: 'audio' as const,        href: '/inventory?category=airpods',    color: '#EC4899', bg: '#FDF2F8', Svg: AudioSVG },
+  { key: 'accessories' as const,  href: '/inventory?category=accessory',  color: '#64748B', bg: '#F8FAFC', Svg: AccessoriesSVG },
 ];
 
+const SUB_KEYS: Record<(typeof CAT_DEFS)[number]['key'], keyof Translations['categories']> = {
+  smartphones: 'smartphoneSub',
+  tablets: 'tabletSub',
+  laptops: 'laptopSub',
+  earbuds: 'earbudsSub',
+  smartwatches: 'watchSub',
+  gaming: 'gamingSub',
+  audio: 'audioSub',
+  accessories: 'accessorySub',
+};
+
 export default function CategoriesSection() {
+  const { t } = useLanguage();
+
+  const cats = CAT_DEFS.map(({ key, href, color, bg, Svg }) => ({
+    label: t.categories[key],
+    sub: t.categories[SUB_KEYS[key]],
+    href,
+    color,
+    bg,
+    Svg,
+  }));
+
   return (
     <section className="section section-bg">
       <div className="container-site">
         <div className="section-header">
           <div>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Shop by Category</p>
-            <h2 className="section-title">Top Categories</h2>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>{t.categories.shopByCategory}</p>
+            <h2 className="section-title">{t.categories.topCategories}</h2>
           </div>
           <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#FF6B00', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
-            View All →
+            {t.common.viewAll} →
           </Link>
         </div>
 
         <div className="cat-grid">
-          {CATS.map(({ label, sub, href, color, bg, Svg }) => (
+          {cats.map(({ label, sub, href, color, bg, Svg }) => (
             <div
               key={label}
               className="cat-slot"

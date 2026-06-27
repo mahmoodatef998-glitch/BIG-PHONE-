@@ -1,30 +1,42 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Mail, Phone } from 'lucide-react';
-
-const LINKS = {
-  marketplace: [
-    { label: 'Browse All',       href: '/inventory' },
-    { label: 'Brands',           href: '/brands' },
-    { label: 'New Arrivals',     href: '/inventory?sort=newest' },
-    { label: 'Deals',            href: '/inventory?featured=true' },
-    { label: 'Request a Quote',  href: '/rfq' },
-  ],
-  categories: [
-    { label: 'Smartphones', href: '/inventory?category=smartphone' },
-    { label: 'Tablets',     href: '/inventory?category=tablet' },
-    { label: 'Accessories', href: '/inventory?category=accessory' },
-    { label: 'Laptops',     href: '/inventory?category=tablet' },
-  ],
-  support: [
-    { label: 'Contact Us', href: '/contact' },
-    { label: 'About Us',   href: '/about' },
-    { label: 'Staff Login', href: '/admin/login' },
-  ],
-};
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
   const year = new Date().getFullYear();
+
+  const marketplace = [
+    { label: t.footer.browseAll,    href: '/inventory' },
+    { label: t.nav.brands,          href: '/brands' },
+    { label: t.footer.newArrivals,  href: '/inventory?sort=newest' },
+    { label: t.footer.deals,        href: '/inventory?featured=true' },
+    { label: t.footer.requestQuote, href: '/rfq' },
+  ];
+
+  const categories = [
+    { label: t.footer.smartphones,  href: '/inventory?category=smartphone' },
+    { label: t.footer.tablets,      href: '/inventory?category=tablet' },
+    { label: t.footer.accessories,  href: '/inventory?category=accessory' },
+    { label: t.footer.smartwatches, href: '/inventory?category=smartwatch' },
+    { label: t.footer.audio,        href: '/inventory?category=airpods' },
+  ];
+
+  const support = [
+    { label: t.footer.contactUs,  href: '/contact' },
+    { label: t.footer.aboutUs,    href: '/about' },
+    { label: t.footer.staffLogin, href: '/admin/login' },
+  ];
+
+  const columns = [
+    { title: t.footer.marketplace, items: marketplace },
+    { title: t.footer.categories,  items: categories },
+    { title: t.footer.support,     items: support },
+  ];
+
   return (
     <>
       <footer style={{ background: '#111827', color: '#D1D5DB' }}>
@@ -33,7 +45,6 @@ export default function Footer() {
             {/* Brand */}
             <div className="footer-brand-col">
               <Link href="/" className="footer-logo">
-                {/* Camel mark on dark background — invert for visibility */}
                 <div style={{
                   width: '64px',
                   height: '42px',
@@ -60,15 +71,15 @@ export default function Footer() {
                 </div>
                 <div>
                   <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>BIG PHONE</span>
-                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Wholesale</span>
+                  <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#FF8C33', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t.header.wholesale}</span>
                 </div>
               </Link>
               <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#9CA3AF', maxWidth: '260px', margin: '0 0 1.5rem' }}>
-                UAE&apos;s trusted B2B wholesale supplier for new and refurbished mobile devices. Global export from Dubai.
+                {t.footer.tagline}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {[
-                  { Icon: MapPin, text: 'Dubai, United Arab Emirates' },
+                  { Icon: MapPin, text: t.footer.location },
                   { Icon: Phone,  text: `+${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000'}` },
                   { Icon: Mail,   text: 'wholesale@bigphone.ae' },
                 ].map(({ Icon, text }) => (
@@ -81,7 +92,7 @@ export default function Footer() {
             </div>
 
             {/* Link columns */}
-            {(Object.entries({ Marketplace: LINKS.marketplace, Categories: LINKS.categories, Support: LINKS.support }) as [string, { label: string; href: string }[]][]).map(([title, items]) => (
+            {columns.map(({ title, items }) => (
               <div key={title}>
                 <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fff', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1rem' }}>{title}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
@@ -99,12 +110,11 @@ export default function Footer() {
         <div style={{ borderTop: '1px solid #1F2937', padding: '1.25rem 0' }}>
           <div className="container-site" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <p style={{ fontSize: '0.8125rem', color: '#6B7280', margin: 0 }}>
-              &copy; {year} BIG PHONE. All rights reserved.
+              &copy; {year} BIG PHONE. {t.footer.rights}
             </p>
             <div style={{ display: 'flex', gap: '1.25rem' }}>
-              {['Privacy Policy', 'Terms of Service'].map(t => (
-                <span key={t} style={{ fontSize: '0.8125rem', color: '#6B7280', cursor: 'pointer' }}>{t}</span>
-              ))}
+              <Link href="/privacy" className="footer-link" style={{ fontSize: '0.8125rem', color: '#6B7280' }}>{t.footer.privacy}</Link>
+              <Link href="/terms" className="footer-link" style={{ fontSize: '0.8125rem', color: '#6B7280' }}>{t.footer.terms}</Link>
             </div>
           </div>
         </div>

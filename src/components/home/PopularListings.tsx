@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { cloudinaryUrl } from '@/lib/cloudinary';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Product, Condition } from '@/types';
 
 const BRAND_COLORS: Record<string, string> = {
@@ -33,6 +36,7 @@ function getIphoneNum(name: string) {
 }
 
 function MiniCard({ product }: { product: Product }) {
+  const { t } = useLanguage();
   const imgSrc = product.images[0]
     ? cloudinaryUrl(product.images[0], { width: 220, quality: 80 })
     : null;
@@ -87,7 +91,7 @@ function MiniCard({ product }: { product: Product }) {
             AED {product.price_aed.toLocaleString()}
           </span>
         ) : (
-          <span style={{ fontSize: '0.6875rem', color: '#9CA3AF', fontStyle: 'italic' }}>Price on Request</span>
+          <span style={{ fontSize: '0.6875rem', color: '#9CA3AF', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
         )}
       </div>
     </Link>
@@ -105,6 +109,7 @@ interface SectionProps {
 }
 
 function ListingSection({ title, subtitle, accentColor, accentBg, products, href, featured }: SectionProps) {
+  const { t } = useLanguage();
   if (products.length === 0) return null;
   return (
     <div className="pop-section" style={{
@@ -120,7 +125,7 @@ function ListingSection({ title, subtitle, accentColor, accentBg, products, href
           <p style={{ fontSize: '0.8125rem', color: '#6B7280', margin: 0 }}>{subtitle}</p>
         </div>
         <Link href={href} style={{ fontSize: '0.8125rem', fontWeight: 600, color: accentColor, whiteSpace: 'nowrap', textDecoration: 'none', flexShrink: 0 }}>
-          View All →
+          {t.common.viewAll} →
         </Link>
       </div>
       <div className="pop-scroll">
@@ -137,6 +142,8 @@ export default function PopularListings({
   products: Product[];
   newArrivals: Product[];
 }) {
+  const { t } = useLanguage();
+
   const accessories = products
     .filter(p => p.category === 'accessory')
     .slice(0, 10);
@@ -156,31 +163,31 @@ export default function PopularListings({
       <section className="section">
         <div className="container-site">
           <div style={{ marginBottom: '2rem' }}>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Curated For You</p>
-            <h2 className="section-title">Popular Listings</h2>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>{t.home.popularEyebrow}</p>
+            <h2 className="section-title">{t.home.popularTitle}</h2>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
             <ListingSection
               featured
-              title="Accessories"
-              subtitle="Cases, chargers, earbuds & more — top picks"
+              title={t.home.accessoriesTitle}
+              subtitle={t.home.accessoriesSub}
               accentColor="#FF6B00"
               accentBg="#FFF7F0"
               products={accessories}
               href="/inventory?category=accessory"
             />
             <ListingSection
-              title="Refurbished iPhones"
-              subtitle="iPhone 11 Pro Max → 17 Pro Max — certified & graded"
+              title={t.home.refurbIphonesTitle}
+              subtitle={t.home.refurbIphonesSub}
               accentColor="#10B981"
               accentBg="#F0FDF4"
               products={refurbishedPhones}
               href="/inventory?brand=apple&category=smartphone&refurbished=1"
             />
             <ListingSection
-              title="New Arrivals"
-              subtitle="Latest products added to our catalog — all categories"
+              title={t.home.newArrivalsTitle}
+              subtitle={t.home.newArrivalsSub}
               accentColor="#3B82F6"
               accentBg="#EFF6FF"
               products={newArrivals}

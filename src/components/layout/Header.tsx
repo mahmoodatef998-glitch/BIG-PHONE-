@@ -4,17 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, User, Menu, X, ChevronDown, Smartphone, Tablet, Headphones, Laptop, Watch, Gamepad2 } from 'lucide-react';
+import { Search, User, Menu, X, ChevronDown, Smartphone, Tablet, Headphones, Watch, Headset } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-const CATEGORIES_DROP = [
-  { label: 'Smartphones',   href: '/inventory?category=smartphone',  Icon: Smartphone },
-  { label: 'Tablets',       href: '/inventory?category=tablet',      Icon: Tablet },
-  { label: 'Accessories',   href: '/inventory?category=accessory',   Icon: Headphones },
-  { label: 'Laptops',       href: '/inventory?category=tablet',      Icon: Laptop },
-  { label: 'Smart Watches', href: '/inventory?category=smartwatch',  Icon: Watch },
-  { label: 'Gaming',        href: '/inventory?category=accessory',   Icon: Gamepad2 },
-];
 
 function CamelLogo({ size = 68 }: { size?: number }) {
   const showH = Math.round(size * 0.64);
@@ -39,13 +30,28 @@ function CamelLogo({ size = 68 }: { size?: number }) {
 }
 
 export default function Header() {
-  const { t, toggle, isRTL } = useLanguage();
+  const { t, toggle } = useLanguage();
   const [menuOpen,   setMenuOpen]   = useState(false);
   const [catOpen,    setCatOpen]    = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled,   setScrolled]   = useState(false);
   const [search,     setSearch]     = useState('');
   const pathname = usePathname();
+
+  const CATEGORIES_DROP = [
+    { label: t.categories.smartphones, href: '/inventory?category=smartphone', Icon: Smartphone },
+    { label: t.categories.tablets,     href: '/inventory?category=tablet',     Icon: Tablet },
+    { label: t.categories.accessories, href: '/inventory?category=accessory',  Icon: Headphones },
+    { label: t.categories.smartwatches, href: '/inventory?category=smartwatch', Icon: Watch },
+    { label: t.categories.earbuds,     href: '/inventory?category=airpods',    Icon: Headset },
+  ];
+
+  const NAV = [
+    { href: '/',                          label: t.nav.home },
+    { href: '/inventory',                 label: t.nav.inventory },
+    { href: '/brands',                    label: t.nav.brands },
+    { href: '/inventory?featured=true',   label: t.nav.featured },
+  ];
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 4);
@@ -57,13 +63,6 @@ export default function Header() {
     setMenuOpen(false);
     setSearchOpen(false);
   };
-
-  const NAV = [
-    { href: '/',          label: 'Home' },
-    { href: '/inventory', label: 'Inventory' },
-    { href: '/brands',    label: 'Brands' },
-    { href: '/inventory?featured=true', label: 'Featured' },
-  ];
 
   const active = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
@@ -84,7 +83,7 @@ export default function Header() {
               <CamelLogo size={72} />
               <div style={{ lineHeight: 1 }}>
                 <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
-                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>WHOLESALE</div>
+                <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>{t.header.wholesale}</div>
               </div>
             </Link>
 
@@ -102,7 +101,7 @@ export default function Header() {
                 onMouseLeave={() => setCatOpen(false)}
               >
                 <button className="hdr-link" style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer' }}>
-                  Categories <ChevronDown size={13} />
+                  {t.nav.categories} <ChevronDown size={13} />
                 </button>
                 {catOpen && (
                   <div style={{
@@ -123,7 +122,7 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/rfq" onClick={closeNav} className="hdr-link" style={{ color: '#FF6B00', fontWeight: 700 }}>Get a Quote</Link>
+              <Link href="/rfq" onClick={closeNav} className="hdr-link" style={{ color: '#FF6B00', fontWeight: 700 }}>{t.header.getQuote}</Link>
             </nav>
 
             {/* ── Right actions ───────────────────── */}
@@ -131,12 +130,12 @@ export default function Header() {
               <button onClick={toggle} className="hdr-icon-btn" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
                 {t.header.switchLang}
               </button>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label="Search">
+              <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label={t.common.search}>
                 <Search size={17} />
               </button>
               <Link href="/admin/login" className="hdr-login hdr-login-desktop">
                 <User size={15} />
-                Sign In
+                {t.header.admin}
               </Link>
               <button onClick={() => setMenuOpen(!menuOpen)} className="hdr-icon-btn hdr-hamburger" aria-label="Menu">
                 {menuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -179,12 +178,12 @@ export default function Header() {
                 </Link>
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
-              <Link href="/rfq" onClick={closeNav} className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>Get a Quote</Link>
+              <Link href="/rfq" onClick={closeNav} className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>{t.header.getQuote}</Link>
               <Link href="/admin/login" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>
-                <User size={16} /> Admin Sign In
+                <User size={16} /> {t.header.admin}
               </Link>
               <button onClick={toggle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #EAEAEA', background: '#FAFAFA', color: '#374151', fontSize: '0.9375rem', fontWeight: 600, cursor: 'pointer' }}>
-                {isRTL ? 'Switch to English' : 'التبديل إلى العربية'}
+                {t.header.switchLang}
               </button>
             </div>
           </div>
@@ -194,11 +193,11 @@ export default function Header() {
       {/* Mobile bottom nav */}
       <nav className="mob-bottom-nav">
         {[
-          { href: '/',          Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>, label: 'Home' },
-          { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: 'Shop' },
-          { href: '/rfq',        Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>, label: 'Quote' },
-          { href: '/inventory?featured=true', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>, label: 'Deals' },
-          { href: '/admin/login', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: 'Admin' },
+          { href: '/',          Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>, label: t.nav.home },
+          { href: '/inventory',  Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: t.nav.shop },
+          { href: '/rfq',        Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>, label: t.nav.rfq },
+          { href: '/inventory?featured=true', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>, label: t.nav.deals },
+          { href: '/admin/login', Icon: () => <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, label: t.header.admin },
         ].map(item => (
           <Link key={item.href} href={item.href} style={{
             flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',

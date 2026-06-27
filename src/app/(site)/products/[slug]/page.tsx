@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
-import ProductCard from '@/components/ui/ProductCard';
 import ProductDetailPanel from '@/components/products/ProductDetailPanel';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
+import ProductImagePlaceholder from '@/components/products/ProductImagePlaceholder';
+import {
+  ProductBreadcrumb,
+  ProductSpecsSection,
+  ProductRelatedSection,
+} from '@/components/products/ProductPageClient';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants } from '@/lib/data';
 
 export const revalidate = 60;
@@ -82,110 +85,34 @@ export default async function ProductPage(props: ProductPageProps) {
   return (
     <div style={{ background: '#F8FAFC' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      {/* Breadcrumb */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA', padding: '0.75rem 0' }}>
-        <div className="container-site">
-          <nav style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/" style={{ color: '#0066FF', textDecoration: 'none' }}>Home</Link>
-            <span style={{ color: '#CBD5E1' }}>›</span>
-            <Link href="/inventory" style={{ color: '#0066FF', textDecoration: 'none' }}>Inventory</Link>
-            {product.brand && (
-              <>
-                <span style={{ color: '#CBD5E1' }}>›</span>
-                <Link href={`/brands/${product.brand.slug}`} style={{ color: '#0066FF', textDecoration: 'none' }}>{product.brand.name}</Link>
-              </>
-            )}
-            <span style={{ color: '#CBD5E1' }}>›</span>
-            <span style={{ color: '#374151' }}>{product.model}</span>
-          </nav>
-        </div>
-      </div>
+      <ProductBreadcrumb
+        brandName={product.brand?.name}
+        brandSlug={product.brand?.slug}
+        model={product.model}
+      />
 
       <div className="container-site" style={{ padding: '2rem 1rem 4rem' }}>
         <div className="product-detail-grid">
-          {/* Left: Image + Specs */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {/* Image gallery */}
             <ProductImageGallery
               key={product.id}
               images={product.images}
               alt={product.name}
               fallback={(
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: `linear-gradient(135deg, ${bg1}, ${bg2})`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {isAudio ? (
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      {[0, 1].map(i => (
-                        <div key={i} style={{
-                          width: '28px', height: '52px',
-                          background: 'rgba(255,255,255,0.15)',
-                          border: '2px solid rgba(255,255,255,0.4)',
-                          borderRadius: '14px',
-                        }} />
-                      ))}
-                    </div>
-                  ) : isTablet ? (
-                    <div style={{
-                      width: '110px', height: '140px',
-                      background: 'rgba(255,255,255,0.12)',
-                      border: '3px solid rgba(255,255,255,0.4)',
-                      borderRadius: '10px',
-                    }} />
-                  ) : (
-                    <div style={{
-                      width: '56px', height: '100px',
-                      background: 'rgba(255,255,255,0.12)',
-                      border: '3px solid rgba(255,255,255,0.4)',
-                      borderRadius: '12px', position: 'relative',
-                    }}>
-                      <div style={{
-                        position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)',
-                        width: '18px', height: '3px',
-                        background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
-                      }} />
-                      <div style={{
-                        position: 'absolute', bottom: '7px', left: '50%', transform: 'translateX(-50%)',
-                        width: '18px', height: '18px',
-                        border: '2px solid rgba(255,255,255,0.45)', borderRadius: '50%',
-                      }} />
-                    </div>
-                  )}
-                  <div style={{
-                    position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
-                    color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                  }}>
-                    Image coming soon
-                  </div>
-                </div>
+                <ProductImagePlaceholder
+                  bg1={bg1}
+                  bg2={bg2}
+                  isTablet={isTablet}
+                  isAudio={isAudio}
+                />
               )}
             />
 
-            {/* Specifications */}
-            {product.specifications && Object.keys(product.specifications).length > 0 && (
-              <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '0.875rem 1.125rem', borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
-                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0B1829', margin: 0 }}>Specifications</h3>
-                </div>
-                <div>
-                  {Object.entries(product.specifications).map(([key, val]) => (
-                    <div key={key} style={{
-                      display: 'flex', padding: '0.5625rem 1.125rem',
-                      borderBottom: '1px solid #F1F5F9', fontSize: '0.8125rem',
-                    }}>
-                      <span style={{ flex: '0 0 40%', color: '#64748B', fontWeight: 500 }}>{key}</span>
-                      <span style={{ color: '#111827' }}>{String(val)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {product.specifications && (
+              <ProductSpecsSection specifications={product.specifications} />
             )}
           </div>
 
-          {/* Right: Product Info + RFQ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <ProductDetailPanel
               key={product.slug}
@@ -196,26 +123,12 @@ export default async function ProductPage(props: ProductPageProps) {
           </div>
         </div>
 
-        {/* Related Products */}
-        {related.filter(p => p.id !== product.id).length > 0 && (
-          <div style={{ marginTop: '3rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: '#0B1829', margin: 0 }}>More from {product.brand?.name}</h2>
-              </div>
-              {product.brand && (
-                <Link href={`/brands/${product.brand.slug}`} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8125rem', fontWeight: 600, color: '#0066FF', textDecoration: 'none' }}>
-                  View All <ArrowRight size={13} />
-                </Link>
-              )}
-            </div>
-            <div className="related-grid">
-              {related.filter(p => p.id !== product.id).slice(0, 4).map(p => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          </div>
-        )}
+        <ProductRelatedSection
+          related={related}
+          currentId={product.id}
+          brandName={product.brand?.name}
+          brandSlug={product.brand?.slug}
+        />
       </div>
 
       <style>{`

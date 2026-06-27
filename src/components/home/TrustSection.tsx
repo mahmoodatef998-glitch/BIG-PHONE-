@@ -1,23 +1,29 @@
-import { ShieldCheck, BadgeCheck, Truck, Wrench, Star, Lock } from 'lucide-react';
+'use client';
 
-const CARDS = [
-  { icon: ShieldCheck, title: 'Secure Payments',    desc: 'Every transaction is protected with bank-grade encryption.',         color: '#FF6B00', bg: '#FFF3E8' },
-  { icon: BadgeCheck,  title: 'Verified Suppliers', desc: 'All suppliers pass strict identity and quality verification.',         color: '#10B981', bg: '#ECFDF5' },
-  { icon: Truck,       title: 'Fast Delivery',       desc: 'Global shipping to 50+ countries with real-time tracking.',           color: '#3B82F6', bg: '#EFF6FF' },
-  { icon: Wrench,      title: 'Warranty Support',    desc: 'Devices covered with manufacturer or seller warranty.',               color: '#F59E0B', bg: '#FFFBEB' },
-  { icon: Star,        title: 'Quality Checked',     desc: 'Every product graded and inspected before listing.',                 color: '#EF4444', bg: '#FEF2F2' },
-  { icon: Lock,        title: 'Buyer Protection',    desc: 'Dispute resolution and full refund guarantee on all orders.',         color: '#8B5CF6', bg: '#F5F3FF' },
-];
+import { ShieldCheck, BadgeCheck, Truck, Wrench, Star, Lock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TrustSection() {
+  const { t } = useLanguage();
+  const h = t.home;
+
+  const CARDS = [
+    { icon: ShieldCheck, title: h.trustSecure,     desc: h.trustSecureSub,     color: '#FF6B00', bg: '#FFF3E8' },
+    { icon: BadgeCheck,  title: h.trustSuppliers,  desc: h.trustSuppliersSub,  color: '#10B981', bg: '#ECFDF5' },
+    { icon: Truck,       title: h.trustDelivery,   desc: h.trustDeliverySub,   color: '#3B82F6', bg: '#EFF6FF' },
+    { icon: Wrench,      title: h.trustWarranty,   desc: h.trustWarrantySub,   color: '#F59E0B', bg: '#FFFBEB' },
+    { icon: Star,        title: h.trustQuality,    desc: h.trustQualitySub,    color: '#EF4444', bg: '#FEF2F2' },
+    { icon: Lock,        title: h.trustProtection, desc: h.trustProtectionSub, color: '#8B5CF6', bg: '#F5F3FF' },
+  ];
+
   return (
     <>
       <section className="section section-bg">
         <div className="container-site">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Why Trust Us</p>
-            <h2 className="section-title">Built for Serious Buyers</h2>
-            <p className="section-subtitle">Everything you need to trade wholesale electronics with confidence.</p>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{h.trustEyebrow}</p>
+            <h2 className="section-title">{h.trustSectionTitle}</h2>
+            <p className="section-subtitle">{h.trustSectionSub}</p>
           </div>
 
           <div className="trust-grid">

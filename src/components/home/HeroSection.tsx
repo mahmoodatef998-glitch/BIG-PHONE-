@@ -4,16 +4,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
-
-const STATS = [
-  { Icon: Package,     value: '10K+', label: 'SKUs in Stock' },
-  { Icon: Users,       value: '50+',  label: 'Export Markets' },
-  { Icon: Star,        value: '4.9★', label: 'Client Rating' },
-  { Icon: ShieldCheck, value: '100%', label: 'Verified Stock' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function HeroSection() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
+
+  const STATS = [
+    { Icon: Package,     value: '10K+', label: t.home.statSkus },
+    { Icon: Users,       value: '50+',  label: t.home.statMarkets },
+    { Icon: Star,        value: '4.9★', label: t.home.statRating },
+    { Icon: ShieldCheck, value: '100%', label: t.home.statVerified },
+  ];
 
   return (
     <>
@@ -27,19 +29,18 @@ export default function HeroSection() {
               {/* Eyebrow */}
               <div className="hero-eyebrow">
                 <span className="hero-eyebrow-dot" />
-                UAE&apos;s Trusted B2B Wholesale Supplier
+                {t.home.heroEyebrow}
               </div>
 
               {/* Headline */}
               <h1 className="hero-heading">
-                Wholesale Mobile<br />
-                <span className="hero-heading-accent">Devices</span> from Dubai
+                {t.home.heroTitle1}<br />
+                <span className="hero-heading-accent">{t.home.heroTitle2}</span>
               </h1>
 
               {/* Sub */}
-              <p className="hero-sub">
-                Brand new &amp; refurbished iPhones, Samsung, Xiaomi &amp; more.<br />
-                MOQ from 5 units · Global export · Quote within 2 hours.
+              <p className="hero-sub" style={{ whiteSpace: 'pre-line' }}>
+                {t.home.heroSub}
               </p>
 
               {/* Search */}
@@ -49,10 +50,10 @@ export default function HeroSection() {
                   type="search" name="search"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search iPhone, Samsung, Xiaomi…"
+                  placeholder={t.home.heroSearchPlaceholder}
                   className="hero-search-input"
                 />
-                <button type="submit" className="hero-search-btn">Search</button>
+                <button type="submit" className="hero-search-btn">{t.common.search}</button>
               </form>
 
               {/* Stats */}
@@ -70,17 +71,14 @@ export default function HeroSection() {
 
               {/* CTAs */}
               <div className="hero-cta-row">
-                <Link href="/inventory" className="btn btn-primary btn-lg btn-pill">Browse Products</Link>
-                <Link href="/rfq" className="btn btn-ghost btn-lg btn-pill">Get a Quote</Link>
+                <Link href="/inventory" className="btn btn-primary btn-lg btn-pill">{t.home.browseProducts}</Link>
+                <Link href="/rfq" className="btn btn-ghost btn-lg btn-pill">{t.home.getQuote}</Link>
               </div>
             </div>
 
             {/* ── Right — hero image (phone + badges baked in) ── */}
             <div className="hero-right">
-              {/* Ambient orange glow */}
               <div className="hero-glow" />
-
-              {/* Hero image — transparent PNG, badges already inside it */}
               <div className="hero-img-wrap">
                 <Image
                   src="/images/hero section.png"
@@ -213,7 +211,6 @@ export default function HeroSection() {
           height: 520px;
         }
 
-        /* Soft orange ambient glow */
         .hero-glow {
           position: absolute;
           width: 460px; height: 460px;
@@ -226,7 +223,6 @@ export default function HeroSection() {
           pointer-events: none; z-index: 0;
         }
 
-        /* ─── Hero image wrap ───────────────────── */
         .hero-img-wrap {
           position: relative; z-index: 1;
           width: 100%;
@@ -241,7 +237,6 @@ export default function HeroSection() {
           50%       { transform: translateY(-12px); }
         }
 
-        /* ─── Responsive ────────────────────── */
         @media (min-width: 900px) {
           .hero-grid {
             grid-template-columns: 1fr 1fr;

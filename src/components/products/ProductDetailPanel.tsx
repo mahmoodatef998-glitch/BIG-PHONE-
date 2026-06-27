@@ -7,6 +7,7 @@ import { MessageCircle, MapPin, Shield } from 'lucide-react';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import RFQForm from '@/components/rfq/RFQForm';
 import { formatCondition } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Product } from '@/types';
 import type { StorageVariant } from '@/lib/product-variants';
 import { productToStorageVariant } from '@/lib/product-variants';
@@ -22,6 +23,7 @@ function findVariant(variants: StorageVariant[], slug: string, fallback: Storage
 }
 
 export default function ProductDetailPanel({ product, variants, whatsappNumber }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const initial = useMemo(
     () => findVariant(variants, product.slug, productToStorageVariant(product)),
@@ -43,6 +45,18 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
 
   const showPrice = selected.show_price !== false && selected.price_aed != null && selected.price_aed > 0;
   const isOutOfStock = selected.stock_quantity === 0;
+
+  const specRows = [
+    { label: t.product.condition, value: formatCondition(product.condition) },
+    { label: t.product.storage, value: selected.storage || product.storage || 'N/A' },
+    { label: t.product.color, value: selected.color ?? product.color ?? 'Various' },
+    { label: t.product.battery, value: product.battery_health ? `${product.battery_health}%` : 'N/A' },
+    { label: t.product.warranty, value: product.warranty ?? 'As-is' },
+    {
+      label: t.product.available,
+      value: isOutOfStock ? t.product.outOfStock : `${selected.stock_quantity} ${t.common.units}`,
+    },
+  ];
 
   return (
     <>
@@ -70,7 +84,7 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
         {hasVariants && (
           <div style={{ marginBottom: '1.25rem' }}>
             <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
-              Storage
+              {t.product.storage}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {variants.map(variant => {
@@ -97,7 +111,7 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
                     }}
                   >
                     {variant.storage}
-                    {out && <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#EF4444', marginTop: '0.125rem' }}>Out of stock</span>}
+                    {out && <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 600, color: '#EF4444', marginTop: '0.125rem' }}>{t.product.outOfStock}</span>}
                   </button>
                 );
               })}
@@ -110,24 +124,16 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
             <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>
               AED {selected.price_aed!.toLocaleString()}
             </span>
-            <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>/unit · MOQ {selected.moq}</span>
+            <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>{t.common.perUnit} · {t.product.moq} {selected.moq}</span>
           </div>
         ) : (
           <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
-            <span style={{ fontSize: '0.9375rem', color: '#64748B', fontStyle: 'italic' }}>Price on Request</span>
-            <span style={{ fontSize: '0.8125rem', color: '#94A3B8', marginLeft: '0.5rem' }}>— submit RFQ below</span>
+            <span style={{ fontSize: '0.9375rem', color: '#64748B', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
           </div>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>
-          {[
-            { label: 'Condition', value: formatCondition(product.condition) },
-            { label: 'Storage', value: selected.storage || product.storage || 'N/A' },
-            { label: 'Color', value: selected.color ?? product.color ?? 'Various' },
-            { label: 'Battery', value: product.battery_health ? `${product.battery_health}%` : 'N/A' },
-            { label: 'Warranty', value: product.warranty ?? 'As-is' },
-            { label: 'Available', value: isOutOfStock ? 'Out of Stock' : `${selected.stock_quantity} units` },
-          ].map(({ label, value }) => (
+          {specRows.map(({ label, value }) => (
             <div key={label} style={{
               background: '#F8FAFC',
               border: '1px solid #DDE3EA',
@@ -135,7 +141,7 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
               padding: '0.5rem 0.75rem',
             }}>
               <div style={{ fontSize: '0.625rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>{label}</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: isOutOfStock && label === 'Available' ? '#DC2626' : '#0B1829' }}>{value}</div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: isOutOfStock && label === t.product.available ? '#DC2626' : '#0B1829' }}>{value}</div>
             </div>
           ))}
         </div>
@@ -143,11 +149,11 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <MapPin size={13} style={{ color: '#94a3b8' }} />
-            <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Origin: {product.country_of_origin}</span>
+            <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>{t.product.origin}: {product.country_of_origin}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <Shield size={13} style={{ color: '#00A850' }} />
-            <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Verified Stock</span>
+            <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>{t.product.verifiedStock}</span>
           </div>
         </div>
 
@@ -168,15 +174,15 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
           }}
         >
           <MessageCircle size={18} />
-          {isOutOfStock ? 'Out of Stock' : 'WhatsApp Inquiry'}
+          {isOutOfStock ? t.product.outOfStock : t.product.whatsappInquiry}
         </a>
       </div>
 
       <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', overflow: 'hidden' }}>
         <div style={{ background: '#0B1829', padding: '1rem 1.25rem' }}>
-          <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>Request Wholesale Quote</h3>
+          <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>{t.rfq.title}</h3>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: '0.25rem', marginBottom: 0 }}>
-            Get pricing &amp; availability in under 2 hours
+            {t.rfq.subtitle}
           </p>
         </div>
         <div style={{ padding: '1.25rem' }}>

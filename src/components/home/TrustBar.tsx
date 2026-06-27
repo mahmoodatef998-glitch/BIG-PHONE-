@@ -1,13 +1,19 @@
-import { ShieldCheck, RotateCcw, Truck, BadgeCheck } from 'lucide-react';
+'use client';
 
-const ITEMS = [
-  { icon: ShieldCheck, label: 'Verified Stock',   sub: 'Live inventory counts' },
-  { icon: RotateCcw,   label: 'Grade A/B/Cert', sub: 'Professional grading' },
-  { icon: Truck,       label: 'Global Export',  sub: '50+ countries served' },
-  { icon: BadgeCheck,  label: 'MOQ from 5',     sub: 'Flexible wholesale lots' },
-];
+import { ShieldCheck, RotateCcw, Truck, BadgeCheck } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TrustBar() {
+  const { t } = useLanguage();
+  const h = t.home;
+
+  const ITEMS = [
+    { icon: ShieldCheck, label: h.trustVerified, sub: h.trustVerifiedSub },
+    { icon: RotateCcw,   label: h.trustGrade,    sub: h.trustGradeSub },
+    { icon: Truck,       label: h.trustExport,   sub: h.trustExportSub },
+    { icon: BadgeCheck,  label: h.trustMoq,      sub: h.trustMoqSub },
+  ];
+
   return (
     <section style={{ background: '#FFF3E8', borderTop: '1px solid #FFD0A0', borderBottom: '1px solid #FFD0A0', padding: '1.5rem 0' }}>
       <div className="container-site">

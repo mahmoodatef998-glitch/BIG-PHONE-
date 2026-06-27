@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { getServerLang } from '@/lib/server-lang';
+import { rfqMetadata } from '@/lib/page-metadata';
 import RFQPageContent from '@/components/pages/RFQPageContent';
 
-export const metadata: Metadata = {
-  title: 'Request Quotation | BIG PHONE B2B',
-  description: 'Submit a wholesale quotation request for iPhones, Samsung, Xiaomi and other mobile devices. Get pricing within 2 hours.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang();
+  return rfqMetadata(lang);
+}
 
 export default async function RFQPage(props: {
   searchParams: Promise<{ product?: string }>;

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { getServerLang } from '@/lib/server-lang';
+import { inventoryMetadata } from '@/lib/page-metadata';
 import { Suspense } from 'react';
 import InventoryFilters from '@/components/inventory/InventoryFilters';
 import {
@@ -14,10 +16,10 @@ import type { Brand, Product } from '@/types';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Wholesale Mobile Phone Inventory | BIG PHONE',
-  description: 'Browse wholesale inventory of brand new and refurbished iPhones, Samsung Galaxy, Xiaomi and more.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang();
+  return inventoryMetadata(lang);
+}
 
 function sortHeadingKey(sort?: string): 'newArrivals' | 'stockHigh' | 'stockLow' | 'brandSort' | null {
   switch (sort) {

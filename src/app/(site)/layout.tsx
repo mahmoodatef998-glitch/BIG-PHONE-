@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <LanguageProvider initialLang={initialLang}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
-        <main style={{ flex: 1 }}>
+        <main className="mobile-nav-spacer" style={{ flex: 1 }}>
           {children}
         </main>
         <Footer />

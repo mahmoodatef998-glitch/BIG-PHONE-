@@ -108,7 +108,7 @@ export default function Footer() {
         </div>
 
         <div style={{ borderTop: '1px solid #1F2937', padding: '1.25rem 0' }}>
-          <div className="container-site" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="container-site footer-bottom-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <p style={{ fontSize: '0.8125rem', color: '#6B7280', margin: 0 }}>
               &copy; {year} BIG PHONE. {t.footer.rights}
             </p>

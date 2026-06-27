@@ -51,7 +51,7 @@ export default function AboutPageContent() {
                 <p>{a.whoP3}</p>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            <div className="about-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
               {cards.map(({ icon: Icon, title, desc, color }) => (
                 <div key={title} style={{ background: '#FAFAFA', border: '1px solid #EAEAEA', borderRadius: '0.75rem', padding: '1.25rem' }}>
                   <div style={{ width: '40px', height: '40px', background: `${color}15`, borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>

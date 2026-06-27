@@ -136,6 +136,26 @@ export type Translations = {
     notFoundTitle: string; notFoundMsg: string; backHome: string;
     errorTitle: string; errorMsg: string; tryAgain: string;
   };
+  whatsapp: {
+    productInquiry: string; productQuote: string; generalQuote: string;
+  };
+  validation: {
+    companyRequired: string; contactRequired: string; countryRequired: string;
+    phoneRequired: string; emailRequired: string; productRequired: string;
+    quantityMin: string; quantityMax: string;
+  };
+  meta: {
+    siteDefault: string; siteDescription: string;
+    inventoryTitle: string; inventoryDescription: string;
+    brandsTitle: string; brandsDescription: string;
+    aboutTitle: string; aboutDescription: string;
+    contactTitle: string; contactDescription: string;
+    rfqTitle: string; rfqDescription: string;
+    privacyTitle: string; privacyDescription: string;
+    termsTitle: string; termsDescription: string;
+    productNotFound: string; productWholesaleSuffix: string; productDescription: string;
+    brandNotFound: string; brandTitle: string; brandDescription: string;
+  };
 };
 
 const privacyEn: LegalSection[] = [
@@ -336,6 +356,45 @@ export const translations: Record<Lang, Translations> = {
       backHome: 'Back to Home', errorTitle: 'Something went wrong',
       errorMsg: 'An unexpected error occurred. Please try again.', tryAgain: 'Try again',
     },
+    whatsapp: {
+      productInquiry: "Hi, I'm interested in {name}. Can you provide pricing for wholesale quantity?",
+      productQuote: "Hi, I'd like a wholesale quote for: {name}. Quantity: ",
+      generalQuote: 'Hi, I want a wholesale quote for mobile devices.',
+    },
+    validation: {
+      companyRequired: 'Company name is required',
+      contactRequired: 'Contact person is required',
+      countryRequired: 'Country is required',
+      phoneRequired: 'Valid phone number required',
+      emailRequired: 'Valid email required',
+      productRequired: 'Please specify the product',
+      quantityMin: 'Minimum 1 unit',
+      quantityMax: 'Max 100,000 units',
+    },
+    meta: {
+      siteDefault: "BIG PHONE — UAE's Trusted B2B Mobile Marketplace",
+      siteDescription: 'Wholesale mobile devices from Dubai — brand new and refurbished iPhones, Samsung, Xiaomi and more. MOQ from 5 units, global export.',
+      inventoryTitle: 'Wholesale Mobile Phone Inventory',
+      inventoryDescription: 'Browse wholesale inventory of brand new and refurbished iPhones, Samsung Galaxy, Xiaomi and more.',
+      brandsTitle: 'Mobile Phone Brands',
+      brandsDescription: 'Shop by brand — Apple, Samsung, Xiaomi, Huawei, Oppo, Vivo wholesale devices.',
+      aboutTitle: 'About Us',
+      aboutDescription: 'Learn about BIG PHONE — UAE-based B2B wholesale supplier of mobile devices.',
+      contactTitle: 'Contact Us',
+      contactDescription: 'Get in touch with BIG PHONE wholesale team.',
+      rfqTitle: 'Request Quotation',
+      rfqDescription: 'Submit a wholesale quotation request for iPhones, Samsung, Xiaomi and other mobile devices. Get pricing within 2 hours.',
+      privacyTitle: 'Privacy Policy',
+      privacyDescription: 'BIG PHONE privacy policy — how we collect and use business inquiry data.',
+      termsTitle: 'Terms of Service',
+      termsDescription: 'BIG PHONE terms of service for B2B wholesale buyers.',
+      productNotFound: 'Product Not Found',
+      productWholesaleSuffix: ' — Wholesale',
+      productDescription: 'Buy {name} wholesale from Dubai. {condition} | Stock: {stock} units | MOQ: {moq} | Fast global shipping.',
+      brandNotFound: 'Brand Not Found',
+      brandTitle: '{brand} Wholesale Inventory',
+      brandDescription: 'Buy {brand} smartphones and devices wholesale from Dubai.',
+    },
   },
   ar: {
     nav: { home: 'الرئيسية', inventory: 'المخزون', brands: 'الماركات', about: 'من نحن', contact: 'اتصل بنا', featured: 'مميز', categories: 'الفئات', deals: 'عروض', shop: 'تسوق', rfq: 'طلب سعر' },
@@ -494,6 +553,45 @@ export const translations: Record<Lang, Translations> = {
       notFoundTitle: 'الصفحة غير موجودة', notFoundMsg: 'الصفحة التي تبحث عنها غير موجودة أو نُقلت.',
       backHome: 'العودة للرئيسية', errorTitle: 'حدث خطأ',
       errorMsg: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.', tryAgain: 'حاول مرة أخرى',
+    },
+    whatsapp: {
+      productInquiry: 'مرحباً، أنا مهتم بـ {name}. هل يمكنكم تزويدي بأسعار الجملة؟',
+      productQuote: 'مرحباً، أود طلب عرض سعر جملة لـ: {name}. الكمية: ',
+      generalQuote: 'مرحباً، أريد عرض سعر جملة لأجهزة موبايل.',
+    },
+    validation: {
+      companyRequired: 'اسم الشركة مطلوب',
+      contactRequired: 'اسم المسؤول مطلوب',
+      countryRequired: 'الدولة مطلوبة',
+      phoneRequired: 'رقم هاتف صالح مطلوب',
+      emailRequired: 'بريد إلكتروني صالح مطلوب',
+      productRequired: 'يرجى تحديد المنتج',
+      quantityMin: 'الحد الأدنى وحدة واحدة',
+      quantityMax: 'الحد الأقصى 100,000 وحدة',
+    },
+    meta: {
+      siteDefault: 'BIG PHONE — سوق الجملة الموثوق للموبايل في الإمارات',
+      siteDescription: 'أجهزة موبايل بالجملة من دبي — iPhone وSamsung وXiaomi جديدة ومجدّدة. حد أدنى 5 وحدات، تصدير عالمي.',
+      inventoryTitle: 'مخزون هواتف الجملة',
+      inventoryDescription: 'تصفّح مخزون الجملة من iPhone وSamsung Galaxy وXiaomi جديدة ومجدّدة.',
+      brandsTitle: 'ماركات الهواتف',
+      brandsDescription: 'تسوق حسب الماركة — Apple وSamsung وXiaomi وHuawei وOppo وVivo بالجملة.',
+      aboutTitle: 'من نحن',
+      aboutDescription: 'تعرّف على BIG PHONE — مورّد جملة B2B للأجهزة المحمولة في الإمارات.',
+      contactTitle: 'اتصل بنا',
+      contactDescription: 'تواصل مع فريق الجملة في BIG PHONE.',
+      rfqTitle: 'طلب عرض سعر',
+      rfqDescription: 'قدّم طلب عرض سعر جملة لـ iPhone وSamsung وXiaomi وغيرها. احصل على التسعير خلال ساعتين.',
+      privacyTitle: 'سياسة الخصوصية',
+      privacyDescription: 'سياسة خصوصية BIG PHONE — كيف نجمع ونستخدم بيانات استفسارات الأعمال.',
+      termsTitle: 'شروط الخدمة',
+      termsDescription: 'شروط خدمة BIG PHONE لمشتري الجملة B2B.',
+      productNotFound: 'المنتج غير موجود',
+      productWholesaleSuffix: ' — جملة',
+      productDescription: 'اشترِ {name} بالجملة من دبي. {condition} | المخزون: {stock} وحدة | الحد الأدنى: {moq} | شحن عالمي سريع.',
+      brandNotFound: 'الماركة غير موجودة',
+      brandTitle: 'مخزون {brand} بالجملة',
+      brandDescription: 'اشترِ هواتف وأجهزة {brand} بالجملة من دبي.',
     },
   },
 };

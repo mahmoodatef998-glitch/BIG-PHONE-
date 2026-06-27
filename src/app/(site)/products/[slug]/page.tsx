@@ -9,6 +9,8 @@ import {
   ProductRelatedSection,
 } from '@/components/products/ProductPageClient';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants } from '@/lib/data';
+import { getServerLang } from '@/lib/server-lang';
+import { productMetadata, productNotFoundMetadata } from '@/lib/page-metadata';
 
 export const revalidate = 60;
 
@@ -17,20 +19,11 @@ type ProductPageProps = {
 };
 
 export async function generateMetadata(props: ProductPageProps): Promise<Metadata> {
+  const lang = await getServerLang();
   const { slug } = await props.params;
   const product = await fetchProduct(slug);
-  if (!product) return { title: 'Product Not Found' };
-  const desc = `Buy ${product.name} wholesale from Dubai. ${product.condition === 'brand-new' ? 'Brand new sealed' : 'Refurbished'} | Stock: ${product.stock_quantity} units | MOQ: ${product.moq} | Fast global shipping.`;
-  return {
-    title: `${product.name} — Wholesale | BIG PHONE`,
-    description: desc,
-    openGraph: {
-      title: `${product.name} — Wholesale`,
-      description: desc,
-      images: product.images[0] ? [{ url: product.images[0] }] : [],
-      type: 'website',
-    },
-  };
+  if (!product) return productNotFoundMetadata(lang);
+  return productMetadata(lang, product);
 }
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -91,7 +84,7 @@ export default async function ProductPage(props: ProductPageProps) {
         model={product.model}
       />
 
-      <div className="container-site" style={{ padding: '2rem 1rem 4rem' }}>
+      <div className="container-site product-page-container">
         <div className="product-detail-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <ProductImageGallery
@@ -132,6 +125,7 @@ export default async function ProductPage(props: ProductPageProps) {
       </div>
 
       <style>{`
+        .product-page-container { padding: 2rem 1rem 4rem; }
         .product-detail-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -146,6 +140,9 @@ export default async function ProductPage(props: ProductPageProps) {
         @media (min-width: 768px) {
           .product-detail-grid { grid-template-columns: 1fr 1fr; }
           .related-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 389px) {
+          .related-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>

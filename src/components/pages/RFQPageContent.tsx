@@ -4,16 +4,17 @@ import Link from 'next/link';
 import { MessageCircle, Clock, Users, Globe, FileText } from 'lucide-react';
 import RFQForm from '@/components/rfq/RFQForm';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { buildWhatsAppLink } from '@/lib/whatsapp';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export default function RFQPageContent({ defaultProduct }: { defaultProduct: string }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const p = t.rfqPage;
 
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
-      <div style={{
+      <div className="rfq-page-hero" style={{
         background: 'linear-gradient(135deg, #111827 0%, #1F2937 100%)',
         borderBottom: '1px solid #374151',
         padding: '2.5rem 0',
@@ -44,7 +45,7 @@ export default function RFQPageContent({ defaultProduct }: { defaultProduct: str
 
       <div className="container-site section">
         <div className="rfq-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', alignItems: 'start' }}>
-          <div style={{
+          <div className="rfq-form-card" style={{
             background: '#fff',
             border: '1.5px solid #E5E7EB',
             borderRadius: '1rem',
@@ -96,7 +97,7 @@ export default function RFQPageContent({ defaultProduct }: { defaultProduct: str
                 {p.whatsappSub}
               </p>
               <a
-                href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hi, I want a wholesale quote for mobile devices.')}`}
+                href={buildWhatsAppLink(lang, 'generalQuote', {}, WHATSAPP)}
                 target="_blank" rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
@@ -142,6 +143,9 @@ export default function RFQPageContent({ defaultProduct }: { defaultProduct: str
         }
         @media (min-width: 768px) {
           .rfq-grid { grid-template-columns: 1.5fr 1fr !important; }
+        }
+        @media (max-width: 767px) {
+          .rfq-form-card { padding: 1.25rem !important; }
         }
       `}</style>
     </div>

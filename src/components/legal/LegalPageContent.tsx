@@ -13,7 +13,7 @@ export default function LegalPageContent({ variant }: { variant: Variant }) {
 
   return (
     <div>
-      <div style={{ background: '#F8FAFC', borderBottom: '1px solid #EAEAEA', padding: '2.5rem 0' }}>
+      <div className="legal-page-hero" style={{ background: '#F8FAFC', borderBottom: '1px solid #EAEAEA', padding: '2.5rem 0' }}>
         <div className="container-site">
           <nav className="inv-breadcrumb">
             <Link href="/">{t.common.home}</Link>

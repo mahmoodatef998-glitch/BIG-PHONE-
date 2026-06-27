@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import BrandPageContent from '@/components/pages/BrandPageContent';
 import { getBrandBySlug, getProducts, getBrands } from '@/lib/data';
+import { getServerLang } from '@/lib/server-lang';
+import { brandMetadata, brandNotFoundMetadata } from '@/lib/page-metadata';
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -14,13 +16,11 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: BrandPageProps): Promise<Metadata> {
+  const lang = await getServerLang();
   const { slug } = await props.params;
   const brand = await getBrandBySlug(slug);
-  if (!brand) return { title: 'Brand Not Found' };
-  return {
-    title: `${brand.name} Wholesale Inventory | BIG PHONE`,
-    description: `Buy ${brand.name} smartphones and devices wholesale from Dubai. ${brand.description ?? ''}`,
-  };
+  if (!brand) return brandNotFoundMetadata(lang);
+  return brandMetadata(lang, brand.name);
 }
 
 export default async function BrandPage(props: BrandPageProps) {

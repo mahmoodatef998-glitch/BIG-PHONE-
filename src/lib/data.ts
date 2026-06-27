@@ -7,7 +7,7 @@ import {
   applyProductSort,
   type ProductQueryFilters,
 } from '@/lib/product-filters';
-import { buildStorageVariants, type StorageVariant } from '@/lib/product-variants';
+import { buildStorageVariants, buildColorVariants, type StorageVariant, type ColorVariant } from '@/lib/product-variants';
 import { withCanonicalImages, withCanonicalImagesList } from '@/lib/product-images';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -46,6 +46,8 @@ const MOCK_PRODUCTS: Product[] = [
   { id: "p1",  brand_id: "1", name: "Apple iPhone 16 Pro Max 256GB Natural Titanium",    slug: "apple-iphone-16-pro-max-256gb-natural-titanium", model: "iPhone 16 Pro Max",    category: "smartphone", subcategory: "iphone-16-series",  condition: "brand-new",              storage: "256GB", color: "Natural Titanium", battery_health: null, warranty: "12 Months", stock_quantity: 85,   moq: 5,  country_of_origin: "UAE",   description: "Brand new sealed iPhone 16 Pro Max with A18 Pro chip.",        specifications: { "Display": "6.9\" Super Retina XDR", "Chip": "A18 Pro" },           images: [`${GH}/iPhone17%2C1/Natural%20Titanium.png`, `${GH}/iPhone17%2C1/Black%20Titanium.png`], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: null, show_price: true },
   { id: "p2",  brand_id: "1", name: "Apple iPhone 15 Pro 128GB Grade A Refurbished",     slug: "apple-iphone-15-pro-128gb-grade-a",             model: "iPhone 15 Pro",        category: "smartphone", subcategory: "iphone-15-series",  condition: "refurbished-grade-a",    storage: "128GB", color: "Black Titanium",  battery_health: 92,   warranty: "6 Months",  stock_quantity: 230,  moq: 10, country_of_origin: "UAE",   description: "Grade A refurbished iPhone 15 Pro.",                          specifications: { "Chip": "A17 Pro", "Camera": "48MP Triple" },                    images: [`${GH}/iPhone16%2C1/Black%20Titanium.png`, `${GH}/iPhone16%2C1/Natural%20Titanium.png`], is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: null, show_price: true },
   { id: "p9",  brand_id: "1", name: "Apple iPhone 15 128GB Brand New",                   slug: "apple-iphone-15-128gb-brand-new",               model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "128GB", color: "Pink",            battery_health: null, warranty: "12 Months", stock_quantity: 200,  moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [`${GH}/iPhone15%2C4/Pink.png`, `${GH}/iPhone15%2C4/Black.png`],       is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: 2850, show_price: true },
+  { id: "p9d", brand_id: "1", name: "Apple iPhone 15 128GB Black Brand New",             slug: "apple-iphone-15-128gb-black-brand-new",         model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "128GB", color: "Black",           battery_health: null, warranty: "12 Months", stock_quantity: 120,  moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [`${GH}/iPhone15%2C4/Black.png`],       is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: 2800, show_price: true },
+  { id: "p9e", brand_id: "1", name: "Apple iPhone 15 128GB Blue Brand New",              slug: "apple-iphone-15-128gb-blue-brand-new",          model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "128GB", color: "Blue",            battery_health: null, warranty: "12 Months", stock_quantity: 95,   moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [`${GH}/iPhone15%2C4/Blue.png`],        is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: 2820, show_price: true },
   { id: "p9b", brand_id: "1", name: "Apple iPhone 15 512GB Brand New",                   slug: "apple-iphone-15-512gb-brand-new",               model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "512GB", color: "Pink",            battery_health: null, warranty: "12 Months", stock_quantity: 45,   moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [`${GH}/iPhone15%2C4/Pink.png`, `${GH}/iPhone15%2C4/Black.png`],       is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: 3400, show_price: true },
   { id: "p9c", brand_id: "1", name: "Apple iPhone 15 1TB Brand New",                       slug: "apple-iphone-15-1tb-brand-new",                 model: "iPhone 15",            category: "smartphone", subcategory: "iphone-15-series",  condition: "brand-new",              storage: "1TB",   color: "Pink",            battery_health: null, warranty: "12 Months", stock_quantity: 0,    moq: 10, country_of_origin: "UAE",   description: "Brand new iPhone 15 with Dynamic Island.",                    specifications: { "Chip": "A16 Bionic", "Camera": "48MP + 12MP" },               images: [`${GH}/iPhone15%2C4/Pink.png`, `${GH}/iPhone15%2C4/Black.png`],       is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: 4100, show_price: true },
   { id: "p10", brand_id: "1", name: "Apple iPhone 13 Pro 256GB Grade A Refurbished",     slug: "apple-iphone-13-pro-256gb-grade-a",             model: "iPhone 13 Pro",        category: "smartphone", subcategory: "iphone-13-series",  condition: "refurbished-grade-a",    storage: "256GB", color: "Sierra Blue",     battery_health: 89,   warranty: "6 Months",  stock_quantity: 320,  moq: 10, country_of_origin: "UAE",   description: "Grade A refurbished iPhone 13 Pro.",                          specifications: { "Chip": "A15 Bionic" },                                          images: [`${GH}/iPhone14%2C2/Sierra%20Blue.png`, `${GH}/iPhone14%2C2/Graphite.png`],  is_featured: true,  is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[0], price_aed: null, show_price: true },
@@ -227,7 +229,7 @@ export async function getProductStorageVariants(product: Product): Promise<Stora
       p.condition === product.condition &&
       p.storage
     );
-    const variants = buildStorageVariants(siblings);
+    const variants = buildStorageVariants(siblings, product.color);
     return variants.length > 1 ? variants : [];
   }
 
@@ -245,7 +247,46 @@ export async function getProductStorageVariants(product: Product): Promise<Stora
     return [];
   }
 
-  const variants = buildStorageVariants((data ?? []) as Product[]);
+  const variants = buildStorageVariants((data ?? []) as Product[], product.color);
+  return variants.length > 1 ? variants : [];
+}
+
+/** Sibling products with same brand, model, condition, and storage — one row per color. */
+export async function getProductColorVariants(product: Product): Promise<ColorVariant[]> {
+  if (!product.color) return [];
+
+  if (!USE_SUPABASE) {
+    const siblings = MOCK_PRODUCTS.filter(p =>
+      p.is_active &&
+      p.brand_id === product.brand_id &&
+      p.model === product.model &&
+      p.condition === product.condition &&
+      p.color &&
+      (product.storage ? p.storage === product.storage : true),
+    );
+    const variants = buildColorVariants(siblings, product.storage);
+    return variants.length > 1 ? variants : [];
+  }
+
+  let query = db()
+    .from('products')
+    .select('slug, storage, price_aed, show_price, stock_quantity, moq, name, color, is_active, brand_id, model, condition')
+    .eq('brand_id', product.brand_id)
+    .eq('model', product.model)
+    .eq('condition', product.condition)
+    .eq('is_active', true)
+    .not('color', 'is', null);
+
+  if (product.storage) query = query.eq('storage', product.storage);
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('[getProductColorVariants]', error.message);
+    return [];
+  }
+
+  const variants = buildColorVariants((data ?? []) as Product[], product.storage);
   return variants.length > 1 ? variants : [];
 }
 

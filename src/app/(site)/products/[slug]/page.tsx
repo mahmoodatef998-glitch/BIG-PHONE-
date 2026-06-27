@@ -8,7 +8,7 @@ import {
   ProductSpecsSection,
   ProductRelatedSection,
 } from '@/components/products/ProductPageClient';
-import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants } from '@/lib/data';
+import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants, getProductColorVariants } from '@/lib/data';
 import { getServerLang } from '@/lib/server-lang';
 import { productMetadata, productNotFoundMetadata } from '@/lib/page-metadata';
 
@@ -42,9 +42,10 @@ export default async function ProductPage(props: ProductPageProps) {
   const product = await fetchProduct(slug);
   if (!product) notFound();
 
-  const [related, storageVariants] = await Promise.all([
+  const [related, storageVariants, colorVariants] = await Promise.all([
     fetchProducts({ brand: product.brand?.slug, limit: 5 }),
     getProductStorageVariants(product),
+    getProductColorVariants(product),
   ]);
   const [bg1, bg2] = BRAND_GRADIENT[product.brand?.slug ?? ''] ?? ['#1A2332', '#2D3748'];
   const isTablet = product.category === 'tablet';
@@ -110,7 +111,8 @@ export default async function ProductPage(props: ProductPageProps) {
             <ProductDetailPanel
               key={product.slug}
               product={product}
-              variants={storageVariants}
+              storageVariants={storageVariants}
+              colorVariants={colorVariants}
               whatsappNumber={WHATSAPP}
             />
           </div>

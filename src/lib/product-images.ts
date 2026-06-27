@@ -21,6 +21,12 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
     `${GH}/iPhone15%2C4/Pink.png`,
     `${GH}/iPhone15%2C4/Black.png`,
   ],
+  'apple-iphone-15-128gb-black-brand-new': [
+    `${GH}/iPhone15%2C4/Black.png`,
+  ],
+  'apple-iphone-15-128gb-blue-brand-new': [
+    `${GH}/iPhone15%2C4/Blue.png`,
+  ],
   'apple-iphone-15-512gb-brand-new': [
     `${GH}/iPhone15%2C4/Pink.png`,
     `${GH}/iPhone15%2C4/Black.png`,

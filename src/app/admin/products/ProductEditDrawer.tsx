@@ -5,6 +5,12 @@ import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, Al
 import type { Product, Brand, Collection, Condition, Category } from '@/types';
 import ImageDropZone from './ImageDropZone';
 import { useRouter } from 'next/navigation';
+import {
+  IPHONE_MODEL_NAMES,
+  getIphoneColors,
+  getIphoneSubcategory,
+  colorSwatchHex,
+} from '@/lib/iphone-catalog';
 
 async function uploadImage(file: File): Promise<string | null> {
   const form = new FormData();
@@ -27,6 +33,7 @@ type FormState = {
   country_of_origin: string; warranty: string; description: string;
   price_aed: string; show_price: boolean;
   collection_id: string;
+  specifications: Record<string, string>;
   is_featured: boolean; is_active: boolean; images: string[];
 };
 
@@ -41,6 +48,7 @@ function field(product: Product): FormState {
     description: product.description ?? '',
     price_aed: product.price_aed?.toString() ?? '', show_price: product.show_price ?? true,
     collection_id: (product as Product & { collection_id?: string | null }).collection_id ?? '',
+    specifications: { ...(product.specifications ?? {}) },
     is_featured: product.is_featured,
     is_active: product.is_active, images: [...product.images],
   };
@@ -124,8 +132,43 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
 
   if (!product) return null;
 
+  const appleBrandId = brands.find(b => b.slug === 'apple')?.id;
+  const isIphoneProduct = form.brand_id === appleBrandId && form.category === 'smartphone';
+  const iphoneColors = isIphoneProduct ? getIphoneColors(form.model) : [];
+
   const set = (key: keyof FormState, val: FormState[keyof FormState]) =>
     setForm(prev => ({ ...prev, [key]: val }));
+
+  const setSpec = (key: string, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      specifications: { ...prev.specifications, [key]: value },
+    }));
+  };
+
+  const removeSpec = (key: string) => {
+    setForm(prev => {
+      const next = { ...prev.specifications };
+      delete next[key];
+      return { ...prev, specifications: next };
+    });
+  };
+
+  const addSpecRow = () => {
+    setForm(prev => ({
+      ...prev,
+      specifications: { ...prev.specifications, '': '' },
+    }));
+  };
+
+  const handleModelChange = (model: string) => {
+    const colors = getIphoneColors(model);
+    setForm(prev => ({
+      ...prev,
+      model,
+      color: colors.includes(prev.color) ? prev.color : (colors[0] ?? prev.color),
+    }));
+  };
 
   const handleSave = async () => {
     if (!form) return;
@@ -163,6 +206,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
       country_of_origin: form.country_of_origin,
       warranty: form.warranty || null,
       description: form.description || null,
+      specifications: Object.keys(form.specifications).length ? form.specifications : null,
       price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
       show_price: form.show_price,
       collection_id: form.collection_id || null,
@@ -173,7 +217,9 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
 
     if (isNew) {
       payload.slug = generateSlug(form);
-      payload.subcategory = null;
+      payload.subcategory = getIphoneSubcategory(form.model);
+    } else if (getIphoneSubcategory(form.model)) {
+      payload.subcategory = getIphoneSubcategory(form.model);
     }
 
     const res = await fetch('/api/admin/products/save', {
@@ -337,11 +383,39 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
             <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-model" style={labelStyle}>Model</label>
-                <input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} />
+                {isIphoneProduct ? (
+                  <select id="edit-model" style={inp} value={form.model} onChange={e => handleModelChange(e.target.value)}>
+                    <option value="">Select iPhone model…</option>
+                    {IPHONE_MODEL_NAMES.map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} />
+                )}
               </div>
               <div>
                 <label htmlFor="edit-color" style={labelStyle}>Color</label>
-                <input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" />
+                {isIphoneProduct && iphoneColors.length > 0 ? (
+                  <select id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)}>
+                    <option value="">Select color…</option>
+                    {iphoneColors.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" />
+                )}
+                {isIphoneProduct && form.color && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.375rem' }}>
+                    <span style={{
+                      width: '14px', height: '14px', borderRadius: '50%',
+                      background: colorSwatchHex(form.color),
+                      border: '1px solid #CBD5E1',
+                    }} />
+                    <span style={{ fontSize: '0.75rem', color: '#64748B' }}>Each color is a separate SKU with its own price & specs</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
@@ -453,10 +527,58 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
               <input id="edit-battery" type="number" min="0" max="100" style={{ ...inp, maxWidth: '50%' }}
                 value={form.battery_health} onChange={e => set('battery_health', e.target.value)} placeholder="Leave blank if new" />
             </div>
-            <div>
+            <div style={{ marginBottom: '0.875rem' }}>
               <label htmlFor="edit-desc" style={labelStyle}>Description</label>
               <textarea id="edit-desc" rows={3} style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
                 value={form.description} onChange={e => set('description', e.target.value)} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span style={labelStyle}>Specifications</span>
+                <button type="button" onClick={addSpecRow} style={{
+                  fontSize: '0.75rem', fontWeight: 700, color: '#FF6B00',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                }}>
+                  + Add row
+                </button>
+              </div>
+              {Object.entries(form.specifications).length === 0 && (
+                <p style={{ fontSize: '0.8125rem', color: '#94A3B8', margin: '0 0 0.5rem' }}>
+                  Add chip, display, camera, etc. Shown on the product page.
+                </p>
+              )}
+              {Object.entries(form.specifications).map(([key, value], idx) => (
+                <div key={`spec-${idx}-${key}`} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input
+                    style={inp}
+                    placeholder="Label (e.g. Chip)"
+                    value={key}
+                    onChange={e => {
+                      const newKey = e.target.value;
+                      setForm(prev => {
+                        const entries = Object.entries(prev.specifications);
+                        const next: Record<string, string> = {};
+                        entries.forEach(([k, v], i) => {
+                          next[i === idx ? newKey : k] = v;
+                        });
+                        return { ...prev, specifications: next };
+                      });
+                    }}
+                  />
+                  <input
+                    style={inp}
+                    placeholder="Value (e.g. A17 Pro)"
+                    value={value}
+                    onChange={e => setSpec(key, e.target.value)}
+                  />
+                  <button type="button" aria-label="Remove specification" onClick={() => removeSpec(key)} style={{
+                    width: '36px', height: '36px', border: '1px solid #FECACA',
+                    background: '#FEF2F2', color: '#DC2626', borderRadius: '0.5rem', cursor: 'pointer',
+                  }}>
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           </SectionCard>
 

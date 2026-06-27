@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Tag, Package } from 'lucide-react';
-import { getBrands, getProducts } from '@/lib/data';
+import { getBrandsAdmin, getProductsAdmin } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'Brands | Admin' };
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,7 @@ const BRAND_COLORS: Record<string, { from: string; to: string }> = {
 };
 
 export default async function AdminBrandsPage() {
-  const [brands, products] = await Promise.all([getBrands(), getProducts()]);
+  const [brands, products] = await Promise.all([getBrandsAdmin(), getProductsAdmin()]);
 
   const productCountByBrand = products.reduce<Record<string, number>>((acc, p) => {
     const key = p.brand?.slug ?? 'unknown';

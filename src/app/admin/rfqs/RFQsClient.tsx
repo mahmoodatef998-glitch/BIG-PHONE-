@@ -129,7 +129,9 @@ export default function RFQsClient({ rfqs }: Props) {
                   </div>
                   <div>
                     <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Quantity</span>
-                    <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 600, marginTop: '0.125rem' }}>{rfq.quantity} units</p>
+                    <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 600, marginTop: '0.125rem' }}>
+                      {rfq.quantity != null ? `${rfq.quantity} units` : '—'}
+                    </p>
                   </div>
                 </div>
                 {rfq.message && (

@@ -5,17 +5,11 @@ import {
   ArrowRight, Plus, Users, Settings, ChevronRight, Layers,
   DollarSign, TrendingUp, MessageCircle,
 } from 'lucide-react';
-import { getProductsAdmin, getBrands, getRFQs, getCollectionsAdmin } from '@/lib/data';
+import { getProductsAdmin, getBrandsAdmin, getRFQs, getCollectionsAdmin } from '@/lib/data';
+import { timeAgo } from '@/lib/admin/utils';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 export const dynamic = 'force-dynamic';
-
-function timeAgo(dateStr: string) {
-  const d = Date.now() - new Date(dateStr).getTime();
-  if (d < 3600000)  return `${Math.floor(d / 60000)}m ago`;
-  if (d < 86400000) return `${Math.floor(d / 3600000)}h ago`;
-  return `${Math.floor(d / 86400000)}d ago`;
-}
 
 const STATUS: Record<string, { label: string; bg: string; color: string; dot: string }> = {
   new:       { label: 'New',       bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
@@ -32,7 +26,7 @@ function waLink(phone: string, company: string, product: string | null, qty: num
 
 export default async function AdminDashboard() {
   const [products, brands, rfqs, collections] = await Promise.all([
-    getProductsAdmin(), getBrands(), getRFQs(), getCollectionsAdmin(),
+    getProductsAdmin(), getBrandsAdmin(), getRFQs(), getCollectionsAdmin(),
   ]);
 
   const totalStock  = products.reduce((s, p) => s + p.stock_quantity, 0);

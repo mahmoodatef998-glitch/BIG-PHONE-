@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
@@ -44,6 +45,7 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
 
 export default function ProductCard({ product }: { product: Product }) {
   const { t, lang } = useLanguage();
+  const [imgFailed, setImgFailed] = useState(false);
   const waLink = buildWhatsAppLink(lang, 'productInquiry', { name: product.name }, WHATSAPP);
   const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
   const isInStock  = product.stock_quantity > 0;
@@ -53,8 +55,15 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="pcard">
       <Link href={`/products/${product.slug}`} style={{ display: 'block', position: 'relative' }}>
         <div style={{ width: '100%', paddingBottom: '80%', position: 'relative', overflow: 'hidden', borderRadius: '0.875rem 0.875rem 0 0', background: '#F9FAFB' }}>
-          {imgSrc ? (
-            <Image src={imgSrc} alt={product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" style={{ objectFit: 'contain', padding: '0.75rem' }} />
+          {imgSrc && !imgFailed ? (
+            <Image
+              src={imgSrc}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              style={{ objectFit: 'contain', padding: '0.75rem' }}
+              onError={() => setImgFailed(true)}
+            />
           ) : (
             <DevicePlaceholder brandSlug={product.brand?.slug} category={product.category} />
           )}

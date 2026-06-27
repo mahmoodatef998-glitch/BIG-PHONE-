@@ -168,14 +168,15 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
 
   // ── OEM bulk accessories (real product-style stock photos) ──
   '65w-gan-usbc-charger-bulk-x10': [
-    'https://images.unsplash.com/photo-1763161786687-43d0c9babdf0?w=800&q=80&auto=format',
+    'https://images.unsplash.com/photo-1763161786687-43d0c9babdf0',
+    'https://images.unsplash.com/photo-1624272673361-335d488ef9f7',
   ],
   'tempered-glass-screen-protectors-bulk-x50': [
     'https://upload.wikimedia.org/wikipedia/commons/9/94/Screen_protector.png',
   ],
   'silicone-phone-cases-bulk-x50': [
-    'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&q=80&auto=format',
-    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80&auto=format',
+    'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb',
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
   ],
 };
 

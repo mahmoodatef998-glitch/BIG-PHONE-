@@ -16,6 +16,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
   const { t } = useLanguage();
   const slides = images.filter(Boolean);
   const [index, setIndex] = useState(0);
+  const [failedSrcs, setFailedSrcs] = useState<Set<string>>(() => new Set());
   const touchStartX = useRef(0);
 
   const count = slides.length;
@@ -57,6 +58,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
   }
 
   const mainSrc = cloudinaryUrl(slides[activeIndex], { width: 900, quality: 85 });
+  const mainFailed = failedSrcs.has(slides[activeIndex]);
 
   return (
     <div className="product-gallery">
@@ -67,15 +69,24 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <Image
-          key={slides[activeIndex]}
-          src={mainSrc}
-          alt={`${alt}${hasMultiple ? ` — image ${activeIndex + 1} of ${count}` : ''}`}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          priority={activeIndex === 0}
-          className="product-gallery-image"
-        />
+        {mainFailed ? (
+          fallback ?? (
+            <div className="product-gallery-empty">{t.common.imageComingSoon}</div>
+          )
+        ) : (
+          <Image
+            key={slides[activeIndex]}
+            src={mainSrc}
+            alt={`${alt}${hasMultiple ? ` — image ${activeIndex + 1} of ${count}` : ''}`}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority={activeIndex === 0}
+            className="product-gallery-image"
+            onError={() => {
+              setFailedSrcs(prev => new Set(prev).add(slides[activeIndex]));
+            }}
+          />
+        )}
 
         {hasMultiple && (
           <>
@@ -121,6 +132,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
           <div className="product-gallery-thumbs">
             {slides.map((src, i) => {
               const thumbSrc = cloudinaryUrl(src, { width: 120, quality: 75 });
+              const thumbFailed = failedSrcs.has(src);
               return (
                 <button
                   key={`${src}-${i}`}
@@ -130,13 +142,20 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
                   className={`product-gallery-thumb${i === activeIndex ? ' product-gallery-thumb-active' : ''}`}
                   onClick={() => setIndex(i)}
                 >
-                  <Image
-                    src={thumbSrc}
-                    alt=""
-                    fill
-                    sizes="72px"
-                    className="product-gallery-thumb-img"
-                  />
+                  {thumbFailed ? (
+                    <span className="product-gallery-thumb-fallback" aria-hidden />
+                  ) : (
+                    <Image
+                      src={thumbSrc}
+                      alt=""
+                      fill
+                      sizes="72px"
+                      className="product-gallery-thumb-img"
+                      onError={() => {
+                        setFailedSrcs(prev => new Set(prev).add(src));
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}

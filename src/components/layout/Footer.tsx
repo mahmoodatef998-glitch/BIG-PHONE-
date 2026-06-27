@@ -6,7 +6,7 @@ const LINKS = {
   marketplace: [
     { label: 'Browse All',       href: '/inventory' },
     { label: 'Brands',           href: '/brands' },
-    { label: 'New Arrivals',     href: '/inventory?condition=brand-new' },
+    { label: 'New Arrivals',     href: '/inventory?sort=newest' },
     { label: 'Deals',            href: '/inventory?featured=true' },
     { label: 'Request a Quote',  href: '/rfq' },
   ],

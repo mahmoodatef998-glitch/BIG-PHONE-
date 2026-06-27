@@ -178,6 +178,30 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
   return products;
 }
 
+/** Latest active products by created_at — used for homepage New Arrivals. */
+export async function getNewArrivals(limit = 12): Promise<Product[]> {
+  if (!USE_SUPABASE) {
+    return applyProductSort(
+      MOCK_PRODUCTS.filter(p => p.is_active),
+      'newest',
+    ).slice(0, limit);
+  }
+
+  const { data, error } = await db()
+    .from('products')
+    .select('*, brand:brands(*)')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getNewArrivals]', error.message);
+    return [];
+  }
+
+  return (data ?? []) as Product[];
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!USE_SUPABASE) return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
   const { data, error } = await db().from('products').select('*, brand:brands(*)').eq('slug', slug).eq('is_active', true).maybeSingle();

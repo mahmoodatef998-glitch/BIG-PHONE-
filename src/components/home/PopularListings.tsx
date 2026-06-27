@@ -130,7 +130,13 @@ function ListingSection({ title, subtitle, accentColor, accentBg, products, href
   );
 }
 
-export default function PopularListings({ products }: { products: Product[] }) {
+export default function PopularListings({
+  products,
+  newArrivals,
+}: {
+  products: Product[];
+  newArrivals: Product[];
+}) {
   const accessories = products
     .filter(p => p.category === 'accessory')
     .slice(0, 10);
@@ -143,12 +149,7 @@ export default function PopularListings({ products }: { products: Product[] }) {
     .sort((a, b) => getIphoneNum(a.name) - getIphoneNum(b.name))
     .slice(0, 14);
 
-  const newPhones = products
-    .filter(p => p.condition === 'brand-new' && p.brand?.slug !== 'apple')
-    .sort((a, b) => (b.price_aed ?? 0) - (a.price_aed ?? 0))
-    .slice(0, 12);
-
-  if (!accessories.length && !refurbishedPhones.length && !newPhones.length) return null;
+  if (!accessories.length && !refurbishedPhones.length && !newArrivals.length) return null;
 
   return (
     <>
@@ -178,12 +179,12 @@ export default function PopularListings({ products }: { products: Product[] }) {
               href="/inventory?brand=apple&category=smartphone&refurbished=1"
             />
             <ListingSection
-              title="New Phones"
-              subtitle="Samsung, Xiaomi, Huawei & more — latest models"
+              title="New Arrivals"
+              subtitle="Latest products added to our catalog — all categories"
               accentColor="#3B82F6"
               accentBg="#EFF6FF"
-              products={newPhones}
-              href="/inventory?condition=brand-new&excludeBrand=apple"
+              products={newArrivals}
+              href="/inventory?sort=newest"
             />
           </div>
         </div>

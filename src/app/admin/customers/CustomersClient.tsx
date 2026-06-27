@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Mail, MessageCircle, Globe, Award, Star, UserCheck, Clock, Search } from 'lucide-react';
+import { Mail, MessageCircle, Globe, Award, Star, UserCheck, Clock, Search, FileText } from 'lucide-react';
 import type { AdminCustomer } from '@/lib/admin/customers';
 import {
   customerStats,
@@ -191,7 +191,17 @@ export default function CustomersClient({ customers }: Props) {
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem', textAlign: 'center' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: 800, color: c.rfq_count >= 3 ? '#C2410C' : '#374151' }}>{c.rfq_count}</span>
+                        <Link
+                          href={`/admin/rfqs?email=${encodeURIComponent(c.email)}`}
+                          title="View RFQs for this customer"
+                          style={{
+                            fontSize: '1rem', fontWeight: 800,
+                            color: c.rfq_count >= 3 ? '#C2410C' : '#374151',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {c.rfq_count}
+                        </Link>
                       </td>
                       <td style={{ padding: '0.875rem 1rem', fontSize: '0.8125rem', color: '#6B7280', whiteSpace: 'nowrap' }}>
                         {timeAgo(c.last_activity)}
@@ -204,6 +214,16 @@ export default function CustomersClient({ customers }: Props) {
                       </td>
                       <td style={{ padding: '0.875rem 1rem' }}>
                         <div style={{ display: 'flex', gap: '0.375rem' }}>
+                          <Link
+                            href={`/admin/rfqs?email=${encodeURIComponent(c.email)}`}
+                            title="View RFQs"
+                            style={{
+                              width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: '#FFF0E0', color: '#C2410C', borderRadius: '0.375rem', textDecoration: 'none',
+                            }}
+                          >
+                            <FileText size={13} />
+                          </Link>
                           <a
                             href={`mailto:${c.email}`}
                             style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EFF6FF', color: '#2563EB', borderRadius: '0.375rem', textDecoration: 'none' }}

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, X, Loader2, CheckCircle2, AlertCircle, Layers, ImageIcon } from 'lucide-react';
 import type { Collection } from '@/types';
+import { useAdminToast } from '@/components/admin/AdminToast';
 
 interface Props {
   collections: Collection[];
@@ -60,6 +61,7 @@ const inp: React.CSSProperties = {
 
 export default function CollectionsClient({ collections, productCountByCollection }: Props) {
   const router = useRouter();
+  const { error: toastError, success: toastSuccess } = useAdminToast();
   const [editing, setEditing] = useState<Collection | '__new__' | null>(null);
   const [form, setForm] = useState<Form>(makeEmpty());
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -122,6 +124,7 @@ export default function CollectionsClient({ collections, productCountByCollectio
     const json = await res.json();
     if (!json.ok) { setStatus('error'); setErrorMsg(json.error ?? 'Failed to save'); return; }
     setStatus('success');
+    toastSuccess(isNew ? 'Section created' : 'Section updated');
     router.refresh();
     setTimeout(() => { setEditing(null); setStatus('idle'); }, 900);
   };
@@ -139,7 +142,9 @@ export default function CollectionsClient({ collections, productCountByCollectio
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      alert('Delete failed: ' + (j.error ?? 'Unknown error'));
+      toastError('Delete failed: ' + (j.error ?? 'Unknown error'));
+    } else {
+      toastSuccess(`"${c.name}" deleted`);
     }
     router.refresh();
     setDeletingId(null);

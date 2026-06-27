@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, Globe, Calendar, MessageCircle, Download } from 'lucide-react';
+import { Mail, Phone, Globe, Calendar, MessageCircle, Download, Search, X } from 'lucide-react';
 import type { RFQ } from '@/types';
+import { useAdminToast } from '@/components/admin/AdminToast';
 
 interface Props {
   rfqs: RFQ[];
+  initialEmail?: string;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
@@ -25,7 +27,7 @@ function exportToCSV(rfqs: RFQ[], filter: string) {
     r.product_interest, r.quantity, r.message ?? '', r.status,
     new Date(r.created_at).toLocaleDateString(),
   ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
-  const csv = '﻿' + [headers.join(','), ...rows].join('\n');
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -35,11 +37,20 @@ function exportToCSV(rfqs: RFQ[], filter: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function RFQsClient({ rfqs }: Props) {
+export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
   const router = useRouter();
+  const { error: toastError, success: toastSuccess } = useAdminToast();
   const [activeFilter, setActiveFilter] = useState('all');
+  const [emailSearch, setEmailSearch] = useState(initialEmail);
 
-  const filtered = activeFilter === 'all' ? rfqs : rfqs.filter(r => r.status === activeFilter);
+  const filtered = useMemo(() => {
+    const q = emailSearch.trim().toLowerCase();
+    return rfqs.filter(r => {
+      const matchesStatus = activeFilter === 'all' || r.status === activeFilter;
+      const matchesEmail = !q || r.email.toLowerCase().includes(q) || r.company_name.toLowerCase().includes(q);
+      return matchesStatus && matchesEmail;
+    });
+  }, [rfqs, activeFilter, emailSearch]);
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -50,7 +61,7 @@ export default function RFQsClient({ rfqs }: Props) {
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
           {FILTER_OPTIONS.map(s => (
-            <button key={s} onClick={() => setActiveFilter(s)}
+            <button key={s} type="button" onClick={() => setActiveFilter(s)}
               style={{
                 padding: '0.375rem 0.875rem', borderRadius: '9999px', fontSize: '0.8125rem',
                 fontWeight: activeFilter === s ? 700 : 500,
@@ -62,11 +73,41 @@ export default function RFQsClient({ rfqs }: Props) {
               {s === 'all' ? 'All' : STATUS_CONFIG[s]?.label ?? s}
             </button>
           ))}
-          <button onClick={() => exportToCSV(filtered, activeFilter)}
+          <button type="button" onClick={() => exportToCSV(filtered, activeFilter)}
             style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.875rem', borderRadius: '0.5rem', background: '#F8FAFC', color: '#374151', border: '1px solid #E2E8F0', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             <Download size={14} /> Export CSV ({filtered.length})
           </button>
         </div>
+      </div>
+
+      <div style={{ position: 'relative', maxWidth: '360px', marginBottom: '1rem' }}>
+        <Search size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+        <input
+          type="search"
+          value={emailSearch}
+          onChange={e => setEmailSearch(e.target.value)}
+          placeholder="Search by email or company…"
+          aria-label="Search RFQs"
+          style={{
+            width: '100%', boxSizing: 'border-box',
+            padding: '0.625rem 2.25rem 0.625rem 2.5rem',
+            border: '1px solid #E2E8F0', borderRadius: '0.5rem',
+            fontSize: '0.875rem', color: '#111827', background: '#fff', outline: 'none',
+          }}
+        />
+        {emailSearch && (
+          <button
+            type="button"
+            onClick={() => setEmailSearch('')}
+            aria-label="Clear search"
+            style={{
+              position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 0, display: 'flex',
+            }}
+          >
+            <X size={15} />
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -100,8 +141,10 @@ export default function RFQsClient({ rfqs }: Props) {
                       });
                       if (!res.ok) {
                         const j = await res.json().catch(() => ({}));
-                        alert('Status update failed: ' + (j.error ?? 'Unknown error'));
+                        toastError('Status update failed: ' + (j.error ?? 'Unknown error'));
+                        return;
                       }
+                      toastSuccess('RFQ status updated');
                       router.refresh();
                     }}
                     style={{ padding: '0.25rem 0.5rem', border: '1px solid #E2E8F0', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', background: '#fff', color: '#374151' }}>
@@ -114,7 +157,7 @@ export default function RFQsClient({ rfqs }: Props) {
                     style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 0.75rem', background: '#FFF3E8', color: '#FF6B00', border: '1px solid #FFE4CC', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
                     <Mail size={14} /> Email
                   </a>
-                  <a href={`https://wa.me/${rfq.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${rfq.contact_person}, thank you for your inquiry about ${rfq.product_interest}. We'd like to discuss your order of ${rfq.quantity} units.`)}`}
+                  <a href={`https://wa.me/${rfq.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${rfq.contact_person}, thank you for your inquiry about ${rfq.product_interest}. We'd like to discuss your order of ${rfq.quantity ?? 'your requested'} units.`)}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 0.75rem', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
                     <MessageCircle size={14} /> WhatsApp

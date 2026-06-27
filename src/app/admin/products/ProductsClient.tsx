@@ -7,6 +7,7 @@ import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy, CheckSqu
 import type { Product, Brand, Collection } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductEditDrawer from './ProductEditDrawer';
+import { useAdminToast } from '@/components/admin/AdminToast';
 
 interface Props {
   products: Product[];
@@ -51,6 +52,7 @@ function makeEmpty(brands: Brand[]): Product {
 
 export default function ProductsClient({ products, brands, collections }: Props) {
   const router = useRouter();
+  const { error: toastError } = useAdminToast();
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
@@ -111,7 +113,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        alert('Bulk action failed: ' + (j.error ?? 'Unknown error'));
+        toastError('Bulk action failed: ' + (j.error ?? 'Unknown error'));
       } else {
         setSelectedIds(new Set());
         router.refresh();
@@ -131,7 +133,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      alert('Delete failed: ' + (j.error ?? 'Unknown error'));
+      toastError('Delete failed: ' + (j.error ?? 'Unknown error'));
     }
     router.refresh();
     setDeletingId(null);
@@ -146,7 +148,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      alert('Duplicate failed: ' + (j.error ?? 'Unknown error'));
+      toastError('Duplicate failed: ' + (j.error ?? 'Unknown error'));
     }
     router.refresh();
     setDuplicatingId(null);
@@ -162,7 +164,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        alert('Stock update failed: ' + (j.error ?? 'Unknown error'));
+        toastError('Stock update failed: ' + (j.error ?? 'Unknown error'));
       }
       router.refresh();
     }

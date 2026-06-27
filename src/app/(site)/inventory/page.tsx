@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import ProductCard from '@/components/ui/ProductCard';
 import InventoryFilters from '@/components/inventory/InventoryFilters';
 import { getProducts, getBrands, getProductsGroupedByBrand } from '@/lib/data';
+import { parseProductFilters } from '@/lib/product-filters';
 import type { Brand, Product } from '@/types';
 
 export const revalidate = 60;
@@ -24,26 +25,26 @@ const BRAND_ACCENT: Record<string, string> = {
 };
 
 export default async function InventoryPage(props: {
-  searchParams: Promise<{ search?: string; brand?: string; condition?: string; category?: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const sp        = await props.searchParams;
-  const search    = sp.search    ?? '';
-  const brand     = sp.brand     ?? '';
-  const condition = sp.condition ?? '';
-  const category  = sp.category  ?? '';
+  const sp = await props.searchParams;
+  const filters = parseProductFilters(sp);
+  const search = filters.search ?? '';
+  const brand = filters.brand ?? '';
+  const condition = filters.condition ?? '';
+  const category = filters.category ?? '';
+  const refurbished = filters.refurbished ?? false;
+  const excludeBrand = filters.excludeBrand ?? '';
+  const featured = filters.featured ?? false;
+  const collection = sp.collection ?? '';
 
-  const brands    = await getBrands();
-  const isFiltered = !!(search || brand || condition || category);
+  const brands = await getBrands();
+  const isFiltered = !!(
+    search || brand || condition || category || refurbished || excludeBrand || featured || collection
+  );
 
   const [filteredProducts, groupedBrands] = await Promise.all([
-    isFiltered
-      ? getProducts({
-          ...(brand     && { brand }),
-          ...(condition && { condition }),
-          ...(search    && { search }),
-          ...(category  && { category }),
-        })
-      : Promise.resolve([] as Product[]),
+    isFiltered ? getProducts(filters) : Promise.resolve([] as Product[]),
     !isFiltered
       ? getProductsGroupedByBrand()
       : Promise.resolve([] as { brand: Brand; products: Product[]; total: number }[]),
@@ -70,17 +71,34 @@ export default async function InventoryPage(props: {
             </h1>
             <span style={{ fontSize: '0.8125rem', color: '#94A3B8', fontWeight: 500 }}>{displayCount} products</span>
           </div>
-          <form style={{ position: 'relative', maxWidth: '520px' }}>
+          <form action="/inventory" method="get" style={{ position: 'relative', maxWidth: '520px' }}>
             <Search size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input
               type="search" name="search" defaultValue={search}
               placeholder="Search iPhone 15, Galaxy S24, Xiaomi 14..."
               className="form-input"
-              style={{ paddingLeft: '2.5rem', background: '#F8FAFC' }}
+              style={{ paddingLeft: '2.5rem', paddingRight: '5rem', background: '#F8FAFC' }}
             />
-            {brand     && <input type="hidden" name="brand"     value={brand} />}
-            {condition && <input type="hidden" name="condition" value={condition} />}
-            {category  && <input type="hidden" name="category"  value={category} />}
+            <button
+              type="submit"
+              style={{
+                position: 'absolute', right: '0.375rem', top: '50%', transform: 'translateY(-50%)',
+                padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: 'none',
+                background: '#0066FF', color: '#fff', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              Search
+            </button>
+            {brand     && <input type="hidden" name="brand"         value={brand} />}
+            {condition && <input type="hidden" name="condition"     value={condition} />}
+            {category  && <input type="hidden" name="category"      value={category} />}
+            {refurbished && <input type="hidden" name="refurbished" value="1" />}
+            {excludeBrand && <input type="hidden" name="excludeBrand" value={excludeBrand} />}
+            {featured && <input type="hidden" name="featured" value="true" />}
+            {collection && <input type="hidden" name="collection"   value={collection} />}
+            {filters.sortBy && filters.sortBy !== 'newest' && (
+              <input type="hidden" name="sort" value={filters.sortBy} />
+            )}
           </form>
         </div>
       </div>
@@ -95,8 +113,13 @@ export default async function InventoryPage(props: {
               const params   = new URLSearchParams();
               if (tab.slug) params.set('brand', tab.slug);
               if (condition) params.set('condition', condition);
-              if (category)  params.set('category',  category);
-              if (search)    params.set('search',     search);
+              if (category) params.set('category', category);
+              if (refurbished) params.set('refurbished', '1');
+              if (excludeBrand) params.set('excludeBrand', excludeBrand);
+              if (featured) params.set('featured', 'true');
+              if (collection) params.set('collection', collection);
+              if (search) params.set('search', search);
+              if (filters.sortBy && filters.sortBy !== 'newest') params.set('sort', filters.sortBy);
               return (
                 <Link
                   key={tab.slug}
@@ -133,6 +156,13 @@ export default async function InventoryPage(props: {
             ? <EmptyState search={search} />
             : (
               <>
+                {featured && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
+                    <div style={{ width: '3px', height: '22px', background: '#FF6B00', borderRadius: '2px' }} />
+                    <span style={{ fontWeight: 700, color: '#0B1829' }}>Featured Products</span>
+                    <span style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>· {filteredProducts.length} products</span>
+                  </div>
+                )}
                 {brand && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
                     <div style={{ width: '3px', height: '22px', background: BRAND_ACCENT[brand] ?? '#0066FF', borderRadius: '2px' }} />

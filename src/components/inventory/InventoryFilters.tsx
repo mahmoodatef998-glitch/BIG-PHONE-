@@ -37,6 +37,8 @@ export default function InventoryFilters({ count }: { count: number }) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
+    if (key === 'condition') params.delete('refurbished');
+    if (key === 'refurbished' && value) params.delete('condition');
     params.delete('page');
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }, [router, pathname, searchParams]);
@@ -46,13 +48,21 @@ export default function InventoryFilters({ count }: { count: number }) {
   const category  = searchParams.get('category') ?? '';
   const brand     = searchParams.get('brand')    ?? '';
   const condition = searchParams.get('condition') ?? '';
+  const refurbished = searchParams.get('refurbished') === '1' || searchParams.get('refurbished') === 'true';
+  const featured = searchParams.get('featured') === 'true';
+  const excludeBrand = searchParams.get('excludeBrand') ?? '';
+  const searchQ = searchParams.get('search') ?? '';
   const sort      = searchParams.get('sort')      ?? 'newest';
-  const hasFilters = !!(category || brand || condition);
+  const hasFilters = !!(category || brand || condition || refurbished || featured || excludeBrand || searchQ);
 
   const activeFilters: { key: string; label: string }[] = [];
+  if (featured) activeFilters.push({ key: 'featured', label: 'Featured' });
+  if (refurbished) activeFilters.push({ key: 'refurbished', label: 'Refurbished' });
   if (category)  activeFilters.push({ key: 'category',  label: CATEGORIES.find(c => c.value === category)?.label  ?? category });
   if (brand)     activeFilters.push({ key: 'brand',     label: brand.charAt(0).toUpperCase() + brand.slice(1) });
+  if (excludeBrand) activeFilters.push({ key: 'excludeBrand', label: `Excl. ${excludeBrand.charAt(0).toUpperCase()}${excludeBrand.slice(1)}` });
   if (condition) activeFilters.push({ key: 'condition', label: CONDITIONS.find(c => c.value === condition)?.label ?? condition });
+  if (searchQ) activeFilters.push({ key: 'search', label: `"${searchQ}"` });
 
   return (
     <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA' }}>

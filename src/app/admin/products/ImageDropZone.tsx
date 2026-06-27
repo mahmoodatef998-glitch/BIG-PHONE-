@@ -19,9 +19,12 @@ export default function ImageDropZone({ existingImages, onExistingChange, onNewF
     if (!fileList) return;
     const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
     if (!files.length) return;
-    const newPreviews = files.map(file => ({ url: URL.createObjectURL(file), file }));
-    setPreviews(prev => [...prev, ...newPreviews]);
-    onNewFiles(files);
+    setPreviews(prev => {
+      const newPreviews = files.map(file => ({ url: URL.createObjectURL(file), file }));
+      const next = [...prev, ...newPreviews];
+      onNewFiles(next.map(p => p.file));
+      return next;
+    });
   }, [onNewFiles]);
 
   const removeExisting = (url: string) => {

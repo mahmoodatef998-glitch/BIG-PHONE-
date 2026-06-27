@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   };
 
   if (product.price_aed != null) insertData.price_aed = product.price_aed;
-  if (product.show_price !== undefined) insertData.show_price = product.show_price;
+  if (product.collection_id != null) insertData.collection_id = product.collection_id;
 
   const { error } = await supabase.from('products').insert(insertData);
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 400 });

@@ -14,12 +14,12 @@ const LINKS = {
     { label: 'Smartphones', href: '/inventory?category=smartphone' },
     { label: 'Tablets',     href: '/inventory?category=tablet' },
     { label: 'Accessories', href: '/inventory?category=accessory' },
-    { label: 'Laptops',     href: '/inventory?category=laptop' },
+    { label: 'Laptops',     href: '/inventory?category=tablet' },
   ],
   support: [
     { label: 'Contact Us', href: '/contact' },
     { label: 'About Us',   href: '/about' },
-    { label: 'Admin',      href: '/admin' },
+    { label: 'Staff Login', href: '/admin/login' },
   ],
 };
 

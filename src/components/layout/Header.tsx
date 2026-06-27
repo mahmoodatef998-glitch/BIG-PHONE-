@@ -11,9 +11,9 @@ const CATEGORIES_DROP = [
   { label: 'Smartphones',   href: '/inventory?category=smartphone',  Icon: Smartphone },
   { label: 'Tablets',       href: '/inventory?category=tablet',      Icon: Tablet },
   { label: 'Accessories',   href: '/inventory?category=accessory',   Icon: Headphones },
-  { label: 'Laptops',       href: '/inventory?category=laptop',      Icon: Laptop },
-  { label: 'Smart Watches', href: '/inventory?category=watch',       Icon: Watch },
-  { label: 'Gaming',        href: '/inventory?category=gaming',      Icon: Gamepad2 },
+  { label: 'Laptops',       href: '/inventory?category=tablet',      Icon: Laptop },
+  { label: 'Smart Watches', href: '/inventory?category=smartwatch',  Icon: Watch },
+  { label: 'Gaming',        href: '/inventory?category=accessory',   Icon: Gamepad2 },
 ];
 
 function CamelLogo({ size = 68 }: { size?: number }) {

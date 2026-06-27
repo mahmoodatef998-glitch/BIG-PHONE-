@@ -23,6 +23,7 @@ const NAV = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router   = useRouter();
+  const isLoginPage = pathname === '/admin/login';
 
   const active = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -31,6 +32,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     await createClient().auth.signOut();
     router.push('/admin/login');
   };
+
+  if (isLoginPage) {
+    return (
+      <AdminToastProvider>
+        {children}
+      </AdminToastProvider>
+    );
+  }
 
   return (
     <AdminToastProvider>

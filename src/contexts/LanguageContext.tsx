@@ -23,6 +23,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = (localStorage.getItem('bp-lang') ?? 'en') as Lang;
     applyLang(saved);
+    // Hydration-safe: read persisted language after mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only locale restore
     setLang(saved);
   }, []);
 

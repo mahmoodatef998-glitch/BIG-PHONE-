@@ -5,17 +5,11 @@ import {
   ArrowRight, Plus, Users, Settings, ChevronRight, Layers,
   DollarSign, TrendingUp, MessageCircle,
 } from 'lucide-react';
-import { getProductsAdmin, getBrands, getRFQs, getCollectionsAdmin } from '@/lib/data';
+import { getProductsAdmin, getBrandsAdmin, getRFQs, getCollectionsAdmin } from '@/lib/data';
+import { timeAgo } from '@/lib/admin/utils';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 export const dynamic = 'force-dynamic';
-
-function timeAgo(dateStr: string) {
-  const d = Date.now() - new Date(dateStr).getTime();
-  if (d < 3600000)  return `${Math.floor(d / 60000)}m ago`;
-  if (d < 86400000) return `${Math.floor(d / 3600000)}h ago`;
-  return `${Math.floor(d / 86400000)}d ago`;
-}
 
 const STATUS: Record<string, { label: string; bg: string; color: string; dot: string }> = {
   new:       { label: 'New',       bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
@@ -32,7 +26,7 @@ function waLink(phone: string, company: string, product: string | null, qty: num
 
 export default async function AdminDashboard() {
   const [products, brands, rfqs, collections] = await Promise.all([
-    getProductsAdmin(), getBrands(), getRFQs(), getCollectionsAdmin(),
+    getProductsAdmin(), getBrandsAdmin(), getRFQs(), getCollectionsAdmin(),
   ]);
 
   const totalStock  = products.reduce((s, p) => s + p.stock_quantity, 0);
@@ -88,7 +82,7 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div style={{ padding: '1.75rem 2rem' }}>
+    <div className="admin-dashboard" style={{ padding: '1.75rem 2rem' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -104,7 +98,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
+      <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
         {kpis.map(k => (
           <Link key={k.label} href={k.href} style={{ background: '#fff', border: '1px solid #E5E7EB', borderTop: `3px solid ${k.border}`, borderRadius: '12px', padding: '1.25rem', textDecoration: 'none', display: 'block' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.875rem' }}>
@@ -121,7 +115,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Analytics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+      <div className="admin-analytics-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
 
         {/* Stock Value */}
         <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '1.25rem' }}>
@@ -220,7 +214,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Main grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.25rem', marginBottom: '1.25rem' }}>
+      <div className="admin-main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.25rem', marginBottom: '1.25rem' }}>
 
         {/* RFQ Table with WhatsApp */}
         <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
@@ -382,6 +376,23 @@ export default async function AdminDashboard() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 1280px) {
+          .admin-analytics-grid { grid-template-columns: 1fr 1fr !important; }
+          .admin-analytics-grid > :nth-child(2) { grid-column: 1 / -1; }
+        }
+        @media (max-width: 1024px) {
+          .admin-dashboard { padding: 1.25rem 1rem !important; }
+          .admin-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .admin-main-grid { grid-template-columns: 1fr !important; }
+          .admin-analytics-grid { grid-template-columns: 1fr !important; }
+          .admin-analytics-grid > :nth-child(2) { grid-column: auto; }
+        }
+        @media (max-width: 640px) {
+          .admin-kpi-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

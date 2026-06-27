@@ -153,8 +153,120 @@ insert into brands (id, name, slug, description, is_active, sort_order) values
   ('00000000-0000-0000-0000-000000000004', 'Huawei',  'huawei',  'Huawei P and Mate series',                      true, 4),
   ('00000000-0000-0000-0000-000000000005', 'Oppo',    'oppo',    'Oppo Find and Reno series',                     true, 5),
   ('00000000-0000-0000-0000-000000000006', 'Vivo',    'vivo',    'Vivo X and V series smartphones',               true, 6)
-on conflict (id) do nothing;
+on conflict (slug) do update set
+  name        = excluded.name,
+  description = excluded.description,
+  is_active   = excluded.is_active,
+  sort_order  = excluded.sort_order;
+
+create table if not exists collections (
+  id          uuid primary key default uuid_generate_v4(),
+  name        text not null,
+  slug        text not null unique,
+  description text,
+  image_url   text,
+  sort_order  integer not null default 0,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists collections_slug_idx on collections (slug);
+create index if not exists collections_sort_idx on collections (sort_order) where is_active = true;
+
+drop trigger if exists collections_updated_at on collections;
+create trigger collections_updated_at
+  before update on collections
+  for each row execute function update_updated_at();
+
+-- site_settings: migrate legacy tables to key/value schema (safe to re-run)
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'site_settings'
+  ) then
+    -- Common legacy column names → rename in place
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'setting_key'
+    ) and not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'key'
+    ) then
+      alter table site_settings rename column setting_key to key;
+    end if;
+
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'setting_value'
+    ) and not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'value'
+    ) then
+      alter table site_settings rename column setting_value to value;
+    end if;
+
+    -- Still wrong shape (e.g. id/name/value rows) → recreate; defaults are re-seeded below
+    if not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'key'
+    ) or not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'site_settings' and column_name = 'value'
+    ) then
+      drop table site_settings;
+    end if;
+  end if;
+end $$;
+
+create table if not exists site_settings (
+  key        text primary key,
+  value      text,
+  updated_at timestamptz not null default now()
+);
+
+alter table site_settings add column if not exists value text;
+alter table site_settings add column if not exists updated_at timestamptz not null default now();
+
+drop trigger if exists site_settings_updated_at on site_settings;
+create trigger site_settings_updated_at
+  before update on site_settings
+  for each row execute function update_updated_at();
+
+alter table collections enable row level security;
+alter table site_settings enable row level security;
+
+drop policy if exists "Public can read active collections" on collections;
+create policy "Public can read active collections"
+  on collections for select using (is_active = true);
 
 -- MIGRATIONS (safe to re-run)
 alter table products add column if not exists price_aed  numeric(10,2);
 alter table products add column if not exists show_price boolean not null default true;
+alter table products add column if not exists collection_id uuid references collections (id) on delete set null;
+
+create index if not exists products_collection_idx on products (collection_id) where is_active = true;
+
+insert into collections (id, name, slug, description, sort_order, is_active) values
+  ('00000000-0000-0000-0000-000000000101', 'New Arrivals',      'new-arrivals',      'Latest additions to our wholesale catalog', 1, true),
+  ('00000000-0000-0000-0000-000000000102', 'Best Sellers',      'best-sellers',      'Most popular wholesale items',              2, true),
+  ('00000000-0000-0000-0000-000000000103', 'Accessories',       'accessories',       'Chargers, cables, earphones & more',        3, true),
+  ('00000000-0000-0000-0000-000000000104', 'Refurbished Deals', 'refurbished-deals', 'Grade A and certified refurbished',        4, false)
+on conflict (slug) do update set
+  name        = excluded.name,
+  description = excluded.description,
+  sort_order  = excluded.sort_order,
+  is_active   = excluded.is_active;
+
+insert into site_settings (key, value) values
+  ('store_name',           'BIG PHONE'),
+  ('store_tagline',        'Wholesale Mobile Phones & Devices'),
+  ('contact_email',        'sales@bigphone.ae'),
+  ('whatsapp_number',      '971500000000'),
+  ('whatsapp_message',     'Hello, I''m interested in a wholesale quote.'),
+  ('currency',             'AED'),
+  ('moq_display',          'show-all'),
+  ('rfq_notifications',    'true'),
+  ('notification_email',   'admin@bigphone.ae')
+on conflict (key) do nothing;

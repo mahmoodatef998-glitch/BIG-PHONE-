@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: 'BIG PHONE — UAE\'s Trusted B2B Mobile Marketplace',
     template: '%s | BIG PHONE',
   },
-  description: 'Buy and sell new, used, refurbished, and wholesale mobile devices from trusted suppliers across the UAE. 10K+ products, 500+ verified suppliers.',
+  description: 'Wholesale mobile devices from Dubai — brand new and refurbished iPhones, Samsung, Xiaomi and more. MOQ from 5 units, global export.',
   keywords: ['wholesale phones', 'refurbished smartphones', 'bulk mobile phones', 'B2B phones UAE', 'iPhone wholesale', 'Samsung wholesale', 'mobile marketplace UAE'],
   openGraph: {
     type: 'website',

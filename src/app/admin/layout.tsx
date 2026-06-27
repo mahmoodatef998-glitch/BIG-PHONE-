@@ -8,6 +8,7 @@ import {
   Users, Settings, LogOut, ExternalLink, ChevronRight, Layers,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { AdminToastProvider } from '@/components/admin/AdminToast';
 
 const NAV = [
   { href: '/admin',             label: 'Dashboard',    icon: LayoutDashboard, exact: true },
@@ -32,6 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
+    <AdminToastProvider>
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC' }}>
 
       {/* Sidebar */}
@@ -139,5 +141,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {children}
       </div>
     </div>
+    </AdminToastProvider>
   );
 }

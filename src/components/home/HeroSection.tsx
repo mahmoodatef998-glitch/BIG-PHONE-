@@ -6,10 +6,10 @@ import { useState } from 'react';
 import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
 
 const STATS = [
-  { Icon: Package,     value: '10K+', label: 'Products' },
-  { Icon: Users,       value: '500+', label: 'Verified Sellers' },
-  { Icon: Star,        value: '4.9★', label: 'Avg Rating' },
-  { Icon: ShieldCheck, value: '100%', label: 'Secure Payments' },
+  { Icon: Package,     value: '10K+', label: 'SKUs in Stock' },
+  { Icon: Users,       value: '50+',  label: 'Export Markets' },
+  { Icon: Star,        value: '4.9★', label: 'Client Rating' },
+  { Icon: ShieldCheck, value: '100%', label: 'Verified Stock' },
 ];
 
 export default function HeroSection() {
@@ -27,19 +27,19 @@ export default function HeroSection() {
               {/* Eyebrow */}
               <div className="hero-eyebrow">
                 <span className="hero-eyebrow-dot" />
-                UAE's #1 B2B Mobile Platform
+                UAE&apos;s Trusted B2B Wholesale Supplier
               </div>
 
               {/* Headline */}
               <h1 className="hero-heading">
-                The Ultimate<br />
-                <span className="hero-heading-accent">Mobile</span> Marketplace
+                Wholesale Mobile<br />
+                <span className="hero-heading-accent">Devices</span> from Dubai
               </h1>
 
               {/* Sub */}
               <p className="hero-sub">
-                Source new, used &amp; refurbished phones<br />
-                from 500+ verified UAE suppliers.
+                Brand new &amp; refurbished iPhones, Samsung, Xiaomi &amp; more.<br />
+                MOQ from 5 units · Global export · Quote within 2 hours.
               </p>
 
               {/* Search */}
@@ -84,7 +84,7 @@ export default function HeroSection() {
               <div className="hero-img-wrap">
                 <Image
                   src="/images/hero section.png"
-                  alt="iPhone Pro — BIG PHONE Marketplace"
+                  alt="iPhone Pro — BIG PHONE Wholesale"
                   width={716}
                   height={716}
                   priority

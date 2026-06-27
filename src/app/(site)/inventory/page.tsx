@@ -7,7 +7,7 @@ import InventoryFilters from '@/components/inventory/InventoryFilters';
 import { getProducts, getBrands, getProductsGroupedByBrand } from '@/lib/data';
 import type { Brand, Product } from '@/types';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Wholesale Mobile Phone Inventory | BIG PHONE',

@@ -45,6 +45,53 @@ const inputStyle: React.CSSProperties = {
   fontSize: '0.875rem', color: '#374151', background: '#fff', outline: 'none', minWidth: '220px',
 };
 
+function SaveBtn({
+  section, keys, color = '#FF6B00', states, onSave,
+}: {
+  section: string;
+  keys: string[];
+  color?: string;
+  states: Record<string, SaveState>;
+  onSave: (section: string, keys: string[]) => void;
+}) {
+  const st = states[section] ?? 'idle';
+  return (
+    <button onClick={() => onSave(section, keys)} disabled={st === 'saving'} style={{
+      display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+      padding: '0.5rem 1.25rem',
+      background: st === 'saved' ? '#16a34a' : st === 'error' ? '#dc2626' : color,
+      color: '#fff', border: 'none', borderRadius: '0.5rem',
+      fontSize: '0.875rem', fontWeight: 600, cursor: st === 'saving' ? 'not-allowed' : 'pointer',
+      transition: 'background 0.15s',
+    }}>
+      {st === 'saving' && <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />}
+      {st === 'saved' && <Check size={13} />}
+      {st === 'error' && <AlertCircle size={13} />}
+      {st === 'saving' ? 'Saving…' : st === 'saved' ? 'Saved!' : st === 'error' ? 'Failed — Retry' : 'Save Changes'}
+    </button>
+  );
+}
+
+function Toggle({
+  k, vals, onChange,
+}: {
+  k: string;
+  vals: Record<string, string>;
+  onChange: (key: string, value: string) => void;
+}) {
+  const on = vals[k] === 'true';
+  return (
+    <button type="button" role="switch" aria-checked={on}
+      onClick={() => onChange(k, on ? 'false' : 'true')}
+      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+      <div style={{ width: '44px', height: '24px', borderRadius: '9999px', background: on ? '#FF6B00' : '#CBD5E1', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+        <span style={{ position: 'absolute', top: '2px', left: on ? '22px' : '2px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block' }} />
+      </div>
+      <span style={{ fontSize: '0.875rem', color: '#374151' }}>{on ? 'Enabled' : 'Disabled'}</span>
+    </button>
+  );
+}
+
 export default function SettingsClient({ initialSettings }: Props) {
   const [vals, setVals] = useState<Record<string, string>>({ ...DEFAULTS, ...initialSettings });
   const [states, setStates] = useState<Record<string, SaveState>>({});
@@ -67,39 +114,6 @@ export default function SettingsClient({ initialSettings }: Props) {
       setStates(prev => ({ ...prev, [section]: 'error' }));
     }
   };
-
-  function SaveBtn({ section, keys, color = '#FF6B00' }: { section: string; keys: string[]; color?: string }) {
-    const st = states[section] ?? 'idle';
-    return (
-      <button onClick={() => save(section, keys)} disabled={st === 'saving'} style={{
-        display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-        padding: '0.5rem 1.25rem',
-        background: st === 'saved' ? '#16a34a' : st === 'error' ? '#dc2626' : color,
-        color: '#fff', border: 'none', borderRadius: '0.5rem',
-        fontSize: '0.875rem', fontWeight: 600, cursor: st === 'saving' ? 'not-allowed' : 'pointer',
-        transition: 'background 0.15s',
-      }}>
-        {st === 'saving' && <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />}
-        {st === 'saved' && <Check size={13} />}
-        {st === 'error' && <AlertCircle size={13} />}
-        {st === 'saving' ? 'Saving…' : st === 'saved' ? 'Saved!' : st === 'error' ? 'Failed — Retry' : 'Save Changes'}
-      </button>
-    );
-  }
-
-  function Toggle({ k }: { k: string }) {
-    const on = vals[k] === 'true';
-    return (
-      <button type="button" role="switch" aria-checked={on}
-        onClick={() => set(k, on ? 'false' : 'true')}
-        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-        <div style={{ width: '44px', height: '24px', borderRadius: '9999px', background: on ? '#FF6B00' : '#CBD5E1', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-          <span style={{ position: 'absolute', top: '2px', left: on ? '22px' : '2px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block' }} />
-        </div>
-        <span style={{ fontSize: '0.875rem', color: '#374151' }}>{on ? 'Enabled' : 'Disabled'}</span>
-      </button>
-    );
-  }
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -124,7 +138,7 @@ export default function SettingsClient({ initialSettings }: Props) {
             <input type="email" style={inputStyle} value={vals.contact_email ?? ''} onChange={e => set('contact_email', e.target.value)} />
           </SettingRow>
           <div style={{ padding: '0.875rem 1.25rem' }}>
-            <SaveBtn section="general" keys={['store_name', 'store_tagline', 'contact_email']} />
+            <SaveBtn section="general" keys={['store_name', 'store_tagline', 'contact_email']} states={states} onSave={save} />
           </div>
         </div>
 
@@ -137,7 +151,7 @@ export default function SettingsClient({ initialSettings }: Props) {
             <input style={{ ...inputStyle, minWidth: '300px' }} value={vals.whatsapp_message ?? ''} onChange={e => set('whatsapp_message', e.target.value)} />
           </SettingRow>
           <div style={{ padding: '0.875rem 1.25rem' }}>
-            <SaveBtn section="whatsapp" keys={['whatsapp_number', 'whatsapp_message']} color="#16a34a" />
+            <SaveBtn section="whatsapp" keys={['whatsapp_number', 'whatsapp_message']} color="#16a34a" states={states} onSave={save} />
           </div>
         </div>
 
@@ -159,20 +173,20 @@ export default function SettingsClient({ initialSettings }: Props) {
             </select>
           </SettingRow>
           <div style={{ padding: '0.875rem 1.25rem' }}>
-            <SaveBtn section="localization" keys={['currency', 'moq_display']} />
+            <SaveBtn section="localization" keys={['currency', 'moq_display']} states={states} onSave={save} />
           </div>
         </div>
 
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
           <SectionHeader icon={Bell} title="Notifications" />
           <SettingRow label="New RFQ email" description="Get emailed when someone submits a quote request">
-            <Toggle k="rfq_notifications" />
+            <Toggle k="rfq_notifications" vals={vals} onChange={set} />
           </SettingRow>
           <SettingRow label="Notification email" description="Where RFQ alerts are sent">
             <input type="email" style={inputStyle} value={vals.notification_email ?? ''} onChange={e => set('notification_email', e.target.value)} />
           </SettingRow>
           <div style={{ padding: '0.875rem 1.25rem' }}>
-            <SaveBtn section="notifications" keys={['rfq_notifications', 'notification_email']} />
+            <SaveBtn section="notifications" keys={['rfq_notifications', 'notification_email']} states={states} onSave={save} />
           </div>
         </div>
 

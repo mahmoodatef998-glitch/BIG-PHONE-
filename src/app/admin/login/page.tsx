@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import AdminLoginForm from './AdminLoginForm';
+
+export const metadata: Metadata = {
+  title: 'Staff Login',
+  description: 'Sign in to the BIG PHONE admin control panel.',
+  robots: { index: false, follow: false },
+};
 
 type Props = {
   searchParams: Promise<{ error?: string }>;

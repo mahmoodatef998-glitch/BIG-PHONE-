@@ -200,7 +200,7 @@ export const translations: Record<Lang, Translations> = {
     },
     categories: {
       smartphones: 'Smartphones', tablets: 'Tablets', accessories: 'Accessories', audio: 'Audio',
-      smartwatches: 'Smart Watches', earbuds: 'Earbuds', gaming: 'Gaming', laptops: 'Tablets & Laptops',
+      smartwatches: 'Smart Watches', earbuds: 'Earbuds & Audio', gaming: 'Gaming', laptops: 'Laptops',
       shopByCategory: 'Shop by Category', topCategories: 'Top Categories',
       smartphoneSub: 'iPhone & Android', tabletSub: 'iPad & Android', accessorySub: 'Cables & Chargers',
       audioSub: 'HiFi Headphones', watchSub: 'Apple & Samsung', gamingSub: 'Accessories & Gear', laptopSub: 'Mac & Windows', earbudsSub: 'AirPods & TWS',
@@ -360,7 +360,7 @@ export const translations: Record<Lang, Translations> = {
     },
     categories: {
       smartphones: 'هواتف', tablets: 'أجهزة لوحية', accessories: 'إكسسوارات', audio: 'صوتيات',
-      smartwatches: 'ساعات ذكية', earbuds: 'سماعات', gaming: 'إكسسوارات ألعاب', laptops: 'أجهزة لوحية',
+      smartwatches: 'ساعات ذكية', earbuds: 'سماعات وصوتيات', gaming: 'إكسسوارات ألعاب', laptops: 'لابتوب',
       shopByCategory: 'تسوق حسب الفئة', topCategories: 'أهم الفئات',
       smartphoneSub: 'iPhone وأندرويد', tabletSub: 'iPad وأندرويد', accessorySub: 'كابلات وشواحن',
       audioSub: 'سماعات HiFi', watchSub: 'Apple وSamsung', gamingSub: 'إكسسوارات', laptopSub: 'Mac وWindows', earbudsSub: 'AirPods ولاسلكي',

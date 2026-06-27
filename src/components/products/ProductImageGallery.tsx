@@ -49,7 +49,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
       <div className="product-gallery">
         <div className="product-gallery-stage">
           {fallback ?? (
-            <div className="product-gallery-empty">No image available</div>
+            <div className="product-gallery-empty">{t.common.imageComingSoon}</div>
           )}
         </div>
       </div>

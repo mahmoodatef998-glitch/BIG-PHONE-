@@ -72,7 +72,6 @@ const inp: React.CSSProperties = {
   fontSize: '0.875rem', color: '#111827', background: '#fff',
   outline: 'none', boxSizing: 'border-box',
 };
-const row2: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' };
 
 function SectionCard({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
@@ -225,6 +224,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
       }} />
 
       <div ref={drawerRef} role="dialog" aria-modal="true" aria-label={isNew ? 'Add Product' : product.model}
+        className="admin-product-drawer"
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: '520px', maxWidth: '100vw',
@@ -334,7 +334,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
               <label htmlFor="edit-name" style={labelStyle}>Product Name</label>
               <input id="edit-name" style={inp} value={form.name} onChange={e => set('name', e.target.value)} />
             </div>
-            <div style={{ ...row2, marginBottom: '0.875rem' }}>
+            <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-model" style={labelStyle}>Model</label>
                 <input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} />
@@ -344,7 +344,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                 <input id="edit-color" style={inp} value={form.color} onChange={e => set('color', e.target.value)} placeholder="e.g. Black" />
               </div>
             </div>
-            <div style={{ ...row2, marginBottom: '0.875rem' }}>
+            <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-brand" style={labelStyle}>Brand</label>
                 <select id="edit-brand" style={inp} value={form.brand_id} onChange={e => set('brand_id', e.target.value)}>
@@ -410,7 +410,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                 {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
               </p>
             </div>
-            <div style={{ ...row2, marginBottom: '0.875rem' }}>
+            <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label>
                 <input id="edit-stock" type="number" min="0" style={inp} value={form.stock_quantity} onChange={e => set('stock_quantity', e.target.value)} />
@@ -420,7 +420,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                 <input id="edit-moq" type="number" min="1" style={inp} value={form.moq} onChange={e => set('moq', e.target.value)} />
               </div>
             </div>
-            <div style={row2}>
+            <div className="admin-drawer-grid-2">
               <div>
                 <label htmlFor="edit-country" style={labelStyle}>Country of Origin</label>
                 <input id="edit-country" style={inp} value={form.country_of_origin} onChange={e => set('country_of_origin', e.target.value)} />
@@ -433,7 +433,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
           </SectionCard>
 
           <SectionCard icon={Cpu} title="Condition & Specs">
-            <div style={{ ...row2, marginBottom: '0.875rem' }}>
+            <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
                 <label htmlFor="edit-condition" style={labelStyle}>Condition</label>
                 <select id="edit-condition" style={inp} value={form.condition} onChange={e => set('condition', e.target.value as Condition)}>

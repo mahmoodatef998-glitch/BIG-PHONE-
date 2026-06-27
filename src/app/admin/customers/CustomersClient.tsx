@@ -66,25 +66,27 @@ export default function CustomersClient({ customers }: Props) {
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="admin-page-content">
+      <div className="admin-page-header">
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.025em' }}>Customers</h1>
           <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
             Wholesale buyers derived from RFQ submissions
           </p>
         </div>
-        <Link
-          href="/admin/rfqs"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-            padding: '0.5rem 1rem', borderRadius: '0.5rem',
-            background: '#FFF0E0', color: '#C2410C', border: '1px solid #FFD0A0',
-            fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none',
-          }}
-        >
-          View RFQ Inbox →
-        </Link>
+        <div className="admin-page-header-actions">
+          <Link
+            href="/admin/rfqs"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+              padding: '0.5rem 1rem', borderRadius: '0.5rem',
+              background: '#FFF0E0', color: '#C2410C', border: '1px solid #FFD0A0',
+              fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none',
+            }}
+          >
+            View RFQ Inbox →
+          </Link>
+        </div>
       </div>
 
       <div className="customers-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -145,8 +147,8 @@ export default function CustomersClient({ customers }: Props) {
       </div>
 
       <div className="customers-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '1.25rem' }}>
-        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
+        <div className="admin-table-card">
+          <div className="admin-table-scroll">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
@@ -302,12 +304,6 @@ export default function CustomersClient({ customers }: Props) {
 
       <style>{`
         .customers-row:hover { background: #FAFAFA; }
-        @media (max-width: 1024px) {
-          .customers-layout { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 768px) {
-          .customers-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
       `}</style>
     </div>
   );

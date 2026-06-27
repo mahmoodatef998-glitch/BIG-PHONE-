@@ -30,7 +30,7 @@ function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: 
 
 function SettingRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderBottom: '1px solid #F1F5F9' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderBottom: '1px solid #F1F5F9' }} className="admin-setting-row">
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A' }}>{label}</div>
         {description && <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.125rem' }}>{description}</div>}
@@ -116,7 +116,7 @@ export default function SettingsClient({ initialSettings }: Props) {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="admin-page-content">
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A' }}>Settings</h1>
         <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '0.25rem' }}>

@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
 import ProductDetailPanel from '@/components/products/ProductDetailPanel';
-import { cloudinaryUrl } from '@/lib/cloudinary';
+import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants } from '@/lib/data';
 
 export const revalidate = 60;
@@ -51,7 +50,6 @@ export default async function ProductPage(props: ProductPageProps) {
     fetchProducts({ brand: product.brand?.slug, limit: 5 }),
     getProductStorageVariants(product),
   ]);
-  const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 800, quality: 85 }) : null;
   const [bg1, bg2] = BRAND_GRADIENT[product.brand?.slug ?? ''] ?? ['#1A2332', '#2D3748'];
   const isTablet = product.category === 'tablet';
   const isAudio  = product.category === 'airpods';
@@ -107,75 +105,64 @@ export default async function ProductPage(props: ProductPageProps) {
         <div className="product-detail-grid">
           {/* Left: Image + Specs */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {/* Image area */}
-            <div style={{
-              background: '#fff',
-              border: '1.5px solid #DDE3EA',
-              borderRadius: '14px',
-              overflow: 'hidden',
-            }}>
-              <div style={{ position: 'relative', paddingBottom: '80%' }}>
-                {imgSrc ? (
-                  <Image
-                    src={imgSrc}
-                    alt={product.name}
-                    fill
-                    style={{ objectFit: 'contain', padding: '2rem', background: '#fff' }}
-                  />
-                ) : (
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: `linear-gradient(135deg, ${bg1}, ${bg2})`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {isAudio ? (
-                      <div style={{ display: 'flex', gap: '16px' }}>
-                        {[0, 1].map(i => (
-                          <div key={i} style={{
-                            width: '28px', height: '52px',
-                            background: 'rgba(255,255,255,0.15)',
-                            border: '2px solid rgba(255,255,255,0.4)',
-                            borderRadius: '14px',
-                          }} />
-                        ))}
-                      </div>
-                    ) : isTablet ? (
-                      <div style={{
-                        width: '110px', height: '140px',
-                        background: 'rgba(255,255,255,0.12)',
-                        border: '3px solid rgba(255,255,255,0.4)',
-                        borderRadius: '10px',
-                      }} />
-                    ) : (
-                      <div style={{
-                        width: '56px', height: '100px',
-                        background: 'rgba(255,255,255,0.12)',
-                        border: '3px solid rgba(255,255,255,0.4)',
-                        borderRadius: '12px', position: 'relative',
-                      }}>
-                        <div style={{
-                          position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)',
-                          width: '18px', height: '3px',
-                          background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
+            {/* Image gallery */}
+            <ProductImageGallery
+              key={product.id}
+              images={product.images}
+              alt={product.name}
+              fallback={(
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `linear-gradient(135deg, ${bg1}, ${bg2})`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {isAudio ? (
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      {[0, 1].map(i => (
+                        <div key={i} style={{
+                          width: '28px', height: '52px',
+                          background: 'rgba(255,255,255,0.15)',
+                          border: '2px solid rgba(255,255,255,0.4)',
+                          borderRadius: '14px',
                         }} />
-                        <div style={{
-                          position: 'absolute', bottom: '7px', left: '50%', transform: 'translateX(-50%)',
-                          width: '18px', height: '18px',
-                          border: '2px solid rgba(255,255,255,0.45)', borderRadius: '50%',
-                        }} />
-                      </div>
-                    )}
-                    <div style={{
-                      position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
-                      color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500,
-                      whiteSpace: 'nowrap',
-                    }}>
-                      Image coming soon
+                      ))}
                     </div>
+                  ) : isTablet ? (
+                    <div style={{
+                      width: '110px', height: '140px',
+                      background: 'rgba(255,255,255,0.12)',
+                      border: '3px solid rgba(255,255,255,0.4)',
+                      borderRadius: '10px',
+                    }} />
+                  ) : (
+                    <div style={{
+                      width: '56px', height: '100px',
+                      background: 'rgba(255,255,255,0.12)',
+                      border: '3px solid rgba(255,255,255,0.4)',
+                      borderRadius: '12px', position: 'relative',
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)',
+                        width: '18px', height: '3px',
+                        background: 'rgba(255,255,255,0.5)', borderRadius: '9999px',
+                      }} />
+                      <div style={{
+                        position: 'absolute', bottom: '7px', left: '50%', transform: 'translateX(-50%)',
+                        width: '18px', height: '18px',
+                        border: '2px solid rgba(255,255,255,0.45)', borderRadius: '50%',
+                      }} />
+                    </div>
+                  )}
+                  <div style={{
+                    position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
+                    color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                  }}>
+                    Image coming soon
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )}
+            />
 
             {/* Specifications */}
             {product.specifications && Object.keys(product.specifications).length > 0 && (

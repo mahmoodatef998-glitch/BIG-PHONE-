@@ -20,6 +20,11 @@ export default function FeaturedInventory({ products }: { products: Product[] })
     ? products.filter(FILTERS.find(f => f.key === filter)!.test)
     : products;
 
+  const viewAllHref =
+    filter === 'brand-new' ? '/inventory?condition=brand-new'
+    : filter === 'refurb' ? '/inventory?refurbished=1'
+    : '/inventory';
+
   return (
     <section className="section">
       <div className="container-site">
@@ -28,7 +33,7 @@ export default function FeaturedInventory({ products }: { products: Product[] })
             <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#FF6B00', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Featured</p>
             <h2 className="section-title">Featured Products</h2>
           </div>
-          <Link href="/inventory" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#FF6B00', textDecoration: 'none', whiteSpace: 'nowrap' }}>View All →</Link>
+          <Link href={viewAllHref} style={{ fontSize: '0.875rem', fontWeight: 600, color: '#FF6B00', textDecoration: 'none', whiteSpace: 'nowrap' }}>View All →</Link>
         </div>
 
         {/* Filter tabs */}
@@ -57,7 +62,7 @@ export default function FeaturedInventory({ products }: { products: Product[] })
         )}
 
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-          <Link href="/inventory" className="btn btn-outline btn-lg btn-pill">
+          <Link href={viewAllHref} className="btn btn-outline btn-lg btn-pill">
             Browse All Products
           </Link>
         </div>

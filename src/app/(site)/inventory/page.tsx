@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import ProductCard from '@/components/ui/ProductCard';
 import InventoryFilters from '@/components/inventory/InventoryFilters';
 import { getProducts, getBrands, getProductsGroupedByBrand } from '@/lib/data';
+import { parseProductFilters } from '@/lib/product-filters';
 import type { Brand, Product } from '@/types';
 
 export const revalidate = 60;
@@ -24,26 +25,25 @@ const BRAND_ACCENT: Record<string, string> = {
 };
 
 export default async function InventoryPage(props: {
-  searchParams: Promise<{ search?: string; brand?: string; condition?: string; category?: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const sp        = await props.searchParams;
-  const search    = sp.search    ?? '';
-  const brand     = sp.brand     ?? '';
-  const condition = sp.condition ?? '';
-  const category  = sp.category  ?? '';
+  const sp = await props.searchParams;
+  const filters = parseProductFilters(sp);
+  const search = filters.search ?? '';
+  const brand = filters.brand ?? '';
+  const condition = filters.condition ?? '';
+  const category = filters.category ?? '';
+  const refurbished = filters.refurbished ?? false;
+  const excludeBrand = filters.excludeBrand ?? '';
+  const collection = sp.collection ?? '';
 
-  const brands    = await getBrands();
-  const isFiltered = !!(search || brand || condition || category);
+  const brands = await getBrands();
+  const isFiltered = !!(
+    search || brand || condition || category || refurbished || excludeBrand || collection
+  );
 
   const [filteredProducts, groupedBrands] = await Promise.all([
-    isFiltered
-      ? getProducts({
-          ...(brand     && { brand }),
-          ...(condition && { condition }),
-          ...(search    && { search }),
-          ...(category  && { category }),
-        })
-      : Promise.resolve([] as Product[]),
+    isFiltered ? getProducts(filters) : Promise.resolve([] as Product[]),
     !isFiltered
       ? getProductsGroupedByBrand()
       : Promise.resolve([] as { brand: Brand; products: Product[]; total: number }[]),
@@ -78,9 +78,15 @@ export default async function InventoryPage(props: {
               className="form-input"
               style={{ paddingLeft: '2.5rem', background: '#F8FAFC' }}
             />
-            {brand     && <input type="hidden" name="brand"     value={brand} />}
-            {condition && <input type="hidden" name="condition" value={condition} />}
-            {category  && <input type="hidden" name="category"  value={category} />}
+            {brand     && <input type="hidden" name="brand"         value={brand} />}
+            {condition && <input type="hidden" name="condition"     value={condition} />}
+            {category  && <input type="hidden" name="category"      value={category} />}
+            {refurbished && <input type="hidden" name="refurbished" value="1" />}
+            {excludeBrand && <input type="hidden" name="excludeBrand" value={excludeBrand} />}
+            {collection && <input type="hidden" name="collection"   value={collection} />}
+            {filters.sortBy && filters.sortBy !== 'newest' && (
+              <input type="hidden" name="sort" value={filters.sortBy} />
+            )}
           </form>
         </div>
       </div>
@@ -95,8 +101,12 @@ export default async function InventoryPage(props: {
               const params   = new URLSearchParams();
               if (tab.slug) params.set('brand', tab.slug);
               if (condition) params.set('condition', condition);
-              if (category)  params.set('category',  category);
-              if (search)    params.set('search',     search);
+              if (category) params.set('category', category);
+              if (refurbished) params.set('refurbished', '1');
+              if (excludeBrand) params.set('excludeBrand', excludeBrand);
+              if (collection) params.set('collection', collection);
+              if (search) params.set('search', search);
+              if (filters.sortBy && filters.sortBy !== 'newest') params.set('sort', filters.sortBy);
               return (
                 <Link
                   key={tab.slug}

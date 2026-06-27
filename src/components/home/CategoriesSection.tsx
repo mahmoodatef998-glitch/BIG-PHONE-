@@ -216,11 +216,11 @@ function AccessoriesSVG() {
 const CATS = [
   { label: 'Smartphones',  sub: 'iPhone & Android',  href: '/inventory?category=smartphone', color: '#FF6B00', bg: '#FFF3E8', Svg: SmartphoneSVG },
   { label: 'Tablets',      sub: 'iPad & Android',    href: '/inventory?category=tablet',     color: '#3B82F6', bg: '#EFF6FF', Svg: TabletSVG },
-  { label: 'Laptops',      sub: 'Mac & Windows',     href: '/inventory?category=laptop',     color: '#10B981', bg: '#ECFDF5', Svg: LaptopSVG },
+  { label: 'Laptops',      sub: 'Mac & Windows',     href: '/inventory?category=tablet',     color: '#10B981', bg: '#ECFDF5', Svg: LaptopSVG },
   { label: 'Earbuds',      sub: 'AirPods & TWS',     href: '/inventory?category=airpods',    color: '#F59E0B', bg: '#FFFBEB', Svg: EarbudsSVG },
   { label: 'Smartwatches', sub: 'Apple & Samsung',   href: '/inventory?category=smartwatch', color: '#EF4444', bg: '#FEF2F2', Svg: WatchSVG },
-  { label: 'Gaming',       sub: 'Consoles & More',   href: '/inventory?category=gaming',     color: '#8B5CF6', bg: '#F5F3FF', Svg: GamingSVG },
-  { label: 'Audio',        sub: 'HiFi Headphones',   href: '/inventory?category=audio',      color: '#EC4899', bg: '#FDF2F8', Svg: AudioSVG },
+  { label: 'Gaming',       sub: 'Consoles & More',   href: '/inventory?category=accessory',  color: '#8B5CF6', bg: '#F5F3FF', Svg: GamingSVG },
+  { label: 'Audio',        sub: 'HiFi Headphones',   href: '/inventory?category=airpods',      color: '#EC4899', bg: '#FDF2F8', Svg: AudioSVG },
   { label: 'Accessories',  sub: 'Cables & Chargers', href: '/inventory?category=accessory',  color: '#64748B', bg: '#F8FAFC', Svg: AccessoriesSVG },
 ];
 

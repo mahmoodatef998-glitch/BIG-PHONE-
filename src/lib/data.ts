@@ -1,6 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { Product, Brand, RFQ, Collection } from "@/types";
+import {
+  REFURB_CONDITIONS,
+  applyProductFilters,
+  applyProductSort,
+  type ProductQueryFilters,
+} from '@/lib/product-filters';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -95,25 +101,32 @@ const MOCK_COLLECTIONS: Collection[] = [
 
 // ─── Public functions (anon key) ───────────────────────────────────────────────
 
-export async function getProducts(filters?: Partial<{
-  brand: string; condition: string; category: string; featured: boolean; search: string; limit: number;
-}>): Promise<Product[]> {
+export type { ProductQueryFilters } from '@/lib/product-filters';
+
+async function resolveCollectionId(slugOrId: string): Promise<string | null> {
   if (!USE_SUPABASE) {
-    let products = [...MOCK_PRODUCTS];
-    if (filters?.brand)     products = products.filter(p => p.brand?.slug === filters.brand);
-    if (filters?.condition) products = products.filter(p => p.condition === filters.condition);
-    if (filters?.category)  products = products.filter(p => p.category === filters.category);
-    if (filters?.featured)  products = products.filter(p => p.is_featured);
-    if (filters?.search) {
-      const q = filters.search.toLowerCase();
-      products = products.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.model.toLowerCase().includes(q) ||
-        (p.brand?.name.toLowerCase().includes(q) ?? false)
-      );
-    }
-    if (filters?.limit) products = products.slice(0, filters.limit);
-    return products.filter(p => p.is_active);
+    return MOCK_COLLECTIONS.find(c => c.slug === slugOrId || c.id === slugOrId)?.id ?? null;
+  }
+  const { data, error } = await db()
+    .from('collections')
+    .select('id')
+    .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
+    .maybeSingle();
+  if (error || !data) return null;
+  return (data as { id: string }).id;
+}
+
+export async function getProducts(filters?: ProductQueryFilters): Promise<Product[]> {
+  const resolvedFilters = { ...(filters ?? {}) };
+
+  if (resolvedFilters.collection) {
+    const collectionId = await resolveCollectionId(resolvedFilters.collection);
+    if (!collectionId) return [];
+    resolvedFilters.collection = collectionId;
+  }
+
+  if (!USE_SUPABASE) {
+    return applyProductFilters(MOCK_PRODUCTS, resolvedFilters);
   }
 
   let query = db()
@@ -122,20 +135,42 @@ export async function getProducts(filters?: Partial<{
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
-  if (filters?.condition) query = query.eq('condition', filters.condition);
-  if (filters?.category)  query = query.eq('category', filters.category);
-  if (filters?.featured)  query = query.eq('is_featured', true);
-  if (filters?.search) {
-    const q = filters.search;
+  if (resolvedFilters.brand) {
+    const brand = await getBrandBySlug(resolvedFilters.brand);
+    if (!brand) return [];
+    query = query.eq('brand_id', brand.id);
+  }
+
+  if (resolvedFilters.excludeBrand) {
+    const brand = await getBrandBySlug(resolvedFilters.excludeBrand);
+    if (brand) query = query.neq('brand_id', brand.id);
+  }
+
+  if (resolvedFilters.refurbished) {
+    query = query.in('condition', [...REFURB_CONDITIONS]);
+  } else if (resolvedFilters.conditions?.length) {
+    query = query.in('condition', resolvedFilters.conditions);
+  } else if (resolvedFilters.condition) {
+    query = query.eq('condition', resolvedFilters.condition);
+  }
+
+  if (resolvedFilters.category) query = query.eq('category', resolvedFilters.category);
+  if (resolvedFilters.collection) query = query.eq('collection_id', resolvedFilters.collection);
+  if (resolvedFilters.featured) query = query.eq('is_featured', true);
+
+  if (resolvedFilters.search) {
+    const q = resolvedFilters.search;
     query = query.or(`name.ilike.%${q}%,model.ilike.%${q}%`);
   }
-  if (filters?.limit) query = query.limit(filters.limit);
+
+  if (resolvedFilters.limit) query = query.limit(resolvedFilters.limit);
 
   const { data, error } = await query;
   if (error) { console.error('[getProducts]', error.message); return []; }
 
   let products = (data ?? []) as Product[];
-  if (filters?.brand) products = products.filter(p => (p.brand as Brand)?.slug === filters.brand);
+  products = applyProductSort(products, resolvedFilters.sortBy);
+  if (resolvedFilters.limit) products = products.slice(0, resolvedFilters.limit);
   return products;
 }
 

@@ -175,7 +175,7 @@ export default function PopularListings({ products }: { products: Product[] }) {
               accentColor="#10B981"
               accentBg="#F0FDF4"
               products={refurbishedPhones}
-              href="/inventory?condition=refurbished-grade-a&category=smartphone"
+              href="/inventory?brand=apple&category=smartphone&refurbished=1"
             />
             <ListingSection
               title="New Phones"
@@ -183,7 +183,7 @@ export default function PopularListings({ products }: { products: Product[] }) {
               accentColor="#3B82F6"
               accentBg="#EFF6FF"
               products={newPhones}
-              href="/inventory?condition=brand-new"
+              href="/inventory?condition=brand-new&excludeBrand=apple"
             />
           </div>
         </div>

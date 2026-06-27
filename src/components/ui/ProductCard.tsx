@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
 import { ConditionBadge } from './Badge';
-import { cloudinaryUrl } from '@/lib/cloudinary';
+import { productImageUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
@@ -46,8 +46,12 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
 export default function ProductCard({ product }: { product: Product }) {
   const { t, lang } = useLanguage();
   const [imgFailed, setImgFailed] = useState(false);
+  const [useDirectUrl, setUseDirectUrl] = useState(false);
   const waLink = buildWhatsAppLink(lang, 'productInquiry', { name: product.name }, WHATSAPP);
-  const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
+  const rawSrc = product.images[0] ?? '';
+  const imgSrc = rawSrc
+    ? productImageUrl(rawSrc, { width: 400, quality: 85 }, useDirectUrl)
+    : null;
   const isInStock  = product.stock_quantity > 0;
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 15;
 
@@ -62,7 +66,13 @@ export default function ProductCard({ product }: { product: Product }) {
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               style={{ objectFit: 'contain', padding: '0.75rem' }}
-              onError={() => setImgFailed(true)}
+              onError={() => {
+                if (!useDirectUrl && rawSrc) {
+                  setUseDirectUrl(true);
+                  return;
+                }
+                setImgFailed(true);
+              }}
             />
           ) : (
             <DevicePlaceholder brandSlug={product.brand?.slug} category={product.category} />

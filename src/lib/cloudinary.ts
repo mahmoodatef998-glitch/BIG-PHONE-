@@ -27,3 +27,14 @@ export function cloudinaryUrl(
 
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${t.join(',')}/${src}`;
 }
+
+/** Use direct URL when Cloudinary proxy fails or is not configured. */
+export function productImageUrl(
+  src: string,
+  opts: { width?: number; height?: number; quality?: number } = {},
+  preferDirect = false,
+): string {
+  if (!src) return '';
+  if (preferDirect || !isCloudinaryConfigured()) return src;
+  return cloudinaryUrl(src, opts);
+}

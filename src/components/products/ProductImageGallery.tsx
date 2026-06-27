@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cloudinaryUrl } from '@/lib/cloudinary';
+import { productImageUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
@@ -17,6 +17,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
   const slides = images.filter(Boolean);
   const [index, setIndex] = useState(0);
   const [failedSrcs, setFailedSrcs] = useState<Set<string>>(() => new Set());
+  const [directSrcs, setDirectSrcs] = useState<Set<string>>(() => new Set());
   const touchStartX = useRef(0);
 
   const count = slides.length;
@@ -57,7 +58,11 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
     );
   }
 
-  const mainSrc = cloudinaryUrl(slides[activeIndex], { width: 900, quality: 85 });
+  const mainSrc = productImageUrl(
+    slides[activeIndex],
+    { width: 900, quality: 85 },
+    directSrcs.has(slides[activeIndex]),
+  );
   const mainFailed = failedSrcs.has(slides[activeIndex]);
 
   return (
@@ -83,7 +88,12 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
             priority={activeIndex === 0}
             className="product-gallery-image"
             onError={() => {
-              setFailedSrcs(prev => new Set(prev).add(slides[activeIndex]));
+              const src = slides[activeIndex];
+              if (!directSrcs.has(src)) {
+                setDirectSrcs(prev => new Set(prev).add(src));
+                return;
+              }
+              setFailedSrcs(prev => new Set(prev).add(src));
             }}
           />
         )}
@@ -131,7 +141,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
 
           <div className="product-gallery-thumbs">
             {slides.map((src, i) => {
-              const thumbSrc = cloudinaryUrl(src, { width: 120, quality: 75 });
+              const thumbSrc = productImageUrl(src, { width: 120, quality: 75 }, directSrcs.has(src));
               const thumbFailed = failedSrcs.has(src);
               return (
                 <button
@@ -152,6 +162,10 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
                       sizes="72px"
                       className="product-gallery-thumb-img"
                       onError={() => {
+                        if (!directSrcs.has(src)) {
+                          setDirectSrcs(prev => new Set(prev).add(src));
+                          return;
+                        }
                         setFailedSrcs(prev => new Set(prev).add(src));
                       }}
                     />

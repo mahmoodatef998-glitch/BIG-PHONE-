@@ -220,29 +220,24 @@ function AccessoriesSVG() {
 const CAT_DEFS = [
   { key: 'smartphones' as const,  href: '/inventory?category=smartphone', color: '#FF6B00', bg: '#FFF3E8', Svg: SmartphoneSVG },
   { key: 'tablets' as const,      href: '/inventory?category=tablet',     color: '#3B82F6', bg: '#EFF6FF', Svg: TabletSVG },
-  { key: 'laptops' as const,      href: '/inventory?category=tablet',     color: '#10B981', bg: '#ECFDF5', Svg: LaptopSVG },
   { key: 'earbuds' as const,      href: '/inventory?category=airpods',    color: '#F59E0B', bg: '#FFFBEB', Svg: EarbudsSVG },
   { key: 'smartwatches' as const, href: '/inventory?category=smartwatch', color: '#EF4444', bg: '#FEF2F2', Svg: WatchSVG },
-  { key: 'gaming' as const,       href: '/inventory?category=accessory',  color: '#8B5CF6', bg: '#F5F3FF', Svg: GamingSVG },
-  { key: 'audio' as const,        href: '/inventory?category=airpods',    color: '#EC4899', bg: '#FDF2F8', Svg: AudioSVG },
   { key: 'accessories' as const,  href: '/inventory?category=accessory',  color: '#64748B', bg: '#F8FAFC', Svg: AccessoriesSVG },
-];
+] as const;
 
 const SUB_KEYS: Record<(typeof CAT_DEFS)[number]['key'], keyof Translations['categories']> = {
   smartphones: 'smartphoneSub',
   tablets: 'tabletSub',
-  laptops: 'laptopSub',
   earbuds: 'earbudsSub',
   smartwatches: 'watchSub',
-  gaming: 'gamingSub',
-  audio: 'audioSub',
   accessories: 'accessorySub',
 };
 
 export default function CategoriesSection() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const cats = CAT_DEFS.map(({ key, href, color, bg, Svg }) => ({
+    key,
     label: t.categories[key],
     sub: t.categories[SUB_KEYS[key]],
     href,
@@ -265,9 +260,9 @@ export default function CategoriesSection() {
         </div>
 
         <div className="cat-grid">
-          {cats.map(({ label, sub, href, color, bg, Svg }) => (
+          {cats.map(({ key, label, sub, href, color, bg, Svg }) => (
             <div
-              key={label}
+              key={`${lang}-${key}`}
               className="cat-slot"
               style={{ '--cc': color, '--cc-bg': bg } as CSSProperties}
             >
@@ -297,7 +292,7 @@ export default function CategoriesSection() {
           .cat-grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
         }
         @media (min-width: 1024px) {
-          .cat-grid { grid-template-columns: repeat(8, 1fr); gap: 1rem 0.875rem; }
+          .cat-grid { grid-template-columns: repeat(5, 1fr); gap: 1rem 0.875rem; }
         }
 
         /* ── Slot (flex column: device → card) ────── */

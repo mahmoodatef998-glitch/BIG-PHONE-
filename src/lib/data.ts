@@ -8,6 +8,7 @@ import {
   type ProductQueryFilters,
 } from '@/lib/product-filters';
 import { buildStorageVariants, type StorageVariant } from '@/lib/product-variants';
+import { PRODUCT_IMAGES } from '@/lib/product-images';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -86,6 +87,11 @@ const MOCK_PRODUCTS: Product[] = [
   { id: "ac10", brand_id: "2", name: "Samsung USB-C to USB-C Cable – 5A / 1 Meter",     slug: "samsung-usb-c-cable-5a-1m",                    model: "USB-C Cable 5A 1m",           category: "accessory", subcategory: "cables",   condition: "brand-new", storage: null, color: null, battery_health: null, warranty: "12 Months", stock_quantity: 0, moq: 10, country_of_origin: "UAE", description: "Built for high-speed charging and powerful performance.",                                                            specifications: { "Output": "5A Ultra-Fast", "Compatible With": "Samsung, Tablets, Laptops", "Selling Points": "5A support · High speed · Durable" },        images: [`${SAM}/pk/ep-da705bbegww/gallery/pk-usb-c-to-usb-c-cable-1m-ep-da705bbegww-thumb-548717960`, `${SAM}/pk/ep-da705bbegww/gallery/pk-usb-c-to-usb-c-cable-1m-ep-da705bbegww-548717960`],  is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1], price_aed: null, show_price: true },
   { id: "ac11", brand_id: "2", name: "Samsung 45W Power Adapter with 5A Cable",          slug: "samsung-45w-adapter-with-5a-cable",             model: "45W Adapter + 5A Cable",      category: "accessory", subcategory: "chargers", condition: "brand-new", storage: null, color: "Black", battery_health: null, warranty: "12 Months", stock_quantity: 0, moq: 5,  country_of_origin: "UAE", description: "The complete fast charging solution for power users.",                                                               specifications: { "Output": "45W USB-C + 5A Cable", "Compatible With": "Samsung Galaxy Ultra, Tablets, USB-C laptops", "Selling Points": "Cable included · Powerful 45W" }, images: [`${SAM}/pk/ep-t4511xbegww/gallery/pk-45w-power-adapter-ep-t4511-ep-t4511xbegww-thumb-544023430`, `${SAM}/pk/ep-da705bbegww/gallery/pk-usb-c-to-usb-c-cable-1m-ep-da705bbegww-thumb-548717960`],is_featured: false, is_active: true, created_at: "2024-01-01", updated_at: "2024-01-01", brand: AB[1], price_aed: null, show_price: true },
 ];
+
+for (const product of MOCK_PRODUCTS) {
+  const images = PRODUCT_IMAGES[product.slug];
+  if (images) product.images = images;
+}
 
 const MOCK_RFQS: RFQ[] = [
   { id: '1', company_name: 'Al Baraka Mobile', contact_person: 'Ahmed Al-Rashid', country: 'Saudi Arabia', phone: '+966501234567', email: 'ahmed@albaraka.sa', product_interest: 'iPhone 15 Pro 128GB Grade A', quantity: 50, message: 'Need urgent delivery to Riyadh', status: 'new', created_at: '2024-01-15T10:30:00Z' },

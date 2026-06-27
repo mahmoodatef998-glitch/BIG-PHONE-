@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, MessageCircle, Star } from 'lucide-react';
+import { Heart, MessageCircle } from 'lucide-react';
 import { ConditionBadge } from './Badge';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -78,13 +78,6 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h3>
         </Link>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
-          {[1,2,3,4,5].map(i => (
-            <Star key={i} size={11} fill={i <= 4 ? '#F59E0B' : 'none'} color={i <= 4 ? '#F59E0B' : '#D1D5DB'} />
-          ))}
-          <span style={{ fontSize: '0.6875rem', color: '#9CA3AF', fontWeight: 500, marginLeft: '0.25rem' }}>(4.0)</span>
-        </div>
 
         {(product.price_aed && product.show_price !== false) ? (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.125rem' }}>

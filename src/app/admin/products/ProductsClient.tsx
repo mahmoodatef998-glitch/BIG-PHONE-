@@ -127,7 +127,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
           delete: `${selectedIds.size} product(s) deleted`,
           activate: `${selectedIds.size} product(s) activated`,
           deactivate: `${selectedIds.size} product(s) hidden`,
-          assign_section: `${selectedIds.size} product(s) assigned to section`,
+          'set-collection': `${selectedIds.size} product(s) assigned to section`,
         };
         toastSuccess(labels[action] ?? 'Bulk action completed');
         router.refresh();

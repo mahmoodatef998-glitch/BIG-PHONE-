@@ -56,6 +56,7 @@ export async function middleware(request: NextRequest) {
     if (isAdminRoute && !isAdminLogin && !isAuthorized) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
+      if (user && adminEmail) url.searchParams.set('error', 'unauthorized');
       return NextResponse.redirect(url);
     }
 

@@ -139,6 +139,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
       return;
     }
 
+    try {
     let finalImages = [...form.images];
     if (newFiles.length > 0) {
       setUploadProgress(`Uploading ${newFiles.length} image${newFiles.length > 1 ? 's' : ''}…`);
@@ -190,20 +191,30 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
     }
 
     if (!isNew && syncVariants && finalImages.length > 0) {
-      await fetch('/api/admin/products/save', {
+      const syncRes = await fetch('/api/admin/products/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'sync-variants',
-          payload: { images: finalImages, model: product.model, exclude_id: product.id },
+          payload: { images: finalImages, model: form.model.trim() || product.model, exclude_id: product.id },
         }),
       });
+      const syncJson = await syncRes.json();
+      if (!syncJson.ok) {
+        setStatus('error');
+        setErrorMsg(syncJson.error ?? 'Product saved but variant sync failed');
+        return;
+      }
     }
 
     setStatus('success');
     onSaved?.(isNew ? 'Product created' : 'Product saved');
     router.refresh();
     setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
+    } catch {
+      setStatus('error');
+      setErrorMsg('Network error — please try again');
+    }
   };
 
   return (

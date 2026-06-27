@@ -10,7 +10,10 @@ export const metadata: Metadata = {
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
-export default function RFQPage() {
+export default async function RFQPage(props: {
+  searchParams: Promise<{ product?: string }>;
+}) {
+  const { product: defaultProduct = '' } = await props.searchParams;
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
 
@@ -61,7 +64,7 @@ export default function RFQPage() {
               <h2 style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', margin: '0 0 0.25rem' }}>Your Quotation Details</h2>
               <p style={{ fontSize: '0.8125rem', color: '#9CA3AF', margin: 0 }}>All fields marked * are required</p>
             </div>
-            <RFQForm />
+            <RFQForm key={defaultProduct} defaultProduct={defaultProduct} />
           </div>
 
           {/* ── Sidebar ── */}

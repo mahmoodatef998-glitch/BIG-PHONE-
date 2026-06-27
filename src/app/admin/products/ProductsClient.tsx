@@ -193,9 +193,8 @@ export default function ProductsClient({ products, brands, collections }: Props)
 
   return (
     <>
-      <div style={{ padding: '2rem' }}>
-
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '1rem' }}>
+      <div className="admin-page-content">
+        <div className="admin-page-header">
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.025em' }}>Products</h1>
             <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
@@ -207,26 +206,24 @@ export default function ProductsClient({ products, brands, collections }: Props)
               )}
             </p>
           </div>
-          <button
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.625rem 1.125rem',
-              background: '#FF6B00', color: '#fff',
-              border: 'none', borderRadius: '0.5rem', fontWeight: 700,
-              fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
-              boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
-            }}
-            onClick={() => setEditingProduct(makeEmpty(brands))}
-          >
-            <Plus size={15} /> Add Product
-          </button>
+          <div className="admin-page-header-actions">
+            <button
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.625rem 1.125rem',
+                background: '#FF6B00', color: '#fff',
+                border: 'none', borderRadius: '0.5rem', fontWeight: 700,
+                fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
+              }}
+              onClick={() => setEditingProduct(makeEmpty(brands))}
+            >
+              <Plus size={15} /> Add Product
+            </button>
+          </div>
         </div>
 
-        <div style={{
-          background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem',
-          padding: '0.875rem 1.25rem', marginBottom: '1.25rem',
-          display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center',
-        }}>
+        <div className="admin-filter-bar">
           <div style={{ position: 'relative', flex: 1, minWidth: '180px' }}>
             <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input
@@ -271,14 +268,7 @@ export default function ProductsClient({ products, brands, collections }: Props)
 
         {/* Bulk action bar */}
         {someSelected && (
-          <div style={{
-            position: 'sticky', top: '1rem', zIndex: 30,
-            background: '#1E293B', color: '#fff',
-            borderRadius: '0.75rem', padding: '0.75rem 1.25rem',
-            marginBottom: '0.75rem',
-            display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-          }}>
+          <div className="admin-bulk-bar">
             <span style={{ fontSize: '0.875rem', fontWeight: 700, marginRight: '0.25rem' }}>
               {selectedIds.size} selected
             </span>
@@ -335,8 +325,8 @@ export default function ProductsClient({ products, brands, collections }: Props)
           </div>
         )}
 
-        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
+        <div className="admin-table-card">
+          <div className="admin-table-scroll">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>

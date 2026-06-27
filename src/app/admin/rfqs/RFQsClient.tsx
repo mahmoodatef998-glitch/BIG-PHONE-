@@ -60,13 +60,13 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="admin-page-content">
+      <div className="admin-page-header">
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A' }}>RFQ Requests</h1>
           <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '0.25rem' }}>{filtered.length} of {rfqs.length} requests</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="admin-page-header-actions">
           {FILTER_OPTIONS.map(s => (
             <button key={s} type="button" onClick={() => setActiveFilter(s)}
               style={{
@@ -137,7 +137,7 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Calendar size={13} /> {new Date(rfq.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
+                <div className="admin-rfq-actions" style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
                   <select value={rfq.status}
                     onChange={async e => {
                       const s = e.target.value as RFQ['status'];

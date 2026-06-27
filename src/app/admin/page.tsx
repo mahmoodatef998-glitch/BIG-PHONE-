@@ -82,7 +82,7 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div className="admin-dashboard" style={{ padding: '1.75rem 2rem' }}>
+    <div className="admin-dashboard admin-page-content">
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -378,19 +378,8 @@ export default async function AdminDashboard() {
       </div>
 
       <style>{`
-        @media (max-width: 1280px) {
-          .admin-analytics-grid { grid-template-columns: 1fr 1fr !important; }
-          .admin-analytics-grid > :nth-child(2) { grid-column: 1 / -1; }
-        }
-        @media (max-width: 1024px) {
-          .admin-dashboard { padding: 1.25rem 1rem !important; }
-          .admin-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .admin-main-grid { grid-template-columns: 1fr !important; }
-          .admin-analytics-grid { grid-template-columns: 1fr !important; }
-          .admin-analytics-grid > :nth-child(2) { grid-column: auto; }
-        }
-        @media (max-width: 640px) {
-          .admin-kpi-grid { grid-template-columns: 1fr !important; }
+        @media (min-width: 1280px) {
+          .admin-analytics-grid { grid-template-columns: 1fr 1.6fr 1fr; }
         }
       `}</style>
     </div>

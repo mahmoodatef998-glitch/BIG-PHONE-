@@ -152,23 +152,25 @@ export default function CollectionsClient({ collections, productCountByCollectio
 
   return (
     <>
-      <div style={{ padding: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+      <div className="admin-page-content">
+        <div className="admin-page-header">
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.025em' }}>Sections</h1>
             <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
               Organize your storefront — New Arrivals, Best Sellers, Accessories, etc.
             </p>
           </div>
-          <button onClick={openNew} style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
-            border: 'none', borderRadius: '0.5rem', fontWeight: 700,
-            fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
-            boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
-          }}>
-            <Plus size={15} /> Add Section
-          </button>
+          <div className="admin-page-header-actions">
+            <button onClick={openNew} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
+              border: 'none', borderRadius: '0.5rem', fontWeight: 700,
+              fontSize: '0.875rem', cursor: 'pointer', flexShrink: 0,
+              boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
+            }}>
+              <Plus size={15} /> Add Section
+            </button>
+          </div>
         </div>
 
         {collections.length === 0 ? (

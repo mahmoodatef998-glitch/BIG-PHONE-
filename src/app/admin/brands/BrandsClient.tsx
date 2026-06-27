@@ -179,23 +179,25 @@ export default function BrandsClient({ brands, productCountByBrand, stockByBrand
 
   return (
     <>
-      <div style={{ padding: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+      <div className="admin-page-content">
+        <div className="admin-page-header">
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Brands</h1>
             <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '0.25rem' }}>
               {brands.length} brands · manage catalog brands and storefront pages
             </p>
           </div>
-          <button type="button" onClick={openNew} style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
-            border: 'none', borderRadius: '0.5rem', fontWeight: 700,
-            fontSize: '0.875rem', cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
-          }}>
-            <Plus size={15} /> Add Brand
-          </button>
+          <div className="admin-page-header-actions">
+            <button type="button" onClick={openNew} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.625rem 1.125rem', background: '#FF6B00', color: '#fff',
+              border: 'none', borderRadius: '0.5rem', fontWeight: 700,
+              fontSize: '0.875rem', cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(255,107,0,0.3)',
+            }}>
+              <Plus size={15} /> Add Brand
+            </button>
+          </div>
         </div>
 
         {brands.length === 0 ? (

@@ -8,6 +8,7 @@ import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import RFQForm from '@/components/rfq/RFQForm';
 import { conditionLabel } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { buildWhatsAppLink } from '@/lib/whatsapp';
 import type { Product } from '@/types';
 import type { StorageVariant } from '@/lib/product-variants';
 import { productToStorageVariant } from '@/lib/product-variants';
@@ -23,7 +24,7 @@ function findVariant(variants: StorageVariant[], slug: string, fallback: Storage
 }
 
 export default function ProductDetailPanel({ product, variants, whatsappNumber }: Props) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const initial = useMemo(
     () => findVariant(variants, product.slug, productToStorageVariant(product)),
@@ -39,8 +40,11 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
     }
   };
 
-  const waMessage = encodeURIComponent(
-    `Hi, I'd like a wholesale quote for: ${selected.name}${selected.storage ? ` ${selected.storage}` : ''}. Quantity: `,
+  const waLink = buildWhatsAppLink(
+    lang,
+    'productQuote',
+    { name: `${selected.name}${selected.storage ? ` ${selected.storage}` : ''}` },
+    whatsappNumber,
   );
 
   const showPrice = selected.show_price !== false && selected.price_aed != null && selected.price_aed > 0;
@@ -158,7 +162,7 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
         </div>
 
         <a
-          href={`https://wa.me/${whatsappNumber}?text=${waMessage}`}
+          href={waLink}
           target="_blank"
           rel="noopener noreferrer"
           aria-disabled={isOutOfStock}

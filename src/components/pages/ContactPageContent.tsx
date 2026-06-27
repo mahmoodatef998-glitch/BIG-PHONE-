@@ -13,7 +13,7 @@ export default function ContactPageContent() {
 
   return (
     <div>
-      <div style={{ background: '#FAFAFA', borderBottom: '1px solid #EAEAEA', padding: '2.5rem 0' }}>
+      <div className="contact-page-hero" style={{ background: '#FAFAFA', borderBottom: '1px solid #EAEAEA', padding: '2.5rem 0' }}>
         <div className="container-site">
           <nav style={{ fontSize: '0.8125rem', color: '#9CA3AF', marginBottom: '1rem' }}>
             <Link href="/" style={{ color: '#FF6B00' }}>{t.common.home}</Link>

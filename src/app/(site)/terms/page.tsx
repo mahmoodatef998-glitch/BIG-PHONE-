@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { getServerLang } from '@/lib/server-lang';
+import { termsMetadata } from '@/lib/page-metadata';
 import LegalPageContent from '@/components/legal/LegalPageContent';
 
-export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description: 'BIG PHONE terms of service for B2B wholesale buyers.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang();
+  return termsMetadata(lang);
+}
 
 export default function TermsPage() {
   return <LegalPageContent variant="terms" />;

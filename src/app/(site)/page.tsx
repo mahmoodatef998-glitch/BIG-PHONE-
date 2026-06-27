@@ -22,7 +22,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <main className="mobile-nav-spacer">
+    <>
       <HeroSection />
       <LiveStockTicker products={tickerProducts} />
       <BrandsGrid brands={brands} />
@@ -33,6 +33,6 @@ export default async function HomePage() {
       <TrustSection />
       <WhyChooseUs />
       <CTASection />
-    </main>
+    </>
   );
 }

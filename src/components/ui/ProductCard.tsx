@@ -7,6 +7,7 @@ import { ConditionBadge } from './Badge';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
+import { buildWhatsAppLink } from '@/lib/whatsapp';
 import type { Product } from '@/types';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -42,9 +43,8 @@ function DevicePlaceholder({ brandSlug, category }: { brandSlug?: string; catego
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { t } = useLanguage();
-  const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name}. Can you provide pricing for wholesale quantity?`);
-  const waLink = `https://wa.me/${WHATSAPP}?text=${waMessage}`;
+  const { t, lang } = useLanguage();
+  const waLink = buildWhatsAppLink(lang, 'productInquiry', { name: product.name }, WHATSAPP);
   const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 400, quality: 85 }) : null;
   const isInStock  = product.stock_quantity > 0;
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 15;

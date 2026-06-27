@@ -372,6 +372,11 @@ export default function AdminLoginForm({ initialError = '' }: Props) {
           font-size: 0.8125rem;
           color: #9CA3AF;
         }
+        @media (max-width: 767px) {
+          .admin-login-card { padding: 1.25rem; }
+          .admin-login-shell { padding: 1.25rem 0.75rem; }
+          .admin-login-card-head { margin-bottom: 1.25rem; padding-bottom: 1rem; }
+        }
       `}</style>
     </div>
   );

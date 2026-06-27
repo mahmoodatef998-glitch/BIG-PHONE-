@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HeroPhoneVisual from './HeroPhoneVisual';
 
 export default function HeroSection() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
 
   const STATS = [
@@ -23,27 +23,21 @@ export default function HeroSection() {
         <div className="container-site">
           <div className="hero-grid">
 
-            {/* ── Left content ─────────────────────── */}
             <div className="hero-left">
-
-              {/* Eyebrow */}
               <div className="hero-eyebrow">
                 <span className="hero-eyebrow-dot" />
                 {t.home.heroEyebrow}
               </div>
 
-              {/* Headline */}
               <h1 className="hero-heading">
                 {t.home.heroTitle1}<br />
                 <span className="hero-heading-accent">{t.home.heroTitle2}</span>
               </h1>
 
-              {/* Sub */}
               <p className="hero-sub" style={{ whiteSpace: 'pre-line' }}>
                 {t.home.heroSub}
               </p>
 
-              {/* Search */}
               <form action="/inventory" method="get" className="hero-search-form">
                 <Search size={18} className="hero-search-icon" />
                 <input
@@ -56,7 +50,6 @@ export default function HeroSection() {
                 <button type="submit" className="hero-search-btn">{t.common.search}</button>
               </form>
 
-              {/* Stats */}
               <div className="hero-stats">
                 {STATS.map(s => (
                   <div key={s.label} className="hero-stat">
@@ -69,41 +62,22 @@ export default function HeroSection() {
                 ))}
               </div>
 
-              {/* CTAs */}
               <div className="hero-cta-row">
                 <Link href="/inventory" className="btn btn-primary btn-lg btn-pill">{t.home.browseProducts}</Link>
                 <Link href="/rfq" className="btn btn-ghost btn-lg btn-pill">{t.home.getQuote}</Link>
               </div>
             </div>
 
-            {/* Hero image has English-only baked labels — hide in Arabic to avoid mixed languages */}
-            {lang === 'en' && (
             <div className="hero-right">
               <div className="hero-glow" />
-              <div className="hero-img-wrap">
-                <Image
-                  src="/images/hero section.png"
-                  alt="iPhone Pro — BIG PHONE Wholesale"
-                  width={716}
-                  height={716}
-                  priority
-                  style={{
-                    objectFit: 'contain',
-                    width: '100%',
-                    height: '100%',
-                    filter: 'drop-shadow(0 32px 64px rgba(255,107,0,0.22)) drop-shadow(0 8px 24px rgba(0,0,0,0.18))',
-                  }}
-                />
-              </div>
+              <HeroPhoneVisual />
             </div>
-            )}
 
           </div>
         </div>
       </section>
 
       <style>{`
-        /* ─── Section ────────────────────────────── */
         .hero-section {
           background-color: #FFF3E8;
           background-image: radial-gradient(circle, rgba(255,107,0,0.13) 1px, transparent 1px);
@@ -119,7 +93,6 @@ export default function HeroSection() {
         }
         .hero-left { max-width: 560px; }
 
-        /* ─── Eyebrow ────────────────────── */
         .hero-eyebrow {
           display: inline-flex; align-items: center; gap: 0.5rem;
           background: #fff; border: 1.5px solid #FFD0A0;
@@ -137,7 +110,6 @@ export default function HeroSection() {
           50%       { opacity: 0.4; transform: scale(0.7); }
         }
 
-        /* ─── Heading ────────────────────── */
         .hero-heading {
           font-size: clamp(2.25rem, 5vw, 3.5rem);
           font-weight: 800; line-height: 1.08;
@@ -150,7 +122,6 @@ export default function HeroSection() {
           line-height: 1.7; margin: 0 0 1.75rem;
         }
 
-        /* ─── Search ────────────────────── */
         .hero-search-form {
           display: flex; align-items: center;
           background: #fff; border: 1.5px solid #E5E7EB;
@@ -164,6 +135,8 @@ export default function HeroSection() {
           box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 0 0 3px rgba(255,107,0,0.12);
         }
         .hero-search-icon { color: #9CA3AF; flex-shrink: 0; }
+        html[dir="rtl"] .hero-search-form { padding: 6px 1rem 6px 6px; }
+        html[dir="rtl"] .hero-search-icon { order: 1; }
         .hero-search-input {
           flex: 1; border: none; outline: none;
           font-size: 0.9375rem; color: #111827;
@@ -180,7 +153,6 @@ export default function HeroSection() {
         }
         .hero-search-btn:hover { background: #E55A00; }
 
-        /* ─── Stats ────────────────────── */
         .hero-stats {
           display: flex; gap: 0;
           margin-bottom: 2rem; flex-wrap: wrap;
@@ -194,6 +166,8 @@ export default function HeroSection() {
           content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
           width: 1px; background: #FFD0A0;
         }
+        html[dir="rtl"] .hero-stat { padding: 0 0 0 1.5rem; }
+        html[dir="rtl"] .hero-stat + .hero-stat::before { left: auto; right: 0; }
         .hero-stat-icon {
           width: 38px; height: 38px; background: #FFF0E0;
           border-radius: 10px;
@@ -204,18 +178,18 @@ export default function HeroSection() {
         .hero-stat-label { font-size: 0.625rem; color: #9CA3AF; font-weight: 500; margin-top: 2px; white-space: nowrap; }
         .hero-cta-row    { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
-        /* ─── Right column ──────────────────── */
         .hero-right {
-          display: none;
+          display: flex;
           position: relative;
           align-items: center;
           justify-content: center;
-          height: 520px;
+          min-height: 280px;
+          padding: 1rem 0;
         }
 
         .hero-glow {
           position: absolute;
-          width: 460px; height: 460px;
+          width: min(460px, 90vw); height: min(460px, 90vw);
           background: radial-gradient(circle,
             rgba(255,107,0,0.20) 0%,
             rgba(255,140,51,0.08) 50%,
@@ -223,15 +197,6 @@ export default function HeroSection() {
           border-radius: 50%;
           left: 50%; top: 50%; transform: translate(-50%, -50%);
           pointer-events: none; z-index: 0;
-        }
-
-        .hero-img-wrap {
-          position: relative; z-index: 1;
-          width: 100%;
-          max-width: 528px;
-          aspect-ratio: 1 / 1;
-          margin-top: -24px;
-          animation: heroFloat 8s ease-in-out infinite;
         }
 
         @keyframes heroFloat {
@@ -244,13 +209,37 @@ export default function HeroSection() {
             grid-template-columns: 1fr 1fr;
             gap: 3rem;
           }
-          .hero-right { display: flex !important; }
+          .hero-right { min-height: 520px; padding: 0; }
           .hero-stat  { padding: 0 2rem 0 0; }
+          html[dir="rtl"] .hero-stat { padding: 0 0 0 2rem; }
         }
 
         @media (min-width: 1200px) {
-          .hero-img-wrap { max-width: 572px; }
-          .hero-right { height: 560px; }
+          .hero-right { min-height: 560px; }
+        }
+
+        @media (max-width: 767px) {
+          .hero-section { padding: 2.5rem 0 2rem; }
+          .hero-search-form {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0.75rem;
+            gap: 0.625rem;
+          }
+          .hero-search-btn { width: 100%; }
+          .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+          }
+          .hero-stat { padding: 0.5rem !important; }
+          .hero-stat + .hero-stat::before { display: none; }
+          .hero-stat-label { white-space: normal; }
+        }
+
+        @media (max-width: 389px) {
+          .hero-cta-row { flex-direction: column; }
+          .hero-cta-row .btn { width: 100%; justify-content: center; }
         }
       `}</style>
     </>

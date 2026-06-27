@@ -76,13 +76,13 @@ export default function Header() {
         transition: 'box-shadow 0.2s',
       }}>
         <div className="container-site">
-          <div style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
+          <div className="site-header-row" style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
 
             {/* ── Logo ────────────────────────────── */}
             <Link href="/" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
               <CamelLogo size={72} />
               <div style={{ lineHeight: 1 }}>
-                <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
+                <div className="site-logo-text" style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
                 <div style={{ fontSize: '0.5625rem', fontWeight: 700, color: '#FF6B00', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>{t.header.wholesale}</div>
               </div>
             </Link>
@@ -147,12 +147,12 @@ export default function Header() {
           {searchOpen && (
             <div style={{ paddingBottom: '0.75rem' }}>
               <form action="/inventory" method="get" style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                <Search size={16} className="hdr-search-icon-left" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
                 <input
                   autoFocus type="search" name="search"
                   value={search} onChange={e => setSearch(e.target.value)}
                   placeholder={t.header.searchPlaceholder}
-                  className="form-input"
+                  className="form-input hdr-search-input-rtl"
                   style={{ paddingLeft: '2.75rem' }}
                 />
               </form>

@@ -87,6 +87,10 @@ export default function CTASection() {
         .cta-btn-outline:hover { background: rgba(255,255,255,0.25); }
         .cta-btn-wa { background: #25D366; color: #fff; }
         .cta-btn-wa:hover { background: #20BA5A; }
+        @media (max-width: 767px) {
+          .cta-section { padding: 3rem 0; }
+          .cta-btn { width: 100%; justify-content: center; }
+        }
       `}</style>
     </>
   );

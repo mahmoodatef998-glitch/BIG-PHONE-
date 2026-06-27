@@ -1,22 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-const rfqSchema = z.object({
-  company_name: z.string().min(2, 'Company name is required'),
-  contact_person: z.string().min(2, 'Contact person is required'),
-  country: z.string().min(2, 'Country is required'),
-  phone: z.string().min(7, 'Valid phone number required'),
-  email: z.string().email('Valid email required'),
-  product_interest: z.string().min(2, 'Please specify the product'),
-  quantity: z.coerce.number().min(1, 'Minimum 1 unit').max(100000, 'Max 100,000 units'),
-  message: z.string().optional(),
-});
+import { COUNTRIES, countryLabel } from '@/lib/countries';
 
 type RFQFormValues = {
   company_name: string;
@@ -29,23 +19,27 @@ type RFQFormValues = {
   message?: string;
 };
 
-const COUNTRIES = [
-  'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Kuwait', 'Bahrain', 'Oman',
-  'Egypt', 'Jordan', 'Lebanon', 'Iraq', 'Pakistan', 'India', 'Bangladesh',
-  'Nigeria', 'Ghana', 'Kenya', 'South Africa', 'United Kingdom', 'Germany',
-  'France', 'Turkey', 'China', 'Other',
-];
-
 interface RFQFormProps {
   defaultProduct?: string;
   compact?: boolean;
 }
 
 export default function RFQForm({ defaultProduct = '', compact = false }: RFQFormProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const rfqSchema = useMemo(() => z.object({
+    company_name: z.string().min(2, t.validation.companyRequired),
+    contact_person: z.string().min(2, t.validation.contactRequired),
+    country: z.string().min(2, t.validation.countryRequired),
+    phone: z.string().min(7, t.validation.phoneRequired),
+    email: z.string().email(t.validation.emailRequired),
+    product_interest: z.string().min(2, t.validation.productRequired),
+    quantity: z.coerce.number().min(1, t.validation.quantityMin).max(100000, t.validation.quantityMax),
+    message: z.string().optional(),
+  }), [t]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RFQFormValues>({
     resolver: zodResolver(rfqSchema) as Resolver<RFQFormValues>,
@@ -107,65 +101,55 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: compact ? '1fr' : '1fr',
-        gap: '1rem',
-      }}>
-        {/* Company Name */}
+      <div className="rfq-form-grid">
         <div className="form-group">
           <label className="form-label">{t.rfq.companyName}</label>
           <input {...register('company_name')} placeholder={t.rfq.companyPlaceholder} className="form-input" />
           {errors.company_name && <p className="form-error">{errors.company_name.message}</p>}
         </div>
 
-        {/* Contact Person */}
         <div className="form-group">
           <label className="form-label">{t.rfq.contactPerson}</label>
           <input {...register('contact_person')} placeholder={t.rfq.contactPlaceholder} className="form-input" />
           {errors.contact_person && <p className="form-error">{errors.contact_person.message}</p>}
         </div>
 
-        {/* Country */}
         <div className="form-group">
           <label className="form-label">{t.rfq.country}</label>
           <select {...register('country')} className="form-input">
             <option value="">{t.rfq.selectCountry}</option>
-            {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map(c => (
+              <option key={c.value} value={c.value}>{countryLabel(c.value, lang)}</option>
+            ))}
           </select>
           {errors.country && <p className="form-error">{errors.country.message}</p>}
         </div>
 
-        {/* Phone */}
         <div className="form-group">
           <label className="form-label">{t.rfq.phone}</label>
-          <input {...register('phone')} type="tel" placeholder="+971 50 000 0000" className="form-input" />
+          <input {...register('phone')} type="tel" placeholder="+971 50 000 0000" className="form-input" dir="ltr" />
           {errors.phone && <p className="form-error">{errors.phone.message}</p>}
         </div>
 
-        {/* Email */}
         <div className="form-group">
           <label className="form-label">{t.rfq.email}</label>
-          <input {...register('email')} type="email" placeholder="buyer@company.com" className="form-input" />
+          <input {...register('email')} type="email" placeholder="buyer@company.com" className="form-input" dir="ltr" />
           {errors.email && <p className="form-error">{errors.email.message}</p>}
         </div>
 
-        {/* Product */}
         <div className="form-group">
           <label className="form-label">{t.rfq.product}</label>
           <input {...register('product_interest')} placeholder={t.rfq.productPlaceholder} className="form-input" />
           {errors.product_interest && <p className="form-error">{errors.product_interest.message}</p>}
         </div>
 
-        {/* Quantity */}
         <div className="form-group">
           <label className="form-label">{t.rfq.quantity}</label>
-          <input {...register('quantity')} type="number" min="1" placeholder={t.rfq.quantityPlaceholder} className="form-input" />
+          <input {...register('quantity')} type="number" min="1" placeholder={t.rfq.quantityPlaceholder} className="form-input" dir="ltr" />
           {errors.quantity && <p className="form-error">{errors.quantity.message}</p>}
         </div>
 
-        {/* Notes */}
-        <div className="form-group">
+        <div className="form-group rfq-form-full">
           <label className="form-label">{t.rfq.notes}</label>
           <textarea
             {...register('message')}
@@ -177,32 +161,51 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
         </div>
 
         {error && (
-          <div style={{
-            padding: '0.75rem 1rem',
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            color: '#dc2626',
-          }}>
+          <div className="rfq-form-error rfq-form-full">
             {error}
           </div>
         )}
 
-        <button type="submit" disabled={submitting} className="btn btn-primary btn-lg" style={{ width: '100%' }}>
+        <button type="submit" disabled={submitting} className="btn btn-primary btn-lg rfq-form-full" style={{ width: '100%' }}>
           {submitting ? (
-            <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> {t.rfq.sending}</>
+            <><Loader2 size={18} className="spin-icon" /> {t.rfq.sending}</>
           ) : (
             <><Send size={16} /> {t.rfq.submit}</>
           )}
         </button>
 
-        <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>
+        <p className="rfq-form-footnote rfq-form-full">
           {t.rfq.noSpam}
         </p>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .rfq-form-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        @media (min-width: 640px) {
+          .rfq-form-grid { grid-template-columns: repeat(2, 1fr); }
+          .rfq-form-full { grid-column: 1 / -1; }
+        }
+        .rfq-form-error {
+          padding: 0.75rem 1rem;
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          color: #dc2626;
+        }
+        .rfq-form-footnote {
+          font-size: 0.75rem;
+          color: #94a3b8;
+          text-align: center;
+          margin: 0;
+        }
+        .spin-icon { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </form>
   );
 }

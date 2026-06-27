@@ -9,56 +9,103 @@ import RFQForm from '@/components/rfq/RFQForm';
 import { conditionLabel } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
+import { colorSwatchHex } from '@/lib/iphone-catalog';
 import type { Product } from '@/types';
-import type { StorageVariant } from '@/lib/product-variants';
-import { productToStorageVariant } from '@/lib/product-variants';
+import type { StorageVariant, ColorVariant } from '@/lib/product-variants';
+import { productToStorageVariant, productToColorVariant } from '@/lib/product-variants';
 
 interface Props {
   product: Product;
-  variants: StorageVariant[];
+  storageVariants: StorageVariant[];
+  colorVariants: ColorVariant[];
   whatsappNumber: string;
 }
 
-function findVariant(variants: StorageVariant[], slug: string, fallback: StorageVariant): StorageVariant {
+function findStorageVariant(variants: StorageVariant[], slug: string, fallback: StorageVariant): StorageVariant {
   return variants.find(v => v.slug === slug) ?? fallback;
 }
 
-export default function ProductDetailPanel({ product, variants, whatsappNumber }: Props) {
+function findColorVariant(variants: ColorVariant[], slug: string, fallback: ColorVariant): ColorVariant {
+  return variants.find(v => v.slug === slug) ?? fallback;
+}
+
+export default function ProductDetailPanel({ product, storageVariants, colorVariants, whatsappNumber }: Props) {
   const { t, lang } = useLanguage();
   const router = useRouter();
-  const initial = useMemo(
-    () => findVariant(variants, product.slug, productToStorageVariant(product)),
-    [variants, product],
-  );
-  const [selected, setSelected] = useState<StorageVariant>(initial);
-  const hasVariants = variants.length > 1;
 
-  const handleStorageSelect = (variant: StorageVariant) => {
-    setSelected(variant);
-    if (variant.slug !== product.slug) {
-      router.replace(`/products/${variant.slug}`, { scroll: false });
+  const storageFallback = useMemo(() => productToStorageVariant(product), [product]);
+  const colorFallback = useMemo(() => productToColorVariant(product), [product]);
+
+  const initialStorage = useMemo(
+    () => findStorageVariant(storageVariants, product.slug, storageFallback),
+    [storageVariants, product.slug, storageFallback],
+  );
+  const initialColor = useMemo(
+    () => findColorVariant(colorVariants, product.slug, colorFallback),
+    [colorVariants, product.slug, colorFallback],
+  );
+
+  const [selectedStorage, setSelectedStorage] = useState<StorageVariant>(initialStorage);
+  const [selectedColor, setSelectedColor] = useState<ColorVariant>(initialColor);
+
+  const hasStorageVariants = storageVariants.length > 1;
+  const hasColorVariants = colorVariants.length > 1;
+
+  const activeVariant = useMemo(() => {
+    const colorMatch = colorVariants.find(v => v.slug === product.slug);
+    const storageMatch = storageVariants.find(v => v.slug === product.slug);
+    if (colorMatch) return colorMatch;
+    if (storageMatch) return { ...storageMatch, color: selectedColor.color };
+    return {
+      slug: product.slug,
+      price_aed: product.price_aed ?? null,
+      show_price: product.show_price ?? true,
+      stock_quantity: product.stock_quantity,
+      moq: product.moq,
+      name: product.name,
+      color: product.color ?? '',
+      storage: product.storage,
+    } as ColorVariant;
+  }, [product, colorVariants, storageVariants, selectedColor.color]);
+
+  const navigateTo = (slug: string) => {
+    if (slug !== product.slug) {
+      router.replace(`/products/${slug}`, { scroll: false });
     }
   };
 
+  const handleColorSelect = (variant: ColorVariant) => {
+    setSelectedColor(variant);
+    navigateTo(variant.slug);
+  };
+
+  const handleStorageSelect = (variant: StorageVariant) => {
+    setSelectedStorage(variant);
+    navigateTo(variant.slug);
+  };
+
+  const displayName = hasStorageVariants || hasColorVariants ? product.model : product.name;
   const waLink = buildWhatsAppLink(
     lang,
     'productQuote',
-    { name: `${selected.name}${selected.storage ? ` ${selected.storage}` : ''}` },
+    {
+      name: `${activeVariant.name}${selectedStorage.storage ? ` ${selectedStorage.storage}` : ''}${selectedColor.color ? ` ${selectedColor.color}` : ''}`,
+    },
     whatsappNumber,
   );
 
-  const showPrice = selected.show_price !== false && selected.price_aed != null && selected.price_aed > 0;
-  const isOutOfStock = selected.stock_quantity === 0;
+  const showPrice = activeVariant.show_price !== false && activeVariant.price_aed != null && activeVariant.price_aed > 0;
+  const isOutOfStock = activeVariant.stock_quantity === 0;
 
   const specRows = [
     { label: t.product.condition, value: conditionLabel(product.condition, t) },
-    { label: t.product.storage, value: selected.storage || product.storage || t.product.na },
-    { label: t.product.color, value: selected.color ?? product.color ?? t.product.various },
+    { label: t.product.storage, value: selectedStorage.storage || product.storage || t.product.na },
+    { label: t.product.color, value: selectedColor.color || product.color || t.product.various },
     { label: t.product.battery, value: product.battery_health ? `${product.battery_health}%` : t.product.na },
     { label: t.product.warranty, value: product.warranty ?? t.product.asIs },
     {
       label: t.product.available,
-      value: isOutOfStock ? t.product.outOfStock : `${selected.stock_quantity} ${t.common.units}`,
+      value: isOutOfStock ? t.product.outOfStock : `${activeVariant.stock_quantity} ${t.common.units}`,
     },
   ];
 
@@ -77,26 +124,70 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
         )}
 
         <h1 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)', fontWeight: 800, color: '#0B1829', marginBottom: '0.75rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-          {hasVariants ? product.model : product.name}
+          {displayName}
         </h1>
 
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <ConditionBadge condition={product.condition} />
-          <StockBadge quantity={selected.stock_quantity} />
+          <StockBadge quantity={activeVariant.stock_quantity} />
         </div>
 
-        {hasVariants && (
+        {hasColorVariants && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
+              {t.product.color}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {colorVariants.map(variant => {
+                const active = variant.slug === product.slug || variant.color === selectedColor.color;
+                const out = variant.stock_quantity === 0;
+                const swatch = colorSwatchHex(variant.color);
+                return (
+                  <button
+                    key={variant.slug}
+                    type="button"
+                    aria-pressed={active}
+                    title={variant.color}
+                    onClick={() => handleColorSelect(variant)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                      padding: '0.45rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: active ? '2px solid #0066FF' : '1.5px solid #DDE3EA',
+                      background: active ? '#EFF6FF' : '#fff',
+                      color: active ? '#0066FF' : out ? '#94A3B8' : '#374151',
+                      opacity: out && !active ? 0.75 : 1,
+                      transition: 'border-color 0.15s, background 0.15s',
+                    }}
+                  >
+                    <span style={{
+                      width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0,
+                      background: swatch,
+                      border: '1px solid rgba(0,0,0,0.12)',
+                    }} />
+                    {variant.color}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {hasStorageVariants && (
           <div style={{ marginBottom: '1.25rem' }}>
             <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
               {t.product.storage}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {variants.map(variant => {
-                const active = variant.slug === selected.slug;
+              {storageVariants.map(variant => {
+                const active = variant.slug === product.slug || variant.storage === selectedStorage.storage;
                 const out = variant.stock_quantity === 0;
                 return (
                   <button
-                    key={variant.slug}
+                    key={`${variant.storage}-${variant.slug}`}
                     type="button"
                     aria-pressed={active}
                     onClick={() => handleStorageSelect(variant)}
@@ -126,9 +217,9 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
         {showPrice ? (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
             <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>
-              AED {selected.price_aed!.toLocaleString()}
+              AED {activeVariant.price_aed!.toLocaleString()}
             </span>
-            <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>{t.common.perUnit} · {t.product.moq} {selected.moq}</span>
+            <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>{t.common.perUnit} · {t.product.moq} {activeVariant.moq}</span>
           </div>
         ) : (
           <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
@@ -190,7 +281,7 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
           </p>
         </div>
         <div style={{ padding: '1.25rem' }}>
-          <RFQForm key={selected.slug} defaultProduct={selected.name} compact />
+          <RFQForm key={product.slug} defaultProduct={activeVariant.name} compact />
         </div>
       </div>
     </>

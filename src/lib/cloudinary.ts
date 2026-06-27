@@ -1,11 +1,16 @@
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? '';
+const PLACEHOLDER_CLOUD_NAMES = new Set(['your_cloud_name', 'your-cloud-name']);
+
+function isCloudinaryConfigured(): boolean {
+  return !!CLOUD_NAME && !PLACEHOLDER_CLOUD_NAMES.has(CLOUD_NAME);
+}
 
 export function cloudinaryUrl(
   src: string,
   opts: { width?: number; height?: number; quality?: number } = {}
 ): string {
   if (!src) return '';
-  if (!CLOUD_NAME) return src;
+  if (!isCloudinaryConfigured()) return src;
   if (src.startsWith('https://res.cloudinary.com')) return src;
 
   const { width = 600, height, quality = 80 } = opts;
@@ -15,9 +20,9 @@ export function cloudinaryUrl(
   t.push('c_limit');
 
   if (src.startsWith('http')) {
-    // Proxy external URLs through Cloudinary fetch so Samsung/GitHub CDNs
-    // are fetched by Cloudinary's servers, not blocked by Vercel IPs.
-    return `https://res.cloudinary.com/${CLOUD_NAME}/image/fetch/${t.join(',')}/${src}`;
+    // Encode the remote URL so query strings (Unsplash, Apple Store, etc.)
+    // are not parsed as Cloudinary fetch parameters.
+    return `https://res.cloudinary.com/${CLOUD_NAME}/image/fetch/${t.join(',')}/${encodeURIComponent(src)}`;
   }
 
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${t.join(',')}/${src}`;

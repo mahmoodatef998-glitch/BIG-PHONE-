@@ -160,6 +160,7 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
   if (resolvedFilters.category) query = query.eq('category', resolvedFilters.category);
   if (resolvedFilters.collection) query = query.eq('collection_id', resolvedFilters.collection);
   if (resolvedFilters.featured) query = query.eq('is_featured', true);
+  if (resolvedFilters.inStock) query = query.gt('stock_quantity', 0);
 
   if (resolvedFilters.search) {
     const q = resolvedFilters.search;

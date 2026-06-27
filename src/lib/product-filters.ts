@@ -12,6 +12,7 @@ export type ProductQueryFilters = {
   condition?: string;
   conditions?: string[];
   refurbished?: boolean;
+  inStock?: boolean;
   category?: string;
   collection?: string;
   featured?: boolean;
@@ -58,6 +59,9 @@ export function parseProductFilters(
   const refurbishedVal = get('refurbished');
   const refurbished = refurbishedVal === '1' || refurbishedVal === 'true';
 
+  const inStockVal = get('inStock');
+  const inStock = inStockVal === '1' || inStockVal === 'true';
+
   const limitRaw = get('limit');
   const limit = limitRaw ? Math.min(Math.max(1, Number(limitRaw)), 100) : undefined;
 
@@ -74,6 +78,7 @@ export function parseProductFilters(
     condition: get('condition'),
     conditions,
     refurbished: refurbished || undefined,
+    inStock: inStock || undefined,
     category: get('category'),
     collection: get('collection'),
     featured: get('featured') === 'true' ? true : undefined,
@@ -107,6 +112,9 @@ export function applyProductFilters(products: Product[], filters: ProductQueryFi
   }
   if (filters.featured) {
     result = result.filter(p => p.is_featured);
+  }
+  if (filters.inStock) {
+    result = result.filter(p => p.stock_quantity > 0);
   }
   if (filters.search) {
     const q = filters.search.toLowerCase();

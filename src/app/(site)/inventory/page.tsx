@@ -31,16 +31,16 @@ export default async function InventoryPage(props: {
   const filters = parseProductFilters(sp);
   const search = filters.search ?? '';
   const brand = filters.brand ?? '';
-  const condition = filters.condition ?? '';
-  const category = filters.category ?? '';
   const refurbished = filters.refurbished ?? false;
   const excludeBrand = filters.excludeBrand ?? '';
   const featured = filters.featured ?? false;
+  const inStock = filters.inStock ?? false;
   const collection = sp.collection ?? '';
 
   const brands = await getBrands();
   const isFiltered = !!(
-    search || brand || condition || category || refurbished || excludeBrand || featured || collection
+    search || brand || filters.condition || filters.category ||
+    refurbished || excludeBrand || featured || inStock || collection
   );
 
   const [filteredProducts, groupedBrands] = await Promise.all([
@@ -54,10 +54,11 @@ export default async function InventoryPage(props: {
     ? filteredProducts.length
     : groupedBrands.reduce((s, g) => s + g.total, 0);
 
+  const brandTabs = brands.map(b => ({ slug: b.slug, name: b.name }));
+
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
 
-      {/* Page header */}
       <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA', padding: '1.25rem 0' }}>
         <div className="container-site">
           <nav style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -75,7 +76,7 @@ export default async function InventoryPage(props: {
             <Search size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input
               type="search" name="search" defaultValue={search}
-              placeholder="Search iPhone 15, Galaxy S24, Xiaomi 14..."
+              placeholder="Search model or product name..."
               className="form-input"
               style={{ paddingLeft: '2.5rem', paddingRight: '5rem', background: '#F8FAFC' }}
             />
@@ -89,13 +90,14 @@ export default async function InventoryPage(props: {
             >
               Search
             </button>
-            {brand     && <input type="hidden" name="brand"         value={brand} />}
-            {condition && <input type="hidden" name="condition"     value={condition} />}
-            {category  && <input type="hidden" name="category"      value={category} />}
+            {brand && <input type="hidden" name="brand" value={brand} />}
+            {filters.condition && <input type="hidden" name="condition" value={filters.condition} />}
+            {filters.category && <input type="hidden" name="category" value={filters.category} />}
             {refurbished && <input type="hidden" name="refurbished" value="1" />}
             {excludeBrand && <input type="hidden" name="excludeBrand" value={excludeBrand} />}
             {featured && <input type="hidden" name="featured" value="true" />}
-            {collection && <input type="hidden" name="collection"   value={collection} />}
+            {inStock && <input type="hidden" name="inStock" value="1" />}
+            {collection && <input type="hidden" name="collection" value={collection} />}
             {filters.sortBy && filters.sortBy !== 'newest' && (
               <input type="hidden" name="sort" value={filters.sortBy} />
             )}
@@ -103,74 +105,26 @@ export default async function InventoryPage(props: {
         </div>
       </div>
 
-      {/* Brand tabs */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #DDE3EA' }}>
-        <div className="container-site" style={{ overflowX: 'auto' }}>
-          <div style={{ display: 'flex', minWidth: 'max-content' }}>
-            {[{ slug: '', name: 'All Brands' }, ...brands].map(tab => {
-              const isActive = brand === tab.slug;
-              const accent   = BRAND_ACCENT[tab.slug] ?? '#0066FF';
-              const params   = new URLSearchParams();
-              if (tab.slug) params.set('brand', tab.slug);
-              if (condition) params.set('condition', condition);
-              if (category) params.set('category', category);
-              if (refurbished) params.set('refurbished', '1');
-              if (excludeBrand) params.set('excludeBrand', excludeBrand);
-              if (featured) params.set('featured', 'true');
-              if (collection) params.set('collection', collection);
-              if (search) params.set('search', search);
-              if (filters.sortBy && filters.sortBy !== 'newest') params.set('sort', filters.sortBy);
-              return (
-                <Link
-                  key={tab.slug}
-                  href={`/inventory${params.toString() ? `?${params.toString()}` : ''}`}
-                  style={{
-                    display: 'flex', alignItems: 'center',
-                    padding: '0.75rem 1rem',
-                    fontSize: '0.8125rem', fontWeight: 600,
-                    color: isActive ? accent : '#64748B',
-                    borderBottom: `2px solid ${isActive ? accent : 'transparent'}`,
-                    textDecoration: 'none', whiteSpace: 'nowrap',
-                    transition: 'color 0.15s, border-color 0.15s',
-                  }}
-                >
-                  {tab.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Condition / category filter bar */}
       <Suspense>
-        <InventoryFilters count={displayCount} />
+        <InventoryFilters count={displayCount} brands={brandTabs} />
       </Suspense>
 
-      {/* Content */}
       <div className="container-site" style={{ padding: '1.5rem 1rem 4rem' }}>
 
-        {/* Filtered: flat grid */}
         {isFiltered && (
           filteredProducts.length === 0
             ? <EmptyState search={search} />
             : (
               <>
                 {featured && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
-                    <div style={{ width: '3px', height: '22px', background: '#FF6B00', borderRadius: '2px' }} />
-                    <span style={{ fontWeight: 700, color: '#0B1829' }}>Featured Products</span>
-                    <span style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>· {filteredProducts.length} products</span>
-                  </div>
+                  <ResultsHeading accent="#FF6B00" title="Featured Products" count={filteredProducts.length} />
                 )}
-                {brand && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
-                    <div style={{ width: '3px', height: '22px', background: BRAND_ACCENT[brand] ?? '#0066FF', borderRadius: '2px' }} />
-                    <span style={{ fontWeight: 700, color: '#0B1829' }}>
-                      {brands.find(b => b.slug === brand)?.name}
-                    </span>
-                    <span style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>· {filteredProducts.length} products</span>
-                  </div>
+                {brand && !featured && (
+                  <ResultsHeading
+                    accent={BRAND_ACCENT[brand] ?? '#0066FF'}
+                    title={brands.find(b => b.slug === brand)?.name ?? brand}
+                    count={filteredProducts.length}
+                  />
                 )}
                 <div className="inv-grid">
                   {filteredProducts.map(p => <ProductCard key={p.id} product={p} />)}
@@ -179,7 +133,6 @@ export default async function InventoryPage(props: {
             )
         )}
 
-        {/* Unfiltered: brand sections */}
         {!isFiltered && (
           groupedBrands.length === 0
             ? <EmptyState search="" />
@@ -203,6 +156,16 @@ export default async function InventoryPage(props: {
         @media (min-width: 1024px) { .inv-grid { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1280px) { .inv-grid { grid-template-columns: repeat(5, 1fr); } }
       `}</style>
+    </div>
+  );
+}
+
+function ResultsHeading({ accent, title, count }: { accent: string; title: string; count: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
+      <div style={{ width: '3px', height: '22px', background: accent, borderRadius: '2px' }} />
+      <span style={{ fontWeight: 700, color: '#0B1829' }}>{title}</span>
+      <span style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>· {count} products</span>
     </div>
   );
 }

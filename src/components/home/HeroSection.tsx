@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import HeroPhoneVisual from './HeroPhoneVisual';
 
 export default function HeroSection() {
   const { t } = useLanguage();
@@ -70,7 +70,21 @@ export default function HeroSection() {
 
             <div className="hero-right">
               <div className="hero-glow" />
-              <HeroPhoneVisual />
+              <div className="hero-img-wrap">
+                <Image
+                  src="/images/hero section.png"
+                  alt="BIG PHONE Wholesale — iPhone & mobile devices"
+                  width={716}
+                  height={716}
+                  priority
+                  style={{
+                    objectFit: 'contain',
+                    width: '100%',
+                    height: '100%',
+                    filter: 'drop-shadow(0 32px 64px rgba(255,107,0,0.22)) drop-shadow(0 8px 24px rgba(0,0,0,0.18))',
+                  }}
+                />
+              </div>
             </div>
 
           </div>
@@ -176,20 +190,19 @@ export default function HeroSection() {
         }
         .hero-stat-value { font-size: 1.3125rem; font-weight: 800; color: #111827; letter-spacing: -0.02em; line-height: 1; }
         .hero-stat-label { font-size: 0.625rem; color: #9CA3AF; font-weight: 500; margin-top: 2px; white-space: nowrap; }
-        .hero-cta-row    { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .hero-cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
         .hero-right {
-          display: flex;
+          display: none;
           position: relative;
           align-items: center;
           justify-content: center;
-          min-height: 280px;
-          padding: 1rem 0;
+          height: 520px;
         }
 
         .hero-glow {
           position: absolute;
-          width: min(460px, 90vw); height: min(460px, 90vw);
+          width: 460px; height: 460px;
           background: radial-gradient(circle,
             rgba(255,107,0,0.20) 0%,
             rgba(255,140,51,0.08) 50%,
@@ -197,6 +210,15 @@ export default function HeroSection() {
           border-radius: 50%;
           left: 50%; top: 50%; transform: translate(-50%, -50%);
           pointer-events: none; z-index: 0;
+        }
+
+        .hero-img-wrap {
+          position: relative; z-index: 1;
+          width: 100%;
+          max-width: 528px;
+          aspect-ratio: 1 / 1;
+          margin-top: -24px;
+          animation: heroFloat 8s ease-in-out infinite;
         }
 
         @keyframes heroFloat {
@@ -209,13 +231,14 @@ export default function HeroSection() {
             grid-template-columns: 1fr 1fr;
             gap: 3rem;
           }
-          .hero-right { min-height: 520px; padding: 0; }
-          .hero-stat  { padding: 0 2rem 0 0; }
+          .hero-right { display: flex !important; }
+          .hero-stat { padding: 0 2rem 0 0; }
           html[dir="rtl"] .hero-stat { padding: 0 0 0 2rem; }
         }
 
         @media (min-width: 1200px) {
-          .hero-right { min-height: 560px; }
+          .hero-img-wrap { max-width: 572px; }
+          .hero-right { height: 560px; }
         }
 
         @media (max-width: 767px) {

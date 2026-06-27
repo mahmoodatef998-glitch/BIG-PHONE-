@@ -7,7 +7,7 @@ import { Search, Package, Users, ShieldCheck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function HeroSection() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [search, setSearch] = useState('');
 
   const STATS = [
@@ -76,7 +76,8 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* ── Right — hero image (phone + badges baked in) ── */}
+            {/* Hero image has English-only baked labels — hide in Arabic to avoid mixed languages */}
+            {lang === 'en' && (
             <div className="hero-right">
               <div className="hero-glow" />
               <div className="hero-img-wrap">
@@ -95,6 +96,7 @@ export default function HeroSection() {
                 />
               </div>
             </div>
+            )}
 
           </div>
         </div>

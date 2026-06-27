@@ -6,6 +6,7 @@ import { Heart, MessageCircle } from 'lucide-react';
 import { ConditionBadge } from './Badge';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fmt } from '@/lib/i18n';
 import type { Product } from '@/types';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -84,7 +85,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#FF6B00', letterSpacing: '-0.02em' }}>
               AED {product.price_aed.toLocaleString()}
             </span>
-            <span style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>/unit</span>
+            <span style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>{t.common.perUnit}</span>
           </div>
         ) : (
           <span style={{ fontSize: '0.8125rem', color: '#9CA3AF', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
@@ -94,7 +95,9 @@ export default function ProductCard({ product }: { product: Product }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0, background: isInStock ? (isLowStock ? '#F59E0B' : '#10B981') : '#EF4444' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isInStock ? (isLowStock ? '#D97706' : '#059669') : '#DC2626' }}>
-              {isInStock ? (isLowStock ? `Only ${product.stock_quantity} left` : 'In Stock') : t.product.outOfStock}
+              {isInStock
+                ? (isLowStock ? fmt(t.common.onlyLeft, { n: product.stock_quantity }) : t.common.inStock)
+                : t.product.outOfStock}
             </span>
           </div>
           <span style={{ background: '#FFF7ED', color: '#C2410C', fontSize: '0.6875rem', fontWeight: 600, padding: '0.125rem 0.4rem', borderRadius: '4px' }}>

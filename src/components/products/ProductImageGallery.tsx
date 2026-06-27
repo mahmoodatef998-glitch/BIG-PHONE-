@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cloudinaryUrl } from '@/lib/cloudinary';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
   images: string[];
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function ProductImageGallery({ images, alt, fallback }: Props) {
+  const { t } = useLanguage();
   const slides = images.filter(Boolean);
   const [index, setIndex] = useState(0);
   const touchStartX = useRef(0);

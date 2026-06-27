@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { conditionLabel } from '@/lib/i18n';
 import type { Product, Condition } from '@/types';
 
 const BRAND_COLORS: Record<string, string> = {
@@ -21,13 +22,11 @@ const REFURB_CONDITIONS: Condition[] = [
   'certified-refurbished',
 ];
 
-function conditionLabel(cond: Condition): string {
-  switch (cond) {
-    case 'refurbished-grade-a':   return 'Grade A';
-    case 'refurbished-grade-b':   return 'Grade B';
-    case 'certified-refurbished': return 'Certified';
-    default:                      return '';
-  }
+import type { Translations } from '@/lib/i18n';
+
+function conditionLabelFor(cond: Condition, t: Translations): string {
+  if (cond === 'brand-new') return '';
+  return conditionLabel(cond, t);
 }
 
 function getIphoneNum(name: string) {
@@ -42,7 +41,7 @@ function MiniCard({ product }: { product: Product }) {
     : null;
   const brandColor = BRAND_COLORS[product.brand?.slug ?? ''] ?? '#FF6B00';
   const isRefurb = REFURB_CONDITIONS.includes(product.condition);
-  const label = conditionLabel(product.condition);
+  const label = conditionLabelFor(product.condition, t);
 
   return (
     <Link href={`/products/${product.slug}`} className="pop-card">

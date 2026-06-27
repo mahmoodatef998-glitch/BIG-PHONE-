@@ -2,13 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { MessageCircle, MapPin, Shield, ArrowRight } from 'lucide-react';
-import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
+import { ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
-import RFQForm from '@/components/rfq/RFQForm';
-import { formatCondition } from '@/lib/utils';
+import ProductDetailPanel from '@/components/products/ProductDetailPanel';
 import { cloudinaryUrl } from '@/lib/cloudinary';
-import { getProductBySlug as fetchProduct, getProducts as fetchProducts } from '@/lib/data';
+import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants } from '@/lib/data';
 
 export const revalidate = 60;
 
@@ -49,8 +47,10 @@ export default async function ProductPage(props: ProductPageProps) {
   const product = await fetchProduct(slug);
   if (!product) notFound();
 
-  const related = await fetchProducts({ brand: product.brand?.slug, limit: 5 });
-  const waMessage = encodeURIComponent(`Hi, I'd like a wholesale quote for: ${product.name}${product.storage ? ` ${product.storage}` : ''}. Quantity: `);
+  const [related, storageVariants] = await Promise.all([
+    fetchProducts({ brand: product.brand?.slug, limit: 5 }),
+    getProductStorageVariants(product),
+  ]);
   const imgSrc = product.images[0] ? cloudinaryUrl(product.images[0], { width: 800, quality: 85 }) : null;
   const [bg1, bg2] = BRAND_GRADIENT[product.brand?.slug ?? ''] ?? ['#1A2332', '#2D3748'];
   const isTablet = product.category === 'tablet';
@@ -200,102 +200,12 @@ export default async function ProductPage(props: ProductPageProps) {
 
           {/* Right: Product Info + RFQ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', padding: '1.5rem' }}>
-              {product.brand && (
-                <Link href={`/brands/${product.brand.slug}`} style={{
-                  display: 'inline-block', fontSize: '0.6875rem', fontWeight: 700, color: '#0066FF',
-                  textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem',
-                  background: '#E5F0FF', padding: '0.125rem 0.5rem', borderRadius: '4px',
-                  textDecoration: 'none',
-                }}>
-                  {product.brand.name}
-                </Link>
-              )}
-              <h1 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)', fontWeight: 800, color: '#0B1829', marginBottom: '0.75rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-                {product.name}
-              </h1>
-
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                <ConditionBadge condition={product.condition} />
-                <StockBadge quantity={product.stock_quantity} />
-              </div>
-
-              {/* Price */}
-              {(product.price_aed && product.show_price !== false) ? (
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
-                  <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>
-                    AED {product.price_aed.toLocaleString()}
-                  </span>
-                  <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>/unit · MOQ {product.moq}</span>
-                </div>
-              ) : (
-                <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
-                  <span style={{ fontSize: '0.9375rem', color: '#64748B', fontStyle: 'italic' }}>Price on Request</span>
-                  <span style={{ fontSize: '0.8125rem', color: '#94A3B8', marginLeft: '0.5rem' }}>— submit RFQ below</span>
-                </div>
-              )}
-
-              {/* Key details */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>
-                {[
-                  { label: 'Condition', value: formatCondition(product.condition) },
-                  { label: 'Storage',   value: product.storage ?? 'N/A' },
-                  { label: 'Color',     value: product.color ?? 'Various' },
-                  { label: 'Battery',   value: product.battery_health ? `${product.battery_health}%` : 'N/A' },
-                  { label: 'Warranty',  value: product.warranty ?? 'As-is' },
-                  { label: 'MOQ',       value: `${product.moq} units` },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{
-                    background: '#F8FAFC',
-                    border: '1px solid #DDE3EA',
-                    borderRadius: '8px',
-                    padding: '0.5rem 0.75rem',
-                  }}>
-                    <div style={{ fontSize: '0.625rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>{label}</div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0B1829' }}>{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <MapPin size={13} style={{ color: '#94a3b8' }} />
-                  <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Origin: {product.country_of_origin}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <Shield size={13} style={{ color: '#00A850' }} />
-                  <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>Verified Stock</span>
-                </div>
-              </div>
-
-              <a
-                href={`https://wa.me/${WHATSAPP}?text=${waMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                  width: '100%', padding: '0.75rem',
-                  background: '#00A850', color: '#fff',
-                  borderRadius: '10px', fontWeight: 700, fontSize: '0.9375rem',
-                  textDecoration: 'none', border: 'none',
-                }}
-              >
-                <MessageCircle size={18} /> WhatsApp Inquiry
-              </a>
-            </div>
-
-            {/* RFQ Form */}
-            <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', overflow: 'hidden' }}>
-              <div style={{ background: '#0B1829', padding: '1rem 1.25rem' }}>
-                <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>Request Wholesale Quote</h3>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: '0.25rem', marginBottom: 0 }}>
-                  Get pricing &amp; availability in under 2 hours
-                </p>
-              </div>
-              <div style={{ padding: '1.25rem' }}>
-                <RFQForm defaultProduct={product.name} compact />
-              </div>
-            </div>
+            <ProductDetailPanel
+              key={product.slug}
+              product={product}
+              variants={storageVariants}
+              whatsappNumber={WHATSAPP}
+            />
           </div>
         </div>
 

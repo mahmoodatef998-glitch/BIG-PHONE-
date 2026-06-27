@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { Inter } from 'next/font/google';
+import { parseLang, LANG_COOKIE } from '@/lib/lang';
 import './globals.css';
 
 const inter = Inter({
@@ -27,9 +29,13 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const lang = parseLang(cookieStore.get(LANG_COOKIE)?.value);
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang={lang} dir={dir} className={inter.variable} suppressHydrationWarning>
       <body className="antialiased">{children}</body>
     </html>
   );

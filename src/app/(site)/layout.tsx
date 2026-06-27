@@ -1,10 +1,15 @@
+import { cookies } from 'next/headers';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { parseLang, LANG_COOKIE } from '@/lib/lang';
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const initialLang = parseLang(cookieStore.get(LANG_COOKIE)?.value);
+
   return (
-    <LanguageProvider>
+    <LanguageProvider initialLang={initialLang}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
         <main style={{ flex: 1 }}>

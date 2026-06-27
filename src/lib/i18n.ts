@@ -39,7 +39,7 @@ export type Translations = {
     storage: string; condition: string; color: string; battery: string;
     warranty: string; available: string; origin: string; verifiedStock: string;
     whatsappInquiry: string; requestWholesaleQuote: string; quoteSubtitle: string;
-    syncVariantsHint: string;
+    syncVariantsHint: string; various: string; asIs: string; na: string;
   };
   conditions: {
     brandNew: string; certified: string; gradeA: string; gradeB: string;
@@ -80,6 +80,7 @@ export type Translations = {
     typeSmartphones: string; typeTablets: string; typeAudio: string; typeAccessories: string;
     featuredHeading: string; newArrivalsHeading: string; noProducts: string;
     noSearchResults: string; productsAvailable: string;
+    excludeBrand: string; collectionLabel: string;
   };
   brands: {
     title: string; breadcrumb: string; browseAll: string; productsAvailable: string;
@@ -210,6 +211,7 @@ export const translations: Record<Lang, Translations> = {
       warranty: 'Warranty', available: 'Available', origin: 'Origin', verifiedStock: 'Verified Stock',
       whatsappInquiry: 'WhatsApp Inquiry', requestWholesaleQuote: 'Request Wholesale Quote',
       quoteSubtitle: 'Get pricing & availability in under 2 hours', syncVariantsHint: '',
+      various: 'Various', asIs: 'As-is', na: 'N/A',
     },
     conditions: {
       brandNew: 'Brand New', certified: 'Certified Refurbished', gradeA: 'Grade A', gradeB: 'Grade B',
@@ -263,6 +265,7 @@ export const translations: Record<Lang, Translations> = {
       featuredHeading: 'Featured Products', newArrivalsHeading: 'New Arrivals',
       noProducts: 'No products found', noSearchResults: 'No results for "{q}". Try different keywords.',
       productsAvailable: 'available',
+      excludeBrand: 'Excl. {brand}', collectionLabel: 'Collection',
     },
     brands: {
       title: 'Our Brands', breadcrumb: 'Brands', browseAll: 'Browse all inventory', productsAvailable: 'available',
@@ -368,6 +371,7 @@ export const translations: Record<Lang, Translations> = {
       warranty: 'الضمان', available: 'المتوفر', origin: 'المنشأ', verifiedStock: 'مخزون موثّق',
       whatsappInquiry: 'استفسار واتساب', requestWholesaleQuote: 'طلب عرض سعر جملة',
       quoteSubtitle: 'احصل على التسعير خلال ساعتين', syncVariantsHint: '',
+      various: 'متنوع', asIs: 'كما هو', na: 'غ/م',
     },
     conditions: {
       brandNew: 'جديد', certified: 'مجدّد معتمد', gradeA: 'درجة A', gradeB: 'درجة B',
@@ -421,6 +425,7 @@ export const translations: Record<Lang, Translations> = {
       featuredHeading: 'منتجات مميزة', newArrivalsHeading: 'وصل حديثاً',
       noProducts: 'لا توجد منتجات', noSearchResults: 'لا نتائج لـ "{q}". جرّب كلمات أخرى.',
       productsAvailable: 'متوفر',
+      excludeBrand: 'استثناء {brand}', collectionLabel: 'مجموعة',
     },
     brands: {
       title: 'ماركاتنا', breadcrumb: 'الماركات', browseAll: 'تصفح كل المخزون', productsAvailable: 'متوفر',
@@ -499,4 +504,16 @@ export function fmt(template: string, vars: Record<string, string | number>): st
     (s, [k, v]) => s.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
     template,
   );
+}
+
+const CONDITION_KEYS: Record<string, keyof Translations['conditions']> = {
+  'brand-new': 'brandNew',
+  'refurbished-grade-a': 'gradeA',
+  'refurbished-grade-b': 'gradeB',
+  'certified-refurbished': 'certified',
+};
+
+export function conditionLabel(condition: string, t: Translations): string {
+  const key = CONDITION_KEYS[condition];
+  return key ? t.conditions[key] : condition;
 }

@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { inventoryHref } from '@/lib/inventory-url';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fmt } from '@/lib/i18n';
 
 type BrandTab = { slug: string; name: string };
 
@@ -86,7 +87,9 @@ export default function InventoryFilters({ count, brands }: Props) {
   if (excludeBrand) {
     activeFilters.push({
       key: 'excludeBrand',
-      label: `Excl. ${excludeBrand.charAt(0).toUpperCase()}${excludeBrand.slice(1)}`,
+      label: fmt(t.inventory.excludeBrand, {
+        brand: `${excludeBrand.charAt(0).toUpperCase()}${excludeBrand.slice(1)}`,
+      }),
       clear: { excludeBrand: null },
     });
   }
@@ -98,7 +101,7 @@ export default function InventoryFilters({ count, brands }: Props) {
     });
   }
   if (searchQ) activeFilters.push({ key: 'search', label: `"${searchQ}"`, clear: { search: null } });
-  if (collection) activeFilters.push({ key: 'collection', label: 'Collection', clear: { collection: null } });
+  if (collection) activeFilters.push({ key: 'collection', label: t.inventory.collectionLabel, clear: { collection: null } });
 
   const toggleBool = (key: 'featured' | 'inStock' | 'refurbished', active: boolean) => {
     if (key === 'refurbished') {

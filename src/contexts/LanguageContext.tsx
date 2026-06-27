@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { translations, type Lang, type Translations } from '@/lib/i18n';
+import { setLangCookie } from '@/lib/lang';
 
 interface LangCtx {
   lang: Lang;
@@ -17,21 +18,23 @@ const LanguageContext = createContext<LangCtx>({
   isRTL: true,
 });
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>('ar');
+export function LanguageProvider({
+  children,
+  initialLang = 'ar',
+}: {
+  children: ReactNode;
+  initialLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(initialLang);
 
   useEffect(() => {
-    const saved = (localStorage.getItem('bp-lang') ?? 'ar') as Lang;
-    applyLang(saved);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only locale restore
-    setLang(saved);
-  }, []);
+    applyLang(lang);
+    localStorage.setItem('bp-lang', lang);
+    setLangCookie(lang);
+  }, [lang]);
 
   const toggle = () => {
-    const next: Lang = lang === 'en' ? 'ar' : 'en';
-    localStorage.setItem('bp-lang', next);
-    applyLang(next);
-    setLang(next);
+    setLang(prev => (prev === 'en' ? 'ar' : 'en'));
   };
 
   return (

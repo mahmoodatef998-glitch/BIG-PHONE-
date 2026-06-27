@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { MessageCircle, MapPin, Shield } from 'lucide-react';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import RFQForm from '@/components/rfq/RFQForm';
-import { formatCondition } from '@/lib/utils';
+import { conditionLabel } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { Product } from '@/types';
 import type { StorageVariant } from '@/lib/product-variants';
@@ -47,11 +47,11 @@ export default function ProductDetailPanel({ product, variants, whatsappNumber }
   const isOutOfStock = selected.stock_quantity === 0;
 
   const specRows = [
-    { label: t.product.condition, value: formatCondition(product.condition) },
-    { label: t.product.storage, value: selected.storage || product.storage || 'N/A' },
-    { label: t.product.color, value: selected.color ?? product.color ?? 'Various' },
-    { label: t.product.battery, value: product.battery_health ? `${product.battery_health}%` : 'N/A' },
-    { label: t.product.warranty, value: product.warranty ?? 'As-is' },
+    { label: t.product.condition, value: conditionLabel(product.condition, t) },
+    { label: t.product.storage, value: selected.storage || product.storage || t.product.na },
+    { label: t.product.color, value: selected.color ?? product.color ?? t.product.various },
+    { label: t.product.battery, value: product.battery_health ? `${product.battery_health}%` : t.product.na },
+    { label: t.product.warranty, value: product.warranty ?? t.product.asIs },
     {
       label: t.product.available,
       value: isOutOfStock ? t.product.outOfStock : `${selected.stock_quantity} ${t.common.units}`,

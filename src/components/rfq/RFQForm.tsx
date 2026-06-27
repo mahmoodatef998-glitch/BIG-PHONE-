@@ -114,21 +114,21 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
       }}>
         {/* Company Name */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.companyName} *</label>
+          <label className="form-label">{t.rfq.companyName}</label>
           <input {...register('company_name')} placeholder={t.rfq.companyPlaceholder} className="form-input" />
           {errors.company_name && <p className="form-error">{errors.company_name.message}</p>}
         </div>
 
         {/* Contact Person */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.contactPerson} *</label>
+          <label className="form-label">{t.rfq.contactPerson}</label>
           <input {...register('contact_person')} placeholder={t.rfq.contactPlaceholder} className="form-input" />
           {errors.contact_person && <p className="form-error">{errors.contact_person.message}</p>}
         </div>
 
         {/* Country */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.country} *</label>
+          <label className="form-label">{t.rfq.country}</label>
           <select {...register('country')} className="form-input">
             <option value="">{t.rfq.selectCountry}</option>
             {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -138,28 +138,28 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
 
         {/* Phone */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.phone} *</label>
+          <label className="form-label">{t.rfq.phone}</label>
           <input {...register('phone')} type="tel" placeholder="+971 50 000 0000" className="form-input" />
           {errors.phone && <p className="form-error">{errors.phone.message}</p>}
         </div>
 
         {/* Email */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.email} *</label>
+          <label className="form-label">{t.rfq.email}</label>
           <input {...register('email')} type="email" placeholder="buyer@company.com" className="form-input" />
           {errors.email && <p className="form-error">{errors.email.message}</p>}
         </div>
 
         {/* Product */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.product} *</label>
+          <label className="form-label">{t.rfq.product}</label>
           <input {...register('product_interest')} placeholder={t.rfq.productPlaceholder} className="form-input" />
           {errors.product_interest && <p className="form-error">{errors.product_interest.message}</p>}
         </div>
 
         {/* Quantity */}
         <div className="form-group">
-          <label className="form-label">{t.rfq.quantity} *</label>
+          <label className="form-label">{t.rfq.quantity}</label>
           <input {...register('quantity')} type="number" min="1" placeholder={t.rfq.quantityPlaceholder} className="form-input" />
           {errors.quantity && <p className="form-error">{errors.quantity.message}</p>}
         </div>

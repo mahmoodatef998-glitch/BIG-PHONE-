@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { cloudinaryUrl } from '@/lib/cloudinary';
+import { productImageUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { conditionLabel } from '@/lib/i18n';
 import type { Product, Condition } from '@/types';
@@ -36,8 +37,10 @@ function getIphoneNum(name: string) {
 
 function MiniCard({ product }: { product: Product }) {
   const { t } = useLanguage();
-  const imgSrc = product.images[0]
-    ? cloudinaryUrl(product.images[0], { width: 220, quality: 80 })
+  const [useDirectUrl, setUseDirectUrl] = useState(false);
+  const rawSrc = product.images[0] ?? '';
+  const imgSrc = rawSrc
+    ? productImageUrl(rawSrc, { width: 220, quality: 80 }, useDirectUrl)
     : null;
   const brandColor = BRAND_COLORS[product.brand?.slug ?? ''] ?? '#FF6B00';
   const isRefurb = REFURB_CONDITIONS.includes(product.condition);
@@ -53,6 +56,9 @@ function MiniCard({ product }: { product: Product }) {
             fill
             sizes="180px"
             style={{ objectFit: 'contain', padding: '8px' }}
+            onError={() => {
+              if (!useDirectUrl && rawSrc) setUseDirectUrl(true);
+            }}
           />
         ) : (
           <div style={{

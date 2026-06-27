@@ -8,7 +8,7 @@ import {
   type ProductQueryFilters,
 } from '@/lib/product-filters';
 import { buildStorageVariants, type StorageVariant } from '@/lib/product-variants';
-import { PRODUCT_IMAGES } from '@/lib/product-images';
+import { withCanonicalImages, withCanonicalImagesList } from '@/lib/product-images';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -89,8 +89,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 for (const product of MOCK_PRODUCTS) {
-  const images = PRODUCT_IMAGES[product.slug];
-  if (images) product.images = images;
+  Object.assign(product, withCanonicalImages(product));
 }
 
 const MOCK_RFQS: RFQ[] = [
@@ -178,7 +177,7 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
   const { data, error } = await query;
   if (error) { console.error('[getProducts]', error.message); return []; }
 
-  let products = (data ?? []) as Product[];
+  let products = withCanonicalImagesList((data ?? []) as Product[]);
   products = applyProductSort(products, resolvedFilters.sortBy);
   if (resolvedFilters.limit) products = products.slice(0, resolvedFilters.limit);
   return products;
@@ -205,14 +204,15 @@ export async function getNewArrivals(limit = 12): Promise<Product[]> {
     return [];
   }
 
-  return (data ?? []) as Product[];
+  return withCanonicalImagesList((data ?? []) as Product[]);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!USE_SUPABASE) return MOCK_PRODUCTS.find(p => p.slug === slug) ?? null;
   const { data, error } = await db().from('products').select('*, brand:brands(*)').eq('slug', slug).eq('is_active', true).maybeSingle();
   if (error) { console.error('[getProductBySlug]', error.message); return null; }
-  return (data as Product) ?? null;
+  const product = (data as Product) ?? null;
+  return product ? withCanonicalImages(product) : null;
 }
 
 /** Sibling products with the same brand, model, and condition — one row per storage size. */
@@ -316,7 +316,7 @@ export async function getProductsAdmin(): Promise<Product[]> {
     .select('*, brand:brands(*)')
     .order('created_at', { ascending: false });
   if (error) { console.error('[getProductsAdmin]', error.message); return []; }
-  return (data ?? []) as Product[];
+  return withCanonicalImagesList((data ?? []) as Product[]);
 }
 
 export async function getBrandsAdmin(): Promise<Brand[]> {

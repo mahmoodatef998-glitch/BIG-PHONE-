@@ -1,3 +1,5 @@
+import type { Product } from '@/types';
+
 /** Single source of truth for product image URLs (mock data + Supabase seed). */
 const GH = 'https://raw.githubusercontent.com/littlebyteorg/apple-device-images/main/device';
 const SAM = 'https://images.samsung.com/is/image/samsung/p6pim';
@@ -104,8 +106,7 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
 
   // ── Samsung Tablets ──
   'samsung-galaxy-tab-s9-ultra-512gb': [
-    `${SAM}/id/sm-x910-sm-x910nzdidxid/gallery/id-galaxy-tab-s9-ultra-sm-x910-sm-x910nzdidxid-thumb-532824371`,
-    `${SAM}/id/sm-x910-sm-x910nzdidxid/gallery/id-galaxy-tab-s9-ultra-sm-x910-sm-x910nzdidxid-532824371`,
+    `${GSMA}/bigpic/samsung-galaxy-tab-s9-ultra.jpg`,
   ],
   'samsung-galaxy-tab-a9-plus-128gb': [
     `${SAM}/uk/sm-x210nzaaeub/gallery/uk-galaxy-tab-a9-plus-sm-x210-sm-x210nzaaeub-thumb-538905799`,
@@ -114,8 +115,8 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
 
   // ── Samsung Audio ──
   'samsung-galaxy-buds2-pro-graphite': [
-    `${SAM}/uk/2208/gallery/uk-galaxy-buds2-pro-r510-sm-r510nlvaeub-thumb-533240882`,
-    `${SAM}/uk/2208/gallery/uk-galaxy-buds2-pro-r510-sm-r510nlvaeub-533240882`,
+    `${SAM}/ae/2208/gallery/ae-galaxy-buds2-pro-r510-sm-r510nzaamea-thumb-533203132`,
+    `${SAM}/ae/2208/gallery/ae-galaxy-buds2-pro-r510-sm-r510nzaamea-533203131`,
   ],
 
   // ── Samsung Accessories ──
@@ -172,6 +173,7 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1624272673361-335d488ef9f7',
   ],
   'tempered-glass-screen-protectors-bulk-x50': [
+    'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb',
     'https://upload.wikimedia.org/wikipedia/commons/9/94/Screen_protector.png',
   ],
   'silicone-phone-cases-bulk-x50': [
@@ -183,4 +185,15 @@ export const PRODUCT_IMAGES: Record<string, string[]> = {
 /** Resolve images for a product slug, falling back to an empty array. */
 export function imagesForProduct(slug: string): string[] {
   return PRODUCT_IMAGES[slug] ?? [];
+}
+
+/** Prefer canonical catalog images over stale/empty Supabase values. */
+export function withCanonicalImages(product: Product): Product {
+  const canonical = PRODUCT_IMAGES[product.slug];
+  if (!canonical?.length) return product;
+  return { ...product, images: canonical };
+}
+
+export function withCanonicalImagesList(products: Product[]): Product[] {
+  return products.map(withCanonicalImages);
 }

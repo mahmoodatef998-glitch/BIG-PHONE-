@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
+import { X, ImageIcon, Info, Package, Cpu, ToggleLeft, Loader2, CheckCircle2, AlertCircle, Copy, Palette } from 'lucide-react';
 import type { Product, Brand, Collection, Condition, Category } from '@/types';
 import ImageDropZone from './ImageDropZone';
+import ColorVariantsEditor, { type VariantRow, emptyVariant } from './ColorVariantsEditor';
 import { useRouter } from 'next/navigation';
 import {
   IPHONE_MODEL_NAMES,
@@ -119,6 +120,8 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
   const [form, setForm] = useState<FormState>(() => field(product!));
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [syncVariants, setSyncVariants] = useState(false);
+  const [variantMode, setVariantMode] = useState(false);
+  const [variants, setVariants] = useState<VariantRow[]>([]);
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [uploadProgress, setUploadProgress] = useState('');
@@ -170,6 +173,23 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
     }));
   };
 
+  const toggleVariantMode = (on: boolean) => {
+    setVariantMode(on);
+    if (on && variants.length === 0) {
+      // Seed with the current product as the first colour (so its data is kept),
+      // then a blank row to add a second colour.
+      const seed: VariantRow = {
+        id: isNew ? undefined : product.id,
+        color: form.color,
+        stock_quantity: form.stock_quantity,
+        price_aed: form.price_aed,
+        existingImages: [...form.images],
+        newFiles: [],
+      };
+      setVariants(form.color || !isNew ? [seed, emptyVariant()] : [emptyVariant(iphoneColors[0] ?? '')]);
+    }
+  };
+
   const handleSave = async () => {
     if (!form) return;
     setStatus('saving');
@@ -179,6 +199,79 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
       setStatus('error');
       setErrorMsg('Name and Model are required');
       return;
+    }
+
+    // ── Multi-colour (variant) save ──────────────────────────────────────────
+    if (variantMode) {
+      try {
+        const valid = variants.filter(v => v.color.trim());
+        if (valid.length === 0) {
+          setStatus('error');
+          setErrorMsg('Add at least one colour with a name');
+          return;
+        }
+
+        const builtVariants = [];
+        for (const v of valid) {
+          let imgs = [...v.existingImages];
+          if (v.newFiles.length > 0) {
+            setUploadProgress(`Uploading images for ${v.color}…`);
+            const ups = await Promise.all(v.newFiles.map(uploadImage));
+            imgs = [...imgs, ...(ups.filter(Boolean) as string[])];
+          }
+          builtVariants.push({
+            id: v.id,
+            color: v.color.trim(),
+            stock_quantity: parseInt(v.stock_quantity) || 0,
+            price_aed: v.price_aed ? parseFloat(v.price_aed) : null,
+            images: imgs,
+          });
+        }
+        setUploadProgress('');
+
+        const subcategory = getIphoneSubcategory(form.model);
+        const base: Record<string, unknown> = {
+          brand_id: form.brand_id,
+          name: form.name.trim(),
+          model: form.model,
+          category: form.category,
+          condition: form.condition,
+          storage: form.storage || null,
+          battery_health: form.battery_health ? parseInt(form.battery_health) : null,
+          moq: parseInt(form.moq) || 1,
+          country_of_origin: form.country_of_origin,
+          warranty: form.warranty || null,
+          description: form.description || null,
+          specifications: Object.keys(form.specifications).length ? form.specifications : null,
+          show_price: form.show_price,
+          collection_id: form.collection_id || null,
+          is_featured: form.is_featured,
+          is_active: form.is_active,
+          ...(subcategory ? { subcategory } : {}),
+        };
+
+        const res = await fetch('/api/admin/products/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'save-color-variants', payload: { base, variants: builtVariants } }),
+        });
+        const json = await res.json();
+        if (!json.ok) {
+          setStatus('error');
+          setErrorMsg(json.error ?? 'Failed to save colour variants');
+          return;
+        }
+
+        setStatus('success');
+        onSaved?.(`Saved ${builtVariants.length} colour${builtVariants.length > 1 ? 's' : ''}`);
+        router.refresh();
+        setTimeout(() => { onClose(); setStatus('idle'); }, 1200);
+        return;
+      } catch {
+        setStatus('error');
+        setErrorMsg('Network error — please try again');
+        return;
+      }
     }
 
     try {
@@ -332,6 +425,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
 
+          {!variantMode && (
           <SectionCard icon={ImageIcon} title="Product Images">
             <ImageDropZone
               existingImages={form.images}
@@ -374,6 +468,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
               </div>
             )}
           </SectionCard>
+          )}
 
           <SectionCard icon={Info} title="Basic Info">
             <div style={{ marginBottom: '0.875rem' }}>
@@ -394,6 +489,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                   <input id="edit-model" style={inp} value={form.model} onChange={e => set('model', e.target.value)} />
                 )}
               </div>
+              {!variantMode && (
               <div>
                 <label htmlFor="edit-color" style={labelStyle}>Color</label>
                 {isIphoneProduct && iphoneColors.length > 0 ? (
@@ -417,6 +513,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                   </div>
                 )}
               </div>
+              )}
             </div>
             <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
               <div>
@@ -447,7 +544,57 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
             )}
           </SectionCard>
 
-          <SectionCard icon={Package} title="Inventory">
+          <SectionCard icon={Palette} title="Colours & Stock">
+            <div
+              onClick={() => toggleVariantMode(!variantMode)}
+              style={{
+                padding: '0.75rem 1rem', marginBottom: variantMode ? '1rem' : 0,
+                background: variantMode ? '#FFF0E0' : '#F8FAFC',
+                border: `1px solid ${variantMode ? '#FFD0A0' : '#E2E8F0'}`,
+                borderRadius: '0.5rem',
+                display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}>
+              <div style={{
+                width: '18px', height: '18px', flexShrink: 0, marginTop: '1px', borderRadius: '4px',
+                border: `2px solid ${variantMode ? '#FF6B00' : '#CBD5E1'}`,
+                background: variantMode ? '#FF6B00' : '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {variantMode && (
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: variantMode ? '#FF6B00' : '#374151' }}>
+                  Sell this product in multiple colours
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                  Each colour gets its own stock quantity, price &amp; images in one save.
+                </div>
+              </div>
+            </div>
+
+            {variantMode && (
+              <ColorVariantsEditor
+                variants={variants}
+                onChange={setVariants}
+                availableColors={iphoneColors}
+                uploading={status === 'saving'}
+              />
+            )}
+          </SectionCard>
+
+          <SectionCard icon={Package} title={variantMode ? 'Shared Details' : 'Inventory'}>
+            {variantMode && (
+              <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0 0 0.875rem', lineHeight: 1.6 }}>
+                In multi-colour mode, stock &amp; price come from each colour above.
+                The fields below (MOQ, warranty, origin) are shared across all colours.
+              </p>
+            )}
+            {!variantMode && (
             <div style={{ marginBottom: '0.875rem', padding: '0.875rem', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '0.5rem' }}>
               <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
                 Wholesale Pricing
@@ -484,11 +631,14 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                 {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
               </p>
             </div>
+            )}
             <div className="admin-drawer-grid-2" style={{ marginBottom: '0.875rem' }}>
+              {!variantMode && (
               <div>
                 <label htmlFor="edit-stock" style={labelStyle}>Stock Qty</label>
                 <input id="edit-stock" type="number" min="0" style={inp} value={form.stock_quantity} onChange={e => set('stock_quantity', e.target.value)} />
               </div>
+              )}
               <div>
                 <label htmlFor="edit-moq" style={labelStyle}>MOQ</label>
                 <input id="edit-moq" type="number" min="1" style={inp} value={form.moq} onChange={e => set('moq', e.target.value)} />

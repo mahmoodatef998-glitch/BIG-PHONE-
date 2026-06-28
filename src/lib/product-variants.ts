@@ -68,6 +68,35 @@ export function variantGroupKey(product: Pick<Product, 'brand_id' | 'model' | 'c
   return `${product.brand_id}|${product.model}|${product.condition}`;
 }
 
+/**
+ * Collapse colour/storage sibling rows into one representative per
+ * model+condition group — so listings show a single card per model while
+ * each colour keeps its own row (stock/price/images) for the detail page.
+ * Preserves incoming order; the representative prefers in-stock, then
+ * featured, then the highest stock.
+ */
+export function dedupeVariantGroups(products: Product[]): Product[] {
+  const groups = new Map<string, Product>();
+
+  for (const product of products) {
+    const key = variantGroupKey(product);
+    const existing = groups.get(key);
+    if (!existing) {
+      groups.set(key, product);
+      continue;
+    }
+    const score = (p: Product) =>
+      (p.stock_quantity > 0 ? 1_000_000 : 0) +
+      (p.is_featured ? 100_000 : 0) +
+      Math.min(p.stock_quantity, 99_999);
+    if (score(product) > score(existing)) {
+      groups.set(key, product); // keeps the original slot position
+    }
+  }
+
+  return Array.from(groups.values());
+}
+
 /** One entry per storage size; prefers slug matching `preferColor` when set. */
 export function buildStorageVariants(products: Product[], preferColor?: string | null): StorageVariant[] {
   const byStorage = new Map<string, Product>();

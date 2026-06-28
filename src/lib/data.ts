@@ -7,7 +7,7 @@ import {
   applyProductSort,
   type ProductQueryFilters,
 } from '@/lib/product-filters';
-import { buildStorageVariants, buildColorVariants, type StorageVariant, type ColorVariant } from '@/lib/product-variants';
+import { buildStorageVariants, buildColorVariants, dedupeVariantGroups, type StorageVariant, type ColorVariant } from '@/lib/product-variants';
 import { withCanonicalImages, withCanonicalImagesList } from '@/lib/product-images';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -136,7 +136,8 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
   }
 
   if (!USE_SUPABASE) {
-    return applyProductFilters(MOCK_PRODUCTS, resolvedFilters);
+    const mock = applyProductFilters(MOCK_PRODUCTS, resolvedFilters);
+    return resolvedFilters.includeAllVariants ? mock : dedupeVariantGroups(mock);
   }
 
   let query = db()
@@ -174,13 +175,19 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
     query = query.or(`name.ilike.%${q}%,model.ilike.%${q}%`);
   }
 
-  if (resolvedFilters.limit) query = query.limit(resolvedFilters.limit);
+  // Note: no DB-side limit here — colour/storage sibling rows are collapsed
+  // into one card per model below, so we need the full set before limiting.
 
   const { data, error } = await query;
   if (error) { console.error('[getProducts]', error.message); return []; }
 
   let products = withCanonicalImagesList((data ?? []) as Product[]);
   products = applyProductSort(products, resolvedFilters.sortBy);
+  // One card per model+condition group (colours/storages selectable on the
+  // product page). Unless a caller explicitly opts out.
+  if (!resolvedFilters.includeAllVariants) {
+    products = dedupeVariantGroups(products);
+  }
   if (resolvedFilters.limit) products = products.slice(0, resolvedFilters.limit);
   return products;
 }
@@ -188,9 +195,8 @@ export async function getProducts(filters?: ProductQueryFilters): Promise<Produc
 /** Latest active products by created_at — used for homepage New Arrivals. */
 export async function getNewArrivals(limit = 12): Promise<Product[]> {
   if (!USE_SUPABASE) {
-    return applyProductSort(
-      MOCK_PRODUCTS.filter(p => p.is_active),
-      'newest',
+    return dedupeVariantGroups(
+      applyProductSort(MOCK_PRODUCTS.filter(p => p.is_active), 'newest'),
     ).slice(0, limit);
   }
 
@@ -198,15 +204,15 @@ export async function getNewArrivals(limit = 12): Promise<Product[]> {
     .from('products')
     .select('*, brand:brands(*)')
     .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('[getNewArrivals]', error.message);
     return [];
   }
 
-  return withCanonicalImagesList((data ?? []) as Product[]);
+  // Collapse colour/storage siblings to one card per model, then take `limit`.
+  return dedupeVariantGroups(withCanonicalImagesList((data ?? []) as Product[])).slice(0, limit);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

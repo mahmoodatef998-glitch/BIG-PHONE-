@@ -19,6 +19,8 @@ export type ProductQueryFilters = {
   search?: string;
   limit?: number;
   sortBy?: 'newest' | 'stock-high' | 'stock-low' | 'brand' | 'model';
+  /** When true, return every colour/storage row instead of one card per model. */
+  includeAllVariants?: boolean;
 };
 
 export function applyProductSort(

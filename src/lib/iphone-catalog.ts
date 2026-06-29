@@ -38,7 +38,7 @@ export const IPHONE_MODELS: IphoneModelEntry[] = [
 
   { model: 'iPhone 17', series: 'iphone-17-series', colors: ['Black', 'White', 'Pink', 'Blue', 'Green'] },
   { model: 'iPhone 17 Pro', series: 'iphone-17-series', colors: ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium'] },
-  { model: 'iPhone 17 Pro Max', series: 'iphone-17-series', colors: ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium'] },
+  { model: 'iPhone 17 Pro Max', series: 'iphone-17-series', colors: ['Cosmic Orange', 'Deep Blue', 'Silver'] },
 ];
 
 export const IPHONE_MODEL_NAMES = IPHONE_MODELS.map(m => m.model);
@@ -88,6 +88,8 @@ export const IPHONE_COLOR_SWATCH: Record<string, string> = {
   'Blue Titanium': '#2F3D4C',
   'Natural Titanium': '#C2BFB8',
   'Desert Titanium': '#C9B89A',
+  'Cosmic Orange': '#FF7A2E',
+  'Deep Blue': '#2B4570',
 };
 
 export function colorSwatchHex(color: string): string {

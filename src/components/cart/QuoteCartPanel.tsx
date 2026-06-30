@@ -1,12 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { Trash2, ShoppingCart, Package } from 'lucide-react';
+import { Trash2, ShoppingCart, Package, FileDown } from 'lucide-react';
 import { useQuoteCart } from '@/contexts/QuoteCartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
 import { formatCartItemLabel, getCartLineTotal } from '@/lib/quote-cart';
 import { formatPriceAed } from '@/lib/pricing';
+import { openQuotePdf } from '@/lib/quote-pdf';
+
+const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
+const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? '';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? '';
 
 type Props = {
   compact?: boolean;
@@ -219,6 +224,26 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
           </div>
         </div>
       )}
+
+      <div style={{ padding: '0.875rem 1rem', borderTop: '1px solid #F1F5F9' }}>
+        <button
+          type="button"
+          onClick={() => openQuotePdf(items, {
+            whatsapp: WHATSAPP, email: COMPANY_EMAIL, siteUrl: SITE_URL,
+            estimatedTotal, totalUnits,
+          })}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+            width: '100%', padding: '0.75rem',
+            background: '#fff', color: '#0B1829',
+            border: '1.5px solid #CBD5E1', borderRadius: '0.625rem',
+            fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          <FileDown size={16} /> {t.cart.downloadPdf}
+        </button>
+      </div>
     </div>
   );
 }

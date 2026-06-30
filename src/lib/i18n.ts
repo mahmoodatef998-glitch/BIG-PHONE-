@@ -152,6 +152,7 @@ export type Translations = {
     itemsCount: string; totalUnits: string; clearAll: string; removeItem: string;
     submitAll: string; submitAllHint: string; emptySubmitError: string;
     estimatedTotal: string; priceOnRequest: string; partialPricingNote: string;
+    downloadPdf: string;
   };
   meta: {
     siteDefault: string; siteDescription: string;
@@ -401,6 +402,7 @@ export const translations: Record<Lang, Translations> = {
       estimatedTotal: 'Estimated total',
       priceOnRequest: 'Price on request',
       partialPricingNote: 'Some items have no listed price',
+      downloadPdf: 'Download PDF Quote',
     },
     meta: {
       siteDefault: "BIG PHONE — UAE's Trusted B2B Mobile Marketplace",
@@ -621,6 +623,7 @@ export const translations: Record<Lang, Translations> = {
       estimatedTotal: 'الإجمالي التقديري',
       priceOnRequest: 'السعر عند الطلب',
       partialPricingNote: 'بعض المنتجات بدون سعر معروض',
+      downloadPdf: 'تحميل عرض السعر PDF',
     },
     meta: {
       siteDefault: 'BIG PHONE — سوق الجملة الموثوق للموبايل في الإمارات',

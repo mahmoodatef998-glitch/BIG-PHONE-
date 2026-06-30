@@ -11,6 +11,7 @@ import {
 import { getProductBySlug as fetchProduct, getProducts as fetchProducts, getProductStorageVariants, getProductColorVariants } from '@/lib/data';
 import { getServerLang } from '@/lib/server-lang';
 import { productMetadata, productNotFoundMetadata } from '@/lib/page-metadata';
+import { getWhatsAppNumber } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -26,7 +27,7 @@ export async function generateMetadata(props: ProductPageProps): Promise<Metadat
   return productMetadata(lang, product);
 }
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+const WHATSAPP = getWhatsAppNumber();
 
 const BRAND_GRADIENT: Record<string, [string, string]> = {
   apple:   ['#1C1C1E', '#3A3A3C'],

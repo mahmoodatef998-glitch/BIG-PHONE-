@@ -1,6 +1,8 @@
 import { fmt, translations, type Lang } from './i18n';
 
-const DEFAULT_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+import { getWhatsAppNumber } from '@/lib/site-config';
+
+const DEFAULT_NUMBER = getWhatsAppNumber();
 
 export function buildWhatsAppLink(
   lang: Lang,

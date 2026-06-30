@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getWhatsAppNumber } from '@/lib/site-config';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+const WHATSAPP = getWhatsAppNumber();
 
 export default function CTASection() {
   const { t } = useLanguage();

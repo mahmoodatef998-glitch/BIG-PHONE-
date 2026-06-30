@@ -5,16 +5,18 @@ import { Settings, Globe, MessageCircle, Bell, Shield, Database, Loader2, Check,
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
+import { DEFAULT_COMPANY_EMAIL, DEFAULT_WHATSAPP_NUMBER } from '@/lib/site-config';
+
 const DEFAULTS: Record<string, string> = {
   store_name: 'BIG PHONE',
   store_tagline: 'Wholesale Mobile Phones & Devices',
-  contact_email: 'sales@bigphone.ae',
-  whatsapp_number: '971500000000',
+  contact_email: DEFAULT_COMPANY_EMAIL,
+  whatsapp_number: DEFAULT_WHATSAPP_NUMBER,
   whatsapp_message: "Hello, I'm interested in a wholesale quote.",
   currency: 'USD',
   moq_display: 'show-all',
   rfq_notifications: 'true',
-  notification_email: 'admin@bigphone.ae',
+  notification_email: DEFAULT_COMPANY_EMAIL,
 };
 
 interface Props { initialSettings: Record<string, string>; }
@@ -145,7 +147,7 @@ export default function SettingsClient({ initialSettings }: Props) {
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', overflow: 'hidden' }}>
           <SectionHeader icon={MessageCircle} title="WhatsApp" />
           <SettingRow label="WhatsApp Number" description="Used for all WhatsApp CTAs (no + or spaces)">
-            <input style={inputStyle} value={vals.whatsapp_number ?? ''} onChange={e => set('whatsapp_number', e.target.value)} placeholder="971500000000" />
+            <input style={inputStyle} value={vals.whatsapp_number ?? ''} onChange={e => set('whatsapp_number', e.target.value)} placeholder={DEFAULT_WHATSAPP_NUMBER} />
           </SettingRow>
           <SettingRow label="Default Message" description="Pre-filled message when customer taps chat">
             <input style={{ ...inputStyle, minWidth: '300px' }} value={vals.whatsapp_message ?? ''} onChange={e => set('whatsapp_message', e.target.value)} />

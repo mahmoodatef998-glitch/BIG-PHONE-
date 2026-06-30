@@ -333,11 +333,14 @@ on conflict (slug) do update set
 insert into site_settings (key, value) values
   ('store_name',           'BIG PHONE'),
   ('store_tagline',        'Wholesale Mobile Phones & Devices'),
-  ('contact_email',        'sales@bigphone.ae'),
-  ('whatsapp_number',      '971500000000'),
+  ('contact_email',        'BigPhoneUAE@gmail.com'),
+  ('whatsapp_number',      '971555522469'),
   ('whatsapp_message',     'Hello, I''m interested in a wholesale quote.'),
   ('currency',             'AED'),
   ('moq_display',          'show-all'),
   ('rfq_notifications',    'true'),
-  ('notification_email',   'admin@bigphone.ae')
-on conflict (key) do nothing;
+  ('notification_email',   'BigPhoneUAE@gmail.com')
+on conflict (key) do update set
+  value = excluded.value,
+  updated_at = now()
+where site_settings.key in ('contact_email', 'whatsapp_number', 'notification_email');

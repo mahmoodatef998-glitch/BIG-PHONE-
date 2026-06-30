@@ -7,7 +7,9 @@ import QuoteCartPanel from '@/components/cart/QuoteCartPanel';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+import { getWhatsAppNumber } from '@/lib/site-config';
+
+const WHATSAPP = getWhatsAppNumber();
 
 export default function RFQPageContent({ defaultProduct }: { defaultProduct: string }) {
   const { t, lang } = useLanguage();

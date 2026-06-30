@@ -5,6 +5,7 @@ import { rfqSchema } from '@/lib/rfq-schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { summarizeCartItems, enrichItemsWithPricing } from '@/lib/quote-cart';
 import { upsertCustomerFromRFQ } from '@/lib/data';
+import { getNotificationEmail } from '@/lib/site-config';
 import type { RFQItem } from '@/types';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -107,8 +108,10 @@ export async function POST(request: NextRequest) {
       phone,
     });
 
+    const notifyEmail = await getNotificationEmail();
+
     void Promise.all([
-      sendAdminRFQNotification(rfqData),
+      sendAdminRFQNotification(rfqData, notifyEmail),
       sendBuyerRFQConfirmation(rfqData),
     ]);
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Mail, Phone } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getCompanyEmail, formatWhatsAppDisplay, getWhatsAppNumber } from '@/lib/site-config';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -80,8 +81,8 @@ export default function Footer() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {[
                   { Icon: MapPin, text: t.footer.location },
-                  { Icon: Phone,  text: `+${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000'}` },
-                  { Icon: Mail,   text: 'wholesale@bigphone.ae' },
+                  { Icon: Phone,  text: formatWhatsAppDisplay() },
+                  { Icon: Mail,   text: getCompanyEmail() },
                 ].map(({ Icon, text }) => (
                   <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#9CA3AF' }}>
                     <Icon size={13} style={{ color: '#FF6B00', flexShrink: 0 }} />

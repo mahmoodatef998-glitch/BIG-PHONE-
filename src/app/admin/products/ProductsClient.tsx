@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Search, ChevronDown, AlertTriangle, Copy, CheckSquare, Square, Layers } from 'lucide-react';
+import StockReportExportButton from '@/components/admin/StockReportExportButton';
 import type { Product, Brand, Collection } from '@/types';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductEditDrawer from './ProductEditDrawer';
@@ -209,6 +210,11 @@ export default function ProductsClient({ products, brands, collections }: Props)
             </p>
           </div>
           <div className="admin-page-header-actions">
+            <StockReportExportButton
+              products={filtered}
+              collections={collections}
+              filenamePrefix="products-stock-report"
+            />
             <button
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.5rem',

@@ -260,6 +260,50 @@ exception when duplicate_object then null;
 end $$;
 
 alter table rfqs add column if not exists items jsonb;
+
+create table if not exists customers (
+  id               uuid primary key default uuid_generate_v4(),
+  email            text not null,
+  company_name     text not null,
+  contact_person   text not null,
+  country          text not null,
+  phone            text not null,
+  registered_at    timestamptz not null default now(),
+  last_activity_at timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
+);
+
+create unique index if not exists customers_email_idx on customers (email);
+create index if not exists customers_registered_idx on customers (registered_at desc);
+create index if not exists customers_last_activity_idx on customers (last_activity_at desc);
+
+drop trigger if exists customers_updated_at on customers;
+create trigger customers_updated_at
+  before update on customers
+  for each row execute function update_updated_at();
+
+alter table customers enable row level security;
+
+-- Backfill customers from existing RFQs (safe to re-run)
+insert into customers (email, company_name, contact_person, country, phone, registered_at, last_activity_at)
+select
+  lower(trim(email)),
+  (array_agg(company_name order by created_at desc))[1],
+  (array_agg(contact_person order by created_at desc))[1],
+  (array_agg(country order by created_at desc))[1],
+  (array_agg(phone order by created_at desc))[1],
+  min(created_at),
+  max(created_at)
+from rfqs
+where trim(email) <> ''
+group by lower(trim(email))
+on conflict (email) do update set
+  company_name = excluded.company_name,
+  contact_person = excluded.contact_person,
+  country = excluded.country,
+  phone = excluded.phone,
+  last_activity_at = greatest(customers.last_activity_at, excluded.last_activity_at),
+  updated_at = now();
 alter table products add column if not exists collection_id uuid references collections (id) on delete set null;
 
 create index if not exists products_collection_idx on products (collection_id) where is_active = true;

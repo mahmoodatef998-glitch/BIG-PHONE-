@@ -3,7 +3,12 @@ import { formatPriceAed } from '@/lib/pricing';
 import { getCartLineTotal } from '@/lib/quote-cart';
 import { getCompanyEmail, getWhatsAppNumber } from '@/lib/site-config';
 
-const FROM = `BIG PHONE <${process.env.RESEND_FROM_EMAIL ?? 'noreply@bigphone.ae'}>`;
+// Resend only delivers mail sent from a VERIFIED domain. Until a domain is
+// verified in Resend and RESEND_FROM_EMAIL is set, fall back to Resend's
+// shared sender (onboarding@resend.dev), which works without verification
+// (delivers to the Resend account owner). Set RESEND_FROM_EMAIL to a verified
+// address (e.g. noreply@yourdomain) to deliver to any recipient.
+const FROM = `BIG PHONE <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
 
 export interface RFQEmailData {
@@ -131,15 +136,20 @@ export async function sendAdminRFQNotification(
   data: RFQEmailData,
   adminEmail = getCompanyEmail(),
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Email] RESEND_API_KEY not set — skipping admin notification');
+    return;
+  }
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: FROM,
       to: adminEmail,
       subject: `New RFQ: ${data.company_name} — ${data.product_interest}`,
       html: adminHtml(data),
     });
+    // Resend returns an error object instead of throwing — surface it.
+    if (error) console.error('[Email] Admin notification rejected by Resend:', JSON.stringify(error));
   } catch (err) {
     console.error('[Email] Admin notification failed:', err);
   }
@@ -149,12 +159,13 @@ export async function sendBuyerRFQConfirmation(data: RFQEmailData): Promise<void
   if (!process.env.RESEND_API_KEY) return;
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: FROM,
       to: data.email,
       subject: 'Your wholesale inquiry has been received — BIG PHONE',
       html: buyerHtml(data),
     });
+    if (error) console.error('[Email] Buyer confirmation rejected by Resend:', JSON.stringify(error));
   } catch (err) {
     console.error('[Email] Buyer confirmation failed:', err);
   }

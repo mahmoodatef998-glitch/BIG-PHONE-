@@ -63,6 +63,22 @@ export interface Product {
   updated_at: string;
 }
 
+export interface RFQItem {
+  product_id?: string | null;
+  slug: string;
+  name: string;
+  quantity: number;
+  moq?: number;
+  storage?: string | null;
+  color?: string | null;
+  brand_name?: string | null;
+}
+
+export interface QuoteCartItem extends RFQItem {
+  product_id: string;
+  moq: number;
+}
+
 export interface RFQ {
   id: string;
   company_name: string;
@@ -72,6 +88,7 @@ export interface RFQ {
   email: string;
   product_interest: string | null;
   quantity: number | null;
+  items?: RFQItem[] | null;
   message: string | null;
   status: 'new' | 'contacted' | 'quoted' | 'closed';
   created_at: string;
@@ -83,8 +100,9 @@ export interface RFQFormData {
   country: string;
   phone: string;
   email: string;
-  product_interest: string;
-  quantity: number;
+  product_interest?: string;
+  quantity?: number;
+  items?: RFQItem[];
   message: string;
 }
 

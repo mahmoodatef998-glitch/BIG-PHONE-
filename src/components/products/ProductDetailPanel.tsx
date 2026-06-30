@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MessageCircle, MapPin, Shield } from 'lucide-react';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
 import ProductPrice from '@/components/ui/ProductPrice';
 import RFQForm from '@/components/rfq/RFQForm';
+import QuoteCartPanel from '@/components/cart/QuoteCartPanel';
+import AddToQuoteButton from '@/components/cart/AddToQuoteButton';
+import { useQuoteCart } from '@/contexts/QuoteCartContext';
 import { conditionLabel } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
@@ -34,6 +37,8 @@ function findColorVariant(variants: ColorVariant[], slug: string, fallback: Colo
 export default function ProductDetailPanel({ product, storageVariants, colorVariants, whatsappNumber }: Props) {
   const { t, lang } = useLanguage();
   const router = useRouter();
+  const { count } = useQuoteCart();
+  const [quoteQty, setQuoteQty] = useState(product.moq);
 
   const storageFallback = useMemo(() => productToStorageVariant(product), [product]);
   const colorFallback = useMemo(() => productToColorVariant(product), [product]);
@@ -71,6 +76,16 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
     } as ColorVariant;
   }, [product, colorVariants, storageVariants, selectedColor.color]);
 
+  const quoteProduct = useMemo<Product>(() => ({
+    ...product,
+    slug: activeVariant.slug,
+    name: activeVariant.name,
+    stock_quantity: activeVariant.stock_quantity,
+    moq: activeVariant.moq,
+    color: activeVariant.color || product.color,
+    storage: activeVariant.storage ?? product.storage,
+  }), [product, activeVariant]);
+
   const navigateTo = (slug: string) => {
     if (slug !== product.slug) {
       router.replace(`/products/${slug}`, { scroll: false });
@@ -104,6 +119,10 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
   });
   const showPrice = pricing.showPrice;
   const isOutOfStock = activeVariant.stock_quantity === 0;
+
+  useEffect(() => {
+    setQuoteQty(Math.max(activeVariant.moq, product.moq));
+  }, [activeVariant.slug, activeVariant.moq, product.moq]);
 
   const specRows = [
     { label: t.product.condition, value: conditionLabel(product.condition, t) },
@@ -265,6 +284,50 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
           </div>
         </div>
 
+        <div style={{ marginBottom: '1rem', padding: '0.875rem', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '10px' }}>
+          <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
+            {t.cart.addToQuote}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.625rem' }}>
+            <label htmlFor="quote-qty" style={{ fontSize: '0.8125rem', color: '#64748B', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              {t.rfq.quantity}
+            </label>
+            <input
+              id="quote-qty"
+              type="number"
+              min={quoteProduct.moq}
+              value={quoteQty}
+              onChange={e => setQuoteQty(Math.max(quoteProduct.moq, Number(e.target.value) || quoteProduct.moq))}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #E2E8F0',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+              }}
+              dir="ltr"
+            />
+          </div>
+          <AddToQuoteButton product={quoteProduct} quantity={quoteQty} variant="detail" />
+          {count > 0 && (
+            <Link
+              href="/rfq"
+              style={{
+                display: 'block',
+                marginTop: '0.625rem',
+                textAlign: 'center',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#C2410C',
+                textDecoration: 'none',
+              }}
+            >
+              {t.cart.viewQuoteList} ({count})
+            </Link>
+          )}
+        </div>
+
         <a
           href={waLink}
           target="_blank"
@@ -290,11 +353,12 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
         <div style={{ background: '#0B1829', padding: '1rem 1.25rem' }}>
           <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', margin: 0 }}>{t.rfq.title}</h3>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: '0.25rem', marginBottom: 0 }}>
-            {t.rfq.subtitle}
+            {count > 0 ? t.cart.submitAllHint : t.rfq.subtitle}
           </p>
         </div>
         <div style={{ padding: '1.25rem' }}>
-          <RFQForm key={product.slug} defaultProduct={activeVariant.name} compact />
+          <QuoteCartPanel compact showEmptyHint={false} />
+          <RFQForm key={`${product.slug}-${count}`} defaultProduct={activeVariant.name} compact hideCartPanel />
         </div>
       </div>
     </>

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Search, User, Menu, X, ChevronDown, Smartphone, Tablet, Headphones, Watch, Headset } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import QuoteCartLink from '@/components/cart/QuoteCartLink';
 
 function CamelLogo({ size = 68 }: { size?: number }) {
   const showH = Math.round(size * 0.64);
@@ -127,6 +128,7 @@ export default function Header() {
 
             {/* ── Right actions ───────────────────── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+              <QuoteCartLink />
               <button onClick={toggle} className="hdr-icon-btn" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
                 {t.header.switchLang}
               </button>
@@ -178,6 +180,9 @@ export default function Header() {
                 </Link>
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <QuoteCartLink compact />
+              </div>
               <Link href="/rfq" onClick={closeNav} className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>{t.header.getQuote}</Link>
               <Link href="/admin/login" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>
                 <User size={16} /> {t.header.admin}

@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { sendAdminRFQNotification, sendBuyerRFQConfirmation } from '@/lib/email';
 import { rfqSchema } from '@/lib/rfq-schema';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { summarizeCartItems } from '@/lib/quote-cart';
+import type { RFQItem } from '@/types';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -41,15 +43,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { company_name, contact_person, country, phone, email, product_interest, quantity, message } = parsed.data;
-    const rfqData = {
+    const {
       company_name,
       contact_person,
       country,
       phone,
       email,
       product_interest,
-      quantity: quantity ?? null,
+      quantity,
+      message,
+      items,
+    } = parsed.data;
+
+    const cartItems = (items ?? []) as RFQItem[];
+    const summary = cartItems.length > 0
+      ? summarizeCartItems(cartItems)
+      : { product_interest: product_interest ?? '', quantity: quantity ?? null };
+
+    const rfqData = {
+      company_name,
+      contact_person,
+      country,
+      phone,
+      email,
+      product_interest: summary.product_interest,
+      quantity: summary.quantity,
+      items: cartItems.length > 0 ? cartItems : null,
       message: message ?? null,
     };
 

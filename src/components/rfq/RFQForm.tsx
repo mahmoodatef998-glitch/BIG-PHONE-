@@ -6,7 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuoteCart } from '@/contexts/QuoteCartContext';
 import { COUNTRIES, countryLabel } from '@/lib/countries';
+import QuoteCartPanel from '@/components/cart/QuoteCartPanel';
+import { summarizeCartItems } from '@/lib/quote-cart';
 
 type RFQFormValues = {
   company_name: string;
@@ -22,13 +25,16 @@ type RFQFormValues = {
 interface RFQFormProps {
   defaultProduct?: string;
   compact?: boolean;
+  hideCartPanel?: boolean;
 }
 
-export default function RFQForm({ defaultProduct = '', compact = false }: RFQFormProps) {
+export default function RFQForm({ defaultProduct = '', compact = false, hideCartPanel = false }: RFQFormProps) {
   const { t, lang } = useLanguage();
+  const { items, count, clearCart } = useQuoteCart();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const useCart = count > 0;
 
   const rfqSchema = useMemo(() => z.object({
     company_name: z.string().min(2, t.validation.companyRequired),
@@ -36,10 +42,14 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
     country: z.string().min(2, t.validation.countryRequired),
     phone: z.string().min(7, t.validation.phoneRequired),
     email: z.string().email(t.validation.emailRequired),
-    product_interest: z.string().min(2, t.validation.productRequired),
-    quantity: z.coerce.number().min(1, t.validation.quantityMin).max(100000, t.validation.quantityMax),
+    product_interest: useCart
+      ? z.string().optional()
+      : z.string().min(2, t.validation.productRequired),
+    quantity: useCart
+      ? z.coerce.number().optional()
+      : z.coerce.number().min(1, t.validation.quantityMin).max(100000, t.validation.quantityMax),
     message: z.string().optional(),
-  }), [t]);
+  }), [t, useCart]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RFQFormValues>({
     resolver: zodResolver(rfqSchema) as Resolver<RFQFormValues>,
@@ -50,15 +60,34 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
   });
 
   const onSubmit = async (data: RFQFormValues) => {
+    if (useCart && items.length === 0) {
+      setError(t.cart.emptySubmitError);
+      return;
+    }
+
     setSubmitting(true);
     setError('');
     try {
+      const payload = useCart
+        ? {
+            company_name: data.company_name,
+            contact_person: data.contact_person,
+            country: data.country,
+            phone: data.phone,
+            email: data.email,
+            items,
+            message: data.message,
+            ...summarizeCartItems(items),
+          }
+        : data;
+
       const res = await fetch('/api/rfq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Failed to submit');
+      if (useCart) clearCart();
       setSubmitted(true);
     } catch {
       setError(t.rfq.error);
@@ -101,6 +130,12 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      {useCart && !hideCartPanel && (
+        <div style={{ marginBottom: '1.25rem' }}>
+          <QuoteCartPanel compact showEmptyHint={false} />
+        </div>
+      )}
+
       <div className="rfq-form-grid">
         <div className="form-group">
           <label className="form-label">{t.rfq.companyName}</label>
@@ -137,17 +172,21 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
           {errors.email && <p className="form-error">{errors.email.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label className="form-label">{t.rfq.product}</label>
-          <input {...register('product_interest')} placeholder={t.rfq.productPlaceholder} className="form-input" />
-          {errors.product_interest && <p className="form-error">{errors.product_interest.message}</p>}
-        </div>
+        {!useCart && (
+          <>
+            <div className="form-group">
+              <label className="form-label">{t.rfq.product}</label>
+              <input {...register('product_interest')} placeholder={t.rfq.productPlaceholder} className="form-input" />
+              {errors.product_interest && <p className="form-error">{errors.product_interest.message}</p>}
+            </div>
 
-        <div className="form-group">
-          <label className="form-label">{t.rfq.quantity}</label>
-          <input {...register('quantity')} type="number" min="1" placeholder={t.rfq.quantityPlaceholder} className="form-input" dir="ltr" />
-          {errors.quantity && <p className="form-error">{errors.quantity.message}</p>}
-        </div>
+            <div className="form-group">
+              <label className="form-label">{t.rfq.quantity}</label>
+              <input {...register('quantity')} type="number" min="1" placeholder={t.rfq.quantityPlaceholder} className="form-input" dir="ltr" />
+              {errors.quantity && <p className="form-error">{errors.quantity.message}</p>}
+            </div>
+          </>
+        )}
 
         <div className="form-group rfq-form-full">
           <label className="form-label">{t.rfq.notes}</label>
@@ -166,11 +205,11 @@ export default function RFQForm({ defaultProduct = '', compact = false }: RFQFor
           </div>
         )}
 
-        <button type="submit" disabled={submitting} className="btn btn-primary btn-lg rfq-form-full" style={{ width: '100%' }}>
+        <button type="submit" disabled={submitting || (useCart && count === 0)} className="btn btn-primary btn-lg rfq-form-full" style={{ width: '100%' }}>
           {submitting ? (
             <><Loader2 size={18} className="spin-icon" /> {t.rfq.sending}</>
           ) : (
-            <><Send size={16} /> {t.rfq.submit}</>
+            <><Send size={16} /> {useCart ? t.cart.submitAll : t.rfq.submit}</>
           )}
         </button>
 

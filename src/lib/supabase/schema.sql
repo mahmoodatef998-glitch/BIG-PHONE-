@@ -122,6 +122,7 @@ create table if not exists rfqs (
   email            text not null,
   product_interest text,
   quantity         integer check (quantity > 0),
+  items            jsonb,
   message          text,
   status           rfq_status not null default 'new',
   created_at       timestamptz not null default now()
@@ -257,6 +258,8 @@ do $$ begin
   alter type condition_type add value 'super-sale';
 exception when duplicate_object then null;
 end $$;
+
+alter table rfqs add column if not exists items jsonb;
 alter table products add column if not exists collection_id uuid references collections (id) on delete set null;
 
 create index if not exists products_collection_idx on products (collection_id) where is_active = true;

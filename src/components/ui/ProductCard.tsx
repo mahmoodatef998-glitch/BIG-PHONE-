@@ -10,6 +10,7 @@ import { productImageUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
+import AddToQuoteButton from '@/components/cart/AddToQuoteButton';
 import type { Product } from '@/types';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
@@ -122,9 +123,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div style={{ display: 'flex', gap: '0.375rem', marginTop: 'auto', paddingTop: '0.5rem' }}>
-          <Link href={`/rfq?product=${encodeURIComponent(product.name)}`} className="pcard-quote-btn">
-            {t.product.requestQuote}
-          </Link>
+          <AddToQuoteButton product={product} />
           <a href={waLink} target="_blank" rel="noopener noreferrer" className="pcard-wa-btn" aria-label="WhatsApp">
             <MessageCircle size={15} />
           </a>

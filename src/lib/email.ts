@@ -13,6 +13,13 @@ export interface RFQEmailData {
   email: string;
   product_interest: string;
   quantity?: number | null;
+  items?: Array<{
+    name: string;
+    quantity: number;
+    storage?: string | null;
+    color?: string | null;
+    brand_name?: string | null;
+  }> | null;
   message?: string | null;
 }
 
@@ -22,6 +29,18 @@ function tableRow(label: string, value: string | number | null | undefined) {
     <td style="padding:8px 0;font-size:13px;color:#6B7280;width:38%;vertical-align:top">${label}</td>
     <td style="padding:8px 0;font-size:14px;font-weight:600;color:#0F172A">${value}</td>
   </tr>`;
+}
+
+function itemsTableHtml(items: RFQEmailData['items']): string {
+  if (!items?.length) return '';
+  const rows = items.map(i => `<tr style="border-top:1px solid #F1F5F9">
+    <td style="padding:8px 0;font-size:13px;color:#0F172A;font-weight:600">${i.name}${i.color ? ` · ${i.color}` : ''}${i.storage ? ` · ${i.storage}` : ''}</td>
+    <td style="padding:8px 0;font-size:13px;color:#374151;text-align:right;white-space:nowrap">${i.quantity.toLocaleString()} units</td>
+  </tr>`).join('');
+  return `<div style="margin-top:12px">
+    <div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Line Items (${items.length})</div>
+    <table style="width:100%;border-collapse:collapse">${rows}</table>
+  </div>`;
 }
 
 function adminHtml(d: RFQEmailData): string {
@@ -44,8 +63,9 @@ function adminHtml(d: RFQEmailData): string {
       ${tableRow('Country', d.country)}
       ${tableRow('Phone', d.phone)}
       ${tableRow('Email', d.email)}
-      ${tableRow('Product', d.product_interest)}
+      ${tableRow('Product', d.items?.length ? `${d.items.length} products (see below)` : d.product_interest)}
       ${tableRow('Quantity', d.quantity ? `${d.quantity.toLocaleString()} units` : null)}
+      ${itemsTableHtml(d.items)}
       ${d.message ? tableRow('Message', d.message) : ''}
     </table>
     <div style="margin-top:22px;display:flex;gap:8px;flex-wrap:wrap">
@@ -77,10 +97,11 @@ function buyerHtml(d: RFQEmailData): string {
       <div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Your Inquiry Summary</div>
       <table style="width:100%;border-collapse:collapse">
         ${tableRow('Company', d.company_name)}
-        ${tableRow('Product', d.product_interest)}
+        ${tableRow('Product', d.items?.length ? `${d.items.length} products` : d.product_interest)}
         ${tableRow('Quantity', d.quantity ? `${d.quantity.toLocaleString()} units` : 'To be discussed')}
         ${tableRow('Country', d.country)}
       </table>
+      ${itemsTableHtml(d.items)}
     </div>
     <p style="margin:0 0 16px;font-size:13px;color:#64748B">Have questions? Reach us directly on WhatsApp or browse our catalog:</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { MessageCircle, Clock, Users, Globe, FileText } from 'lucide-react';
 import RFQForm from '@/components/rfq/RFQForm';
+import QuoteCartPanel from '@/components/cart/QuoteCartPanel';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
 
@@ -56,7 +57,8 @@ export default function RFQPageContent({ defaultProduct }: { defaultProduct: str
               <h2 style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', margin: '0 0 0.25rem' }}>{p.formTitle}</h2>
               <p style={{ fontSize: '0.8125rem', color: '#9CA3AF', margin: 0 }}>{p.formRequired}</p>
             </div>
-            <RFQForm key={defaultProduct} defaultProduct={defaultProduct} />
+            <QuoteCartPanel />
+            <RFQForm key={defaultProduct} defaultProduct={defaultProduct} hideCartPanel />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

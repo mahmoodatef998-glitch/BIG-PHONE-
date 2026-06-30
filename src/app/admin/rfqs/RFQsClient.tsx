@@ -174,14 +174,31 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
               </div>
               <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid #F1F5F9' }}>
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-                  <div>
-                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Product</span>
-                    <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 500, marginTop: '0.125rem' }}>{rfq.product_interest}</p>
+                  <div style={{ flex: 1, minWidth: '220px' }}>
+                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {rfq.items?.length ? `Products (${rfq.items.length})` : 'Product'}
+                    </span>
+                    {rfq.items?.length ? (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                        {rfq.items.map((item, idx) => (
+                          <div key={`${item.slug}-${idx}`} style={{
+                            display: 'flex', justifyContent: 'space-between', gap: '0.75rem',
+                            padding: '0.5rem 0.625rem', background: '#F8FAFC', borderRadius: '0.375rem',
+                            fontSize: '0.8125rem',
+                          }}>
+                            <span style={{ color: '#0F172A', fontWeight: 600 }}>{item.name}</span>
+                            <span style={{ color: '#64748B', fontWeight: 700, whiteSpace: 'nowrap' }}>{item.quantity.toLocaleString()} units</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 500, marginTop: '0.125rem' }}>{rfq.product_interest}</p>
+                    )}
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Quantity</span>
+                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Quantity</span>
                     <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 600, marginTop: '0.125rem' }}>
-                      {rfq.quantity != null ? `${rfq.quantity} units` : '—'}
+                      {rfq.quantity != null ? `${rfq.quantity.toLocaleString()} units` : '—'}
                     </p>
                   </div>
                 </div>

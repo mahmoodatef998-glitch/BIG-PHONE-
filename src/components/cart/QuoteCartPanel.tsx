@@ -8,10 +8,11 @@ import { fmt } from '@/lib/i18n';
 import { formatCartItemLabel, getCartLineTotal } from '@/lib/quote-cart';
 import { formatPriceAed } from '@/lib/pricing';
 import { openQuotePdf } from '@/lib/quote-pdf';
+import { getCompanyEmail, getWhatsAppNumber } from '@/lib/site-config';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
-const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? '';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+const WHATSAPP = getWhatsAppNumber();
+const COMPANY_EMAIL = getCompanyEmail();
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
 
 type Props = {
   compact?: boolean;

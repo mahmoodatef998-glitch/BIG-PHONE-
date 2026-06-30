@@ -261,6 +261,8 @@ end $$;
 
 alter table rfqs add column if not exists items jsonb;
 
+alter table rfqs add column if not exists estimated_total_aed numeric(10,2);
+
 do $$ begin
   alter type rfq_status add value 'sold';
 exception when duplicate_object then null;

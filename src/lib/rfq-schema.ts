@@ -9,6 +9,7 @@ export const rfqItemSchema = z.object({
   storage: z.string().trim().max(80).optional().nullable(),
   color: z.string().trim().max(80).optional().nullable(),
   brand_name: z.string().trim().max(120).optional().nullable(),
+  unit_price_aed: z.coerce.number().nonnegative().max(10_000_000).optional().nullable(),
 });
 
 export const rfqSchema = z.object({

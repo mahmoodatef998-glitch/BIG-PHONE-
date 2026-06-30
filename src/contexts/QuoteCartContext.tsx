@@ -16,12 +16,16 @@ import {
   cartItemFromProduct,
   cartItemKey,
   parseStoredCart,
+  computeCartEstimatedTotal,
+  countPricedCartItems,
 } from '@/lib/quote-cart';
 
 interface QuoteCartCtx {
   items: QuoteCartItem[];
   count: number;
   totalUnits: number;
+  estimatedTotal: number | null;
+  pricedCount: number;
   addItem: (product: Product, quantity?: number) => boolean;
   updateQuantity: (slug: string, quantity: number) => void;
   removeItem: (slug: string) => void;
@@ -33,6 +37,8 @@ const QuoteCartContext = createContext<QuoteCartCtx>({
   items: [],
   count: 0,
   totalUnits: 0,
+  estimatedTotal: null,
+  pricedCount: 0,
   addItem: () => false,
   updateQuantity: () => {},
   removeItem: () => {},
@@ -68,7 +74,11 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
         added = true;
         return prev.map(i =>
           cartItemKey(i) === key
-            ? { ...i, quantity: Math.max(i.moq, i.quantity + next.quantity) }
+            ? {
+                ...i,
+                quantity: Math.max(i.moq, i.quantity + next.quantity),
+                unit_price_aed: next.unit_price_aed,
+              }
             : i,
         );
       }
@@ -101,19 +111,23 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   );
 
   const totalUnits = useMemo(() => items.reduce((sum, i) => sum + i.quantity, 0), [items]);
+  const estimatedTotal = useMemo(() => computeCartEstimatedTotal(items), [items]);
+  const pricedCount = useMemo(() => countPricedCartItems(items), [items]);
 
   const value = useMemo(
     () => ({
       items,
       count: items.length,
       totalUnits,
+      estimatedTotal,
+      pricedCount,
       addItem,
       updateQuantity,
       removeItem,
       clearCart,
       hasItem,
     }),
-    [items, totalUnits, addItem, updateQuantity, removeItem, clearCart, hasItem],
+    [items, totalUnits, estimatedTotal, pricedCount, addItem, updateQuantity, removeItem, clearCart, hasItem],
   );
 
   return (

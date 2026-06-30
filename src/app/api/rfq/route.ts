@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { sendAdminRFQNotification, sendBuyerRFQConfirmation } from '@/lib/email';
 import { rfqSchema } from '@/lib/rfq-schema';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { summarizeCartItems } from '@/lib/quote-cart';
+import { summarizeCartItems, enrichItemsWithPricing } from '@/lib/quote-cart';
 import { upsertCustomerFromRFQ } from '@/lib/data';
 import type { RFQItem } from '@/types';
 
@@ -57,9 +57,22 @@ export async function POST(request: NextRequest) {
     } = parsed.data;
 
     const cartItems = (items ?? []) as RFQItem[];
+    let enrichedItems = cartItems;
+
+    if (cartItems.length > 0 && USE_SUPABASE) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      const slugs = [...new Set(cartItems.map(i => i.slug))];
+      const { data: products } = await supabase
+        .from('products')
+        .select('slug, price_aed, sale_price_aed, show_price')
+        .in('slug', slugs);
+
+      enrichedItems = enrichItemsWithPricing(cartItems, products ?? []).items;
+    }
+
     const summary = cartItems.length > 0
-      ? summarizeCartItems(cartItems)
-      : { product_interest: product_interest ?? '', quantity: quantity ?? null };
+      ? summarizeCartItems(enrichedItems)
+      : { product_interest: product_interest ?? '', quantity: quantity ?? null, estimated_total_aed: null };
 
     const rfqData = {
       company_name,
@@ -69,7 +82,8 @@ export async function POST(request: NextRequest) {
       email,
       product_interest: summary.product_interest,
       quantity: summary.quantity,
-      items: cartItems.length > 0 ? cartItems : null,
+      items: enrichedItems.length > 0 ? enrichedItems : null,
+      estimated_total_aed: summary.estimated_total_aed,
       message: message ?? null,
     };
 

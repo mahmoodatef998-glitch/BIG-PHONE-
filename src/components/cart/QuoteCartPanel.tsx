@@ -5,7 +5,8 @@ import { Trash2, ShoppingCart, Package } from 'lucide-react';
 import { useQuoteCart } from '@/contexts/QuoteCartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
-import { formatCartItemLabel } from '@/lib/quote-cart';
+import { formatCartItemLabel, getCartLineTotal } from '@/lib/quote-cart';
+import { formatPriceAed } from '@/lib/pricing';
 
 type Props = {
   compact?: boolean;
@@ -14,7 +15,16 @@ type Props = {
 
 export default function QuoteCartPanel({ compact = false, showEmptyHint = true }: Props) {
   const { t } = useLanguage();
-  const { items, count, totalUnits, updateQuantity, removeItem, clearCart } = useQuoteCart();
+  const {
+    items,
+    count,
+    totalUnits,
+    estimatedTotal,
+    pricedCount,
+    updateQuantity,
+    removeItem,
+    clearCart,
+  } = useQuoteCart();
 
   if (count === 0) {
     if (!showEmptyHint) return null;
@@ -39,6 +49,8 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
       </div>
     );
   }
+
+  const hasPartialPricing = pricedCount > 0 && pricedCount < count;
 
   return (
     <div style={{
@@ -87,83 +99,126 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
       </div>
 
       <div style={{ maxHeight: compact ? '280px' : '420px', overflowY: 'auto' }}>
-        {items.map(item => (
-          <div
-            key={item.slug}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto auto',
-              gap: '0.625rem',
-              alignItems: 'center',
-              padding: '0.875rem 1rem',
-              borderBottom: '1px solid #FFEDD5',
-              background: '#fff',
-            }}
-          >
-            <div style={{ minWidth: 0 }}>
-              <div style={{
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                color: '#111827',
-                lineHeight: 1.35,
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-              }}>
-                {formatCartItemLabel(item)}
-              </div>
-              {item.brand_name && (
-                <div style={{ fontSize: '0.6875rem', color: '#64748B', marginTop: '0.125rem' }}>
-                  {item.brand_name} · {t.product.moq} {item.moq}
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Package size={12} style={{ color: '#94A3B8', flexShrink: 0 }} />
-              <input
-                type="number"
-                min={item.moq}
-                max={1000000}
-                value={item.quantity}
-                onChange={e => updateQuantity(item.slug, Number(e.target.value))}
-                aria-label={`${t.rfq.quantity} — ${item.name}`}
-                style={{
-                  width: '72px',
-                  padding: '0.375rem 0.5rem',
-                  border: '1px solid #E2E8F0',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  textAlign: 'center',
-                }}
-                dir="ltr"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => removeItem(item.slug)}
-              aria-label={t.cart.removeItem}
+        {items.map(item => {
+          const lineTotal = getCartLineTotal(item);
+          return (
+            <div
+              key={item.slug}
               style={{
-                width: '32px',
-                height: '32px',
-                border: '1px solid #FECACA',
-                background: '#FEF2F2',
-                color: '#DC2626',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto auto',
+                gap: '0.625rem',
                 alignItems: 'center',
-                justifyContent: 'center',
+                padding: '0.875rem 1rem',
+                borderBottom: '1px solid #FFEDD5',
+                background: '#fff',
               }}
             >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        ))}
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: '#111827',
+                  lineHeight: 1.35,
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                }}>
+                  {formatCartItemLabel(item)}
+                </div>
+                {item.brand_name && (
+                  <div style={{ fontSize: '0.6875rem', color: '#64748B', marginTop: '0.125rem' }}>
+                    {item.brand_name} · {t.product.moq} {item.moq}
+                  </div>
+                )}
+                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.25rem' }} dir="ltr">
+                  {item.unit_price_aed != null ? (
+                    <>
+                      AED {formatPriceAed(item.unit_price_aed)} × {item.quantity.toLocaleString('en-AE')}
+                      {lineTotal != null && (
+                        <span style={{ fontWeight: 700, color: '#111827', marginLeft: '0.375rem' }}>
+                          = AED {formatPriceAed(lineTotal)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span style={{ fontStyle: 'italic' }}>{t.cart.priceOnRequest}</span>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Package size={12} style={{ color: '#94A3B8', flexShrink: 0 }} />
+                <input
+                  type="number"
+                  min={item.moq}
+                  max={1000000}
+                  value={item.quantity}
+                  onChange={e => updateQuantity(item.slug, Number(e.target.value))}
+                  aria-label={`${t.rfq.quantity} — ${item.name}`}
+                  style={{
+                    width: '72px',
+                    padding: '0.375rem 0.5rem',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                  }}
+                  dir="ltr"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => removeItem(item.slug)}
+                aria-label={t.cart.removeItem}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  border: '1px solid #FECACA',
+                  background: '#FEF2F2',
+                  color: '#DC2626',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          );
+        })}
       </div>
+
+      {estimatedTotal != null && (
+        <div style={{
+          padding: '0.875rem 1rem',
+          background: '#FFEDD5',
+          borderTop: '1px solid #FED7AA',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+        }}>
+          <div>
+            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#9A3412', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {t.cart.estimatedTotal}
+            </div>
+            {hasPartialPricing && (
+              <div style={{ fontSize: '0.6875rem', color: '#C2410C', marginTop: '0.125rem' }}>
+                {t.cart.partialPricingNote}
+              </div>
+            )}
+          </div>
+          <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#9A3412' }} dir="ltr">
+            AED {formatPriceAed(estimatedTotal)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

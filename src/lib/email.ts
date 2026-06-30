@@ -1,4 +1,6 @@
 import { Resend } from 'resend';
+import { formatPriceAed } from '@/lib/pricing';
+import { getCartLineTotal } from '@/lib/quote-cart';
 
 const FROM = `BIG PHONE <${process.env.RESEND_FROM_EMAIL ?? 'noreply@bigphone.ae'}>`;
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? 'info@bigphone.ae';
@@ -13,12 +15,14 @@ export interface RFQEmailData {
   email: string;
   product_interest: string;
   quantity?: number | null;
+  estimated_total_aed?: number | null;
   items?: Array<{
     name: string;
     quantity: number;
     storage?: string | null;
     color?: string | null;
     brand_name?: string | null;
+    unit_price_aed?: number | null;
   }> | null;
   message?: string | null;
 }
@@ -33,10 +37,16 @@ function tableRow(label: string, value: string | number | null | undefined) {
 
 function itemsTableHtml(items: RFQEmailData['items']): string {
   if (!items?.length) return '';
-  const rows = items.map(i => `<tr style="border-top:1px solid #F1F5F9">
+  const rows = items.map(i => {
+    const lineTotal = getCartLineTotal(i);
+    const priceCell = i.unit_price_aed != null
+      ? `AED ${formatPriceAed(i.unit_price_aed)} × ${i.quantity.toLocaleString()}${lineTotal != null ? ` = AED ${formatPriceAed(lineTotal)}` : ''}`
+      : `${i.quantity.toLocaleString()} units`;
+    return `<tr style="border-top:1px solid #F1F5F9">
     <td style="padding:8px 0;font-size:13px;color:#0F172A;font-weight:600">${i.name}${i.color ? ` · ${i.color}` : ''}${i.storage ? ` · ${i.storage}` : ''}</td>
-    <td style="padding:8px 0;font-size:13px;color:#374151;text-align:right;white-space:nowrap">${i.quantity.toLocaleString()} units</td>
-  </tr>`).join('');
+    <td style="padding:8px 0;font-size:13px;color:#374151;text-align:right;white-space:nowrap">${priceCell}</td>
+  </tr>`;
+  }).join('');
   return `<div style="margin-top:12px">
     <div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Line Items (${items.length})</div>
     <table style="width:100%;border-collapse:collapse">${rows}</table>
@@ -65,6 +75,7 @@ function adminHtml(d: RFQEmailData): string {
       ${tableRow('Email', d.email)}
       ${tableRow('Product', d.items?.length ? `${d.items.length} products (see below)` : d.product_interest)}
       ${tableRow('Quantity', d.quantity ? `${d.quantity.toLocaleString()} units` : null)}
+      ${tableRow('Est. Total', d.estimated_total_aed != null ? `AED ${formatPriceAed(d.estimated_total_aed)}` : null)}
       ${itemsTableHtml(d.items)}
       ${d.message ? tableRow('Message', d.message) : ''}
     </table>
@@ -99,6 +110,7 @@ function buyerHtml(d: RFQEmailData): string {
         ${tableRow('Company', d.company_name)}
         ${tableRow('Product', d.items?.length ? `${d.items.length} products` : d.product_interest)}
         ${tableRow('Quantity', d.quantity ? `${d.quantity.toLocaleString()} units` : 'To be discussed')}
+        ${tableRow('Est. Total', d.estimated_total_aed != null ? `AED ${formatPriceAed(d.estimated_total_aed)}` : null)}
         ${tableRow('Country', d.country)}
       </table>
       ${itemsTableHtml(d.items)}

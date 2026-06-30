@@ -84,6 +84,7 @@ export interface RFQItem {
   storage?: string | null;
   color?: string | null;
   brand_name?: string | null;
+  unit_price_aed?: number | null;
 }
 
 export interface QuoteCartItem extends RFQItem {
@@ -109,6 +110,7 @@ export interface RFQ {
   quantity: number | null;
   items?: RFQItem[] | null;
   message: string | null;
+  estimated_total_aed?: number | null;
   status: 'new' | 'contacted' | 'quoted' | 'closed' | 'sold';
   sold_at?: string | null;
   sold_total_aed?: number | null;

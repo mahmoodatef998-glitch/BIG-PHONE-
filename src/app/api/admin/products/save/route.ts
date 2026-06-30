@@ -13,6 +13,7 @@ type VariantInput = {
   color: string;
   stock_quantity: number;
   price_aed: number | null;
+  sale_price_aed: number | null;
   images: string[];
 };
 
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
           color,
           stock_quantity: Number.isFinite(v.stock_quantity) ? v.stock_quantity : 0,
           price_aed: v.price_aed ?? null,
+          sale_price_aed: v.sale_price_aed ?? null,
           images: Array.isArray(v.images) ? v.images : [],
           updated_at: now,
         };

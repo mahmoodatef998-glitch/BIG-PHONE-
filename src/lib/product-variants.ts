@@ -4,6 +4,7 @@ export interface StorageVariant {
   slug: string;
   storage: string;
   price_aed: number | null;
+  sale_price_aed: number | null;
   show_price: boolean;
   stock_quantity: number;
   moq: number;
@@ -15,6 +16,7 @@ export interface ColorVariant {
   slug: string;
   color: string;
   price_aed: number | null;
+  sale_price_aed: number | null;
   show_price: boolean;
   stock_quantity: number;
   moq: number;
@@ -43,6 +45,7 @@ export function productToStorageVariant(product: Product): StorageVariant {
     slug: product.slug,
     storage: product.storage ?? '',
     price_aed: product.price_aed ?? null,
+    sale_price_aed: product.sale_price_aed ?? null,
     show_price: product.show_price ?? true,
     stock_quantity: product.stock_quantity,
     moq: product.moq,
@@ -56,6 +59,7 @@ export function productToColorVariant(product: Product): ColorVariant {
     slug: product.slug,
     color: product.color ?? '',
     price_aed: product.price_aed ?? null,
+    sale_price_aed: product.sale_price_aed ?? null,
     show_price: product.show_price ?? true,
     stock_quantity: product.stock_quantity,
     moq: product.moq,

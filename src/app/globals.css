@@ -114,6 +114,8 @@ input, textarea, select { font-family: inherit; }
 .badge-grade-a     { background: #DBEAFE; color: #1D4ED8; }
 .badge-grade-b     { background: #FEF9C3; color: #A16207; }
 .badge-certified   { background: #F3E8FF; color: #7C3AED; }
+.badge-big-deal    { background: #FEE2E2; color: #B91C1C; }
+.badge-super-sale  { background: #FEF3C7; color: #B45309; }
 .badge-wholesale   { background: #FEE2E2; color: #B91C1C; }
 .badge-orange      { background: #FFF0E0; color: #C2410C; }
 

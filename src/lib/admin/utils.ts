@@ -1,3 +1,10 @@
+export function formatDateTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleString('en-AE', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+}
+
 export function timeAgo(dateStr: string): string {
   const d = Date.now() - new Date(dateStr).getTime();
   if (d < 60_000) return 'just now';

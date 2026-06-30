@@ -30,6 +30,8 @@ export default function InventoryFilters({ count, brands }: Props) {
   const CONDITION_OPTIONS = useMemo(() => [
     { value: '',                      label: t.conditions.allConditions },
     { value: 'brand-new',             label: t.conditions.brandNew },
+    { value: 'big-deal',              label: t.conditions.bigDeal },
+    { value: 'super-sale',            label: t.conditions.superSale },
     { value: 'refurbished',           label: t.conditions.allRefurbished },
     { value: 'certified-refurbished', label: t.conditions.certified },
     { value: 'refurbished-grade-a',   label: t.conditions.gradeA },

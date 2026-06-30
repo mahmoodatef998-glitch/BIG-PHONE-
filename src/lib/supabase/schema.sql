@@ -6,7 +6,8 @@ create extension if not exists "uuid-ossp";
 
 do $$ begin
   create type condition_type as enum (
-    'brand-new', 'refurbished-grade-a', 'refurbished-grade-b', 'certified-refurbished'
+    'brand-new', 'refurbished-grade-a', 'refurbished-grade-b', 'certified-refurbished',
+    'big-deal', 'super-sale'
   );
 exception when duplicate_object then null;
 end $$;
@@ -61,6 +62,7 @@ create table if not exists products (
   specifications     jsonb,
   images             text[] not null default '{}',
   price_aed          numeric(10,2),
+  sale_price_aed     numeric(10,2),
   show_price         boolean not null default true,
   is_featured        boolean not null default false,
   is_active          boolean not null default true,
@@ -243,7 +245,18 @@ create policy "Public can read active collections"
 
 -- MIGRATIONS (safe to re-run)
 alter table products add column if not exists price_aed  numeric(10,2);
+alter table products add column if not exists sale_price_aed numeric(10,2);
 alter table products add column if not exists show_price boolean not null default true;
+
+do $$ begin
+  alter type condition_type add value 'big-deal';
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  alter type condition_type add value 'super-sale';
+exception when duplicate_object then null;
+end $$;
 alter table products add column if not exists collection_id uuid references collections (id) on delete set null;
 
 create index if not exists products_collection_idx on products (collection_id) where is_active = true;

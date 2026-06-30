@@ -145,6 +145,13 @@ export type Translations = {
     phoneRequired: string; emailRequired: string; productRequired: string;
     quantityMin: string; quantityMax: string;
   };
+  cart: {
+    addToQuote: string; addMore: string; added: string;
+    viewQuoteList: string; shortLabel: string;
+    emptyTitle: string; emptySub: string; browseInventory: string;
+    itemsCount: string; totalUnits: string; clearAll: string; removeItem: string;
+    submitAll: string; submitAllHint: string; emptySubmitError: string;
+  };
   meta: {
     siteDefault: string; siteDescription: string;
     inventoryTitle: string; inventoryDescription: string;
@@ -373,6 +380,23 @@ export const translations: Record<Lang, Translations> = {
       quantityMin: 'Minimum 1 unit',
       quantityMax: 'Max 100,000 units',
     },
+    cart: {
+      addToQuote: 'Add to Quote',
+      addMore: 'Add More',
+      added: 'Added',
+      viewQuoteList: 'View quote list',
+      shortLabel: 'Quote',
+      emptyTitle: 'Your quote list is empty',
+      emptySub: 'Browse inventory and add products with quantities — then request one quote for everything.',
+      browseInventory: 'Browse Inventory',
+      itemsCount: '{n} products',
+      totalUnits: '{n} total units',
+      clearAll: 'Clear all',
+      removeItem: 'Remove',
+      submitAll: 'Request Quote for All Items',
+      submitAllHint: 'Review your selected products below, then submit one quotation request.',
+      emptySubmitError: 'Add at least one product to your quote list before submitting.',
+    },
     meta: {
       siteDefault: "BIG PHONE — UAE's Trusted B2B Mobile Marketplace",
       siteDescription: 'Wholesale mobile devices from Dubai — brand new and refurbished iPhones, Samsung, Xiaomi and more. MOQ from 5 units, global export.',
@@ -571,6 +595,23 @@ export const translations: Record<Lang, Translations> = {
       productRequired: 'يرجى تحديد المنتج',
       quantityMin: 'الحد الأدنى وحدة واحدة',
       quantityMax: 'الحد الأقصى 100,000 وحدة',
+    },
+    cart: {
+      addToQuote: 'أضف لعرض السعر',
+      addMore: 'أضف المزيد',
+      added: 'تمت الإضافة',
+      viewQuoteList: 'عرض قائمة الأسعار',
+      shortLabel: 'عرض سعر',
+      emptyTitle: 'قائمة عروض الأسعار فارغة',
+      emptySub: 'تصفّح المخزون وأضف المنتجات بالكميات — ثم اطلب عرض سعر واحد لكل المنتجات.',
+      browseInventory: 'تصفّح المخزون',
+      itemsCount: '{n} منتج',
+      totalUnits: '{n} وحدة إجمالاً',
+      clearAll: 'مسح الكل',
+      removeItem: 'إزالة',
+      submitAll: 'اطلب عرض سعر لكل المنتجات',
+      submitAllHint: 'راجع المنتجات المختارة ثم أرسل طلب عرض سعر واحد.',
+      emptySubmitError: 'أضف منتجاً واحداً على الأقل قبل الإرسال.',
     },
     meta: {
       siteDefault: 'BIG PHONE — سوق الجملة الموثوق للموبايل في الإمارات',

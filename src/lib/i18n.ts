@@ -206,7 +206,7 @@ const termsAr: LegalSection[] = [
 
 export const translations: Record<Lang, Translations> = {
   en: {
-    nav: { home: 'Home', inventory: 'Inventory', brands: 'Brands', about: 'About', contact: 'Contact', featured: 'Featured', categories: 'Categories', deals: 'Deals', shop: 'Shop', rfq: 'Get Quote' },
+    nav: { home: 'Home', inventory: 'Products', brands: 'Brands', about: 'About', contact: 'Contact', featured: 'Featured', categories: 'Categories', deals: 'Deals', shop: 'Shop', rfq: 'Get Quote' },
     announcement: 'Global Export · 50+ Countries · MOQ from 5 Units · WhatsApp 24/7',
     header: { searchPlaceholder: 'Search iPhone 15, Samsung S24, iPad...', getQuote: 'Get Quote', admin: 'Admin', switchLang: 'عربي', wholesale: 'WHOLESALE' },
     footer: {
@@ -423,7 +423,7 @@ export const translations: Record<Lang, Translations> = {
     },
   },
   ar: {
-    nav: { home: 'الرئيسية', inventory: 'المخزون', brands: 'الماركات', about: 'من نحن', contact: 'اتصل بنا', featured: 'مميز', categories: 'الفئات', deals: 'عروض', shop: 'تسوق', rfq: 'طلب سعر' },
+    nav: { home: 'الرئيسية', inventory: 'المنتجات', brands: 'الماركات', about: 'من نحن', contact: 'اتصل بنا', featured: 'مميز', categories: 'الفئات', deals: 'عروض', shop: 'تسوق', rfq: 'طلب سعر' },
     announcement: 'شحن دولي · +50 دولة · الحد الأدنى 5 وحدات · واتساب 24/7',
     header: { searchPlaceholder: 'ابحث عن iPhone 15، Galaxy S24، iPad...', getQuote: 'طلب سعر', admin: 'الإدارة', switchLang: 'EN', wholesale: 'جملة' },
     footer: {

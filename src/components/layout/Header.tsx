@@ -181,7 +181,7 @@ export default function Header() {
               ))}
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #EAEAEA' }} />
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <QuoteCartLink compact />
+                <QuoteCartLink />
               </div>
               <Link href="/rfq" onClick={closeNav} className="btn btn-primary" style={{ textAlign: 'center', borderRadius: '0.75rem' }}>{t.header.getQuote}</Link>
               <Link href="/admin/login" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #FF6B00', color: '#FF6B00', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none' }}>

@@ -323,7 +323,7 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
                 textDecoration: 'none',
               }}
             >
-              {t.cart.viewQuoteList} ({count})
+              {t.cart.cartLabel} ({count})
             </Link>
           )}
         </div>

@@ -147,7 +147,7 @@ export type Translations = {
   };
   cart: {
     addToQuote: string; addMore: string; added: string;
-    viewQuoteList: string; shortLabel: string;
+    viewQuoteList: string; shortLabel: string; cartLabel: string;
     emptyTitle: string; emptySub: string; browseInventory: string;
     itemsCount: string; totalUnits: string; clearAll: string; removeItem: string;
     submitAll: string; submitAllHint: string; emptySubmitError: string;
@@ -385,8 +385,9 @@ export const translations: Record<Lang, Translations> = {
       addToQuote: 'Add to Quote',
       addMore: 'Add More',
       added: 'Added',
-      viewQuoteList: 'View quote list',
+      viewQuoteList: 'View product cart',
       shortLabel: 'Quote',
+      cartLabel: 'Product cart',
       emptyTitle: 'Your quote list is empty',
       emptySub: 'Browse inventory and add products with quantities — then request one quote for everything.',
       browseInventory: 'Browse Inventory',
@@ -604,8 +605,9 @@ export const translations: Record<Lang, Translations> = {
       addToQuote: 'أضف لعرض السعر',
       addMore: 'أضف المزيد',
       added: 'تمت الإضافة',
-      viewQuoteList: 'عرض قائمة الأسعار',
+      viewQuoteList: 'عرض سلة المنتجات',
       shortLabel: 'عرض سعر',
+      cartLabel: 'سلة المنتجات',
       emptyTitle: 'قائمة عروض الأسعار فارغة',
       emptySub: 'تصفّح المخزون وأضف المنتجات بالكميات — ثم اطلب عرض سعر واحد لكل المنتجات.',
       browseInventory: 'تصفّح المخزون',

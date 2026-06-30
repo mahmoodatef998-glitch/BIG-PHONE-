@@ -263,6 +263,15 @@ alter table rfqs add column if not exists items jsonb;
 
 alter table rfqs add column if not exists estimated_total_aed numeric(10,2);
 
+do $$ begin
+  alter type rfq_status add value 'sold';
+exception when duplicate_object then null;
+end $$;
+
+alter table rfqs add column if not exists sold_at timestamptz;
+alter table rfqs add column if not exists sold_total_aed numeric(10,2);
+alter table rfqs add column if not exists sold_lines jsonb;
+
 create table if not exists customers (
   id               uuid primary key default uuid_generate_v4(),
   email            text not null,

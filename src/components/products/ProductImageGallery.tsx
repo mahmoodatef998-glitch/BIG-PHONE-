@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { productImageUrl } from '@/lib/cloudinary';
@@ -24,10 +24,10 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
   const hasMultiple = count > 1;
   const activeIndex = count > 0 ? ((index % count) + count) % count : 0;
 
-  const goTo = useCallback((next: number) => {
+  const goTo = (next: number) => {
     if (count <= 1) return;
     setIndex((next + count) % count);
-  }, [count]);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!hasMultiple) return;

@@ -1,9 +1,15 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
 import { Inter } from 'next/font/google';
 import { parseLang, LANG_COOKIE } from '@/lib/lang';
 import { rootMetadata } from '@/lib/page-metadata';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 const inter = Inter({
   subsets: ['latin'],

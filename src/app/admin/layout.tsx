@@ -42,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const closeSidebar = () => setSidebarOpen(false);
 
   useEffect(() => {
-    closeSidebar();
+    queueMicrotask(() => setSidebarOpen(false));
   }, [pathname]);
 
   useEffect(() => {

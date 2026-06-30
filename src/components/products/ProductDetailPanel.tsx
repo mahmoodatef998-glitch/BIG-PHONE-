@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MessageCircle, MapPin, Shield } from 'lucide-react';
@@ -38,7 +38,7 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
   const { t, lang } = useLanguage();
   const router = useRouter();
   const { count } = useQuoteCart();
-  const [quoteQty, setQuoteQty] = useState(product.moq);
+  const [quoteQtyBySlug, setQuoteQtyBySlug] = useState<Record<string, number>>({});
 
   const storageFallback = useMemo(() => productToStorageVariant(product), [product]);
   const colorFallback = useMemo(() => productToColorVariant(product), [product]);
@@ -86,6 +86,16 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
     storage: activeVariant.storage ?? product.storage,
   }), [product, activeVariant]);
 
+  const quoteQty = quoteQtyBySlug[activeVariant.slug]
+    ?? Math.max(activeVariant.moq, product.moq);
+
+  const setQuoteQty = (qty: number) => {
+    setQuoteQtyBySlug(prev => ({
+      ...prev,
+      [activeVariant.slug]: Math.max(activeVariant.moq, qty),
+    }));
+  };
+
   const navigateTo = (slug: string) => {
     if (slug !== product.slug) {
       router.replace(`/products/${slug}`, { scroll: false });
@@ -120,10 +130,6 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
   const showPrice = pricing.showPrice;
   const isOutOfStock = activeVariant.stock_quantity === 0;
 
-  useEffect(() => {
-    setQuoteQty(Math.max(activeVariant.moq, product.moq));
-  }, [activeVariant.slug, activeVariant.moq, product.moq]);
-
   const specRows = [
     { label: t.product.condition, value: conditionLabel(product.condition, t) },
     { label: t.product.storage, value: selectedStorage.storage || product.storage || t.product.na },
@@ -138,7 +144,7 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
 
   return (
     <>
-      <div style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', padding: '1.5rem' }}>
+      <div className="product-detail-card" style={{ background: '#fff', border: '1.5px solid #DDE3EA', borderRadius: '14px', padding: '1.5rem' }}>
         {product.brand && (
           <Link href={`/brands/${product.brand.slug}`} style={{
             display: 'inline-block', fontSize: '0.6875rem', fontWeight: 700, color: '#0066FF',
@@ -259,7 +265,7 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>
+        <div className="product-detail-specs" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem', marginBottom: '1.25rem' }}>
           {specRows.map(({ label, value }) => (
             <div key={label} style={{
               background: '#F8FAFC',

@@ -124,7 +124,9 @@ export default function RFQPageContent({ defaultProduct }: { defaultProduct: str
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '0.75rem',
               textAlign: 'center',
-            }}>
+            }}
+            className="rfq-stats-grid"
+            >
               {[
                 { value: '10K+', label: p.statProducts },
                 { value: '< 2h', label: p.statResponse },

@@ -8,6 +8,7 @@ import {
 import { getProductsAdmin, getBrandsAdmin, getRFQs, getCollectionsAdmin } from '@/lib/data';
 import { formatDateTime } from '@/lib/admin/utils';
 import { formatPriceAed, getProductPricing } from '@/lib/pricing';
+import StockReportExportButton from '@/components/admin/StockReportExportButton';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 export const dynamic = 'force-dynamic';
@@ -325,7 +326,14 @@ export default async function AdminDashboard() {
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF6B00', display: 'inline-block' }} />
             <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#111827', margin: 0 }}>Inventory Overview</h2>
           </div>
-          <Link href="/admin/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: '#FF6B00', fontWeight: 600, textDecoration: 'none' }}>Manage All <ArrowRight size={14} /></Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <StockReportExportButton
+              products={products}
+              collections={collections}
+              label={`Stock Report (${products.length})`}
+            />
+            <Link href="/admin/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: '#FF6B00', fontWeight: 600, textDecoration: 'none' }}>Manage All <ArrowRight size={14} /></Link>
+          </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>

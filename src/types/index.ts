@@ -63,6 +63,18 @@ export interface Product {
   updated_at: string;
 }
 
+export interface Customer {
+  id: string;
+  email: string;
+  company_name: string;
+  contact_person: string;
+  country: string;
+  phone: string;
+  registered_at: string;
+  last_activity_at: string;
+  updated_at: string;
+}
+
 export interface RFQItem {
   product_id?: string | null;
   slug: string;

@@ -1,6 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { Product, Brand, RFQ, Collection } from "@/types";
+import type { Product, Brand, RFQ, Collection, Customer } from "@/types";
+import {
+  deriveCustomersFromRFQs,
+  mergeCustomersWithRFQStats,
+  type AdminCustomer,
+  type RFQContactPayload,
+} from '@/lib/admin/customers';
 import {
   REFURB_CONDITIONS,
   applyProductFilters,
@@ -386,6 +392,71 @@ export async function getRFQs(): Promise<RFQ[]> {
   const { data, error } = await adminDb().from('rfqs').select('*').order('created_at', { ascending: false });
   if (error) { console.error('[getRFQs]', error.message); return []; }
   return (data ?? []) as RFQ[];
+}
+
+export async function upsertCustomerFromRFQ(payload: RFQContactPayload): Promise<void> {
+  if (!USE_SUPABASE) return;
+
+  const email = payload.email.trim().toLowerCase();
+  if (!email) return;
+
+  const now = new Date().toISOString();
+  const admin = adminDb();
+  const { data: existing, error: selectError } = await admin
+    .from('customers')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (selectError) {
+    console.error('[upsertCustomerFromRFQ]', selectError.message);
+    return;
+  }
+
+  if (existing?.id) {
+    const { error } = await admin
+      .from('customers')
+      .update({
+        company_name: payload.company_name.trim(),
+        contact_person: payload.contact_person.trim(),
+        country: payload.country.trim(),
+        phone: payload.phone.trim(),
+        last_activity_at: now,
+        updated_at: now,
+      })
+      .eq('id', existing.id);
+    if (error) console.error('[upsertCustomerFromRFQ update]', error.message);
+    return;
+  }
+
+  const { error } = await admin.from('customers').insert({
+    email,
+    company_name: payload.company_name.trim(),
+    contact_person: payload.contact_person.trim(),
+    country: payload.country.trim(),
+    phone: payload.phone.trim(),
+    registered_at: now,
+    last_activity_at: now,
+  });
+  if (error) console.error('[upsertCustomerFromRFQ insert]', error.message);
+}
+
+export async function getCustomersAdmin(): Promise<AdminCustomer[]> {
+  const rfqs = await getRFQs();
+  const stats = deriveCustomersFromRFQs(rfqs);
+  if (!USE_SUPABASE) return stats;
+
+  const { data, error } = await adminDb()
+    .from('customers')
+    .select('*')
+    .order('registered_at', { ascending: false });
+
+  if (error) {
+    console.error('[getCustomersAdmin]', error.message);
+    return stats;
+  }
+
+  return mergeCustomersWithRFQStats((data ?? []) as Customer[], stats);
 }
 
 export async function getSettings(): Promise<Record<string, string>> {

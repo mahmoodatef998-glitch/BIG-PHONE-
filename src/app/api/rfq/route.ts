@@ -4,6 +4,7 @@ import { sendAdminRFQNotification, sendBuyerRFQConfirmation } from '@/lib/email'
 import { rfqSchema } from '@/lib/rfq-schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { summarizeCartItems } from '@/lib/quote-cart';
+import { upsertCustomerFromRFQ } from '@/lib/data';
 import type { RFQItem } from '@/types';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -83,6 +84,14 @@ export async function POST(request: NextRequest) {
     } else {
       console.log('[RFQ - no Supabase]', rfqData);
     }
+
+    await upsertCustomerFromRFQ({
+      email,
+      company_name,
+      contact_person,
+      country,
+      phone,
+    });
 
     void Promise.all([
       sendAdminRFQNotification(rfqData),

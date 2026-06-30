@@ -9,7 +9,7 @@ import {
   customerTier,
   topCustomerCountries,
 } from '@/lib/admin/customers';
-import { customerInitial, timeAgo, waLink } from '@/lib/admin/utils';
+import { customerInitial, formatDateTime, waLink } from '@/lib/admin/utils';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { usePagination } from '@/lib/admin/pagination';
 
@@ -71,7 +71,7 @@ export default function CustomersClient({ customers }: Props) {
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.025em' }}>Customers</h1>
           <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Wholesale buyers derived from RFQ submissions
+            Registered wholesale buyers from quotation form submissions
           </p>
         </div>
         <div className="admin-page-header-actions">
@@ -152,7 +152,7 @@ export default function CustomersClient({ customers }: Props) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
-                  {['Company', 'Contact', 'Country', 'Products Inquired', 'RFQs', 'Last Active', 'Tier', 'Actions'].map(col => (
+                  {['Company', 'Contact', 'Phone', 'Country', 'Products Inquired', 'RFQs', 'Registered', 'Last RFQ', 'Tier', 'Actions'].map(col => (
                     <th key={col} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.6875rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{col}</th>
                   ))}
                 </tr>
@@ -160,7 +160,7 @@ export default function CustomersClient({ customers }: Props) {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#9CA3AF', fontSize: '0.875rem' }}>
+                    <td colSpan={10} style={{ padding: '3rem', textAlign: 'center', color: '#9CA3AF', fontSize: '0.875rem' }}>
                       {customers.length === 0
                         ? 'No customers yet — they appear when RFQs are submitted.'
                         : 'No customers match your search or filter.'}
@@ -182,6 +182,7 @@ export default function CustomersClient({ customers }: Props) {
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem', fontSize: '0.875rem', color: '#374151' }}>{c.contact_person}</td>
+                      <td style={{ padding: '0.875rem 1rem', fontSize: '0.8125rem', color: '#374151', whiteSpace: 'nowrap' }} dir="ltr">{c.phone}</td>
                       <td style={{ padding: '0.875rem 1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                           <Globe size={12} style={{ color: '#94a3b8', flexShrink: 0 }} />
@@ -212,8 +213,11 @@ export default function CustomersClient({ customers }: Props) {
                           {c.rfq_count}
                         </Link>
                       </td>
-                      <td style={{ padding: '0.875rem 1rem', fontSize: '0.8125rem', color: '#6B7280', whiteSpace: 'nowrap' }}>
-                        {timeAgo(c.last_activity)}
+                      <td style={{ padding: '0.875rem 1rem', fontSize: '0.75rem', color: '#6B7280', whiteSpace: 'nowrap' }}>
+                        {formatDateTime(c.registered_at)}
+                      </td>
+                      <td style={{ padding: '0.875rem 1rem', fontSize: '0.75rem', color: '#6B7280', whiteSpace: 'nowrap' }}>
+                        {formatDateTime(c.last_activity)}
                       </td>
                       <td style={{ padding: '0.875rem 1rem' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, background: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}>
@@ -296,7 +300,7 @@ export default function CustomersClient({ customers }: Props) {
           <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '1rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C2410C', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Note</div>
             <p style={{ fontSize: '0.75rem', color: '#9a3412', margin: 0, lineHeight: 1.5 }}>
-              Customers are grouped by email from RFQ submissions. VIP = 3+ RFQs, Regular = 2, New = 1.
+              Every quotation form submission is saved here with contact details and registration date/time. VIP = 3+ RFQs, Regular = 2, New = 1.
             </p>
           </div>
         </div>

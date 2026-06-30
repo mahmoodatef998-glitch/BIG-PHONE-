@@ -8,6 +8,8 @@ import { useAdminToast } from '@/components/admin/AdminToast';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { usePagination } from '@/lib/admin/pagination';
 import { formatDateTime } from '@/lib/admin/utils';
+import { formatPriceAed } from '@/lib/pricing';
+import { getCartLineTotal } from '@/lib/quote-cart';
 
 const PAGE_SIZE = 10;
 
@@ -26,10 +28,10 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }
 const FILTER_OPTIONS = ['all', 'new', 'contacted', 'quoted', 'closed'];
 
 function exportToCSV(rfqs: RFQ[], filter: string) {
-  const headers = ['ID', 'Company', 'Contact', 'Country', 'Phone', 'Email', 'Product', 'Qty', 'Message', 'Status', 'Date'];
+  const headers = ['ID', 'Company', 'Contact', 'Country', 'Phone', 'Email', 'Product', 'Qty', 'Est. Total AED', 'Message', 'Status', 'Date'];
   const rows = rfqs.map(r => [
     r.id, r.company_name, r.contact_person, r.country, r.phone, r.email,
-    r.product_interest, r.quantity, r.message ?? '', r.status,
+    r.product_interest, r.quantity, r.estimated_total_aed ?? '', r.message ?? '', r.status,
     new Date(r.created_at).toLocaleString('en-AE', { dateStyle: 'medium', timeStyle: 'short' }),
   ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
   const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
@@ -180,16 +182,33 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                     </span>
                     {rfq.items?.length ? (
                       <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                        {rfq.items.map((item, idx) => (
+                        {rfq.items.map((item, idx) => {
+                          const lineTotal = getCartLineTotal(item);
+                          return (
                           <div key={`${item.slug}-${idx}`} style={{
                             display: 'flex', justifyContent: 'space-between', gap: '0.75rem',
                             padding: '0.5rem 0.625rem', background: '#F8FAFC', borderRadius: '0.375rem',
                             fontSize: '0.8125rem',
                           }}>
-                            <span style={{ color: '#0F172A', fontWeight: 600 }}>{item.name}</span>
-                            <span style={{ color: '#64748B', fontWeight: 700, whiteSpace: 'nowrap' }}>{item.quantity.toLocaleString()} units</span>
+                            <div style={{ minWidth: 0 }}>
+                              <span style={{ color: '#0F172A', fontWeight: 600 }}>{item.name}</span>
+                              {item.unit_price_aed != null && (
+                                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.125rem' }}>
+                                  AED {formatPriceAed(item.unit_price_aed)} × {item.quantity.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ color: '#64748B', fontWeight: 700, whiteSpace: 'nowrap' }}>{item.quantity.toLocaleString()} units</div>
+                              {lineTotal != null && (
+                                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#111827', marginTop: '0.125rem' }}>
+                                  AED {formatPriceAed(lineTotal)}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <p style={{ fontSize: '0.875rem', color: '#0F172A', fontWeight: 500, marginTop: '0.125rem' }}>{rfq.product_interest}</p>
@@ -201,6 +220,14 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                       {rfq.quantity != null ? `${rfq.quantity.toLocaleString()} units` : '—'}
                     </p>
                   </div>
+                  {rfq.estimated_total_aed != null && (
+                    <div>
+                      <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Est. Total</span>
+                      <p style={{ fontSize: '0.875rem', color: '#FF6B00', fontWeight: 700, marginTop: '0.125rem' }}>
+                        AED {formatPriceAed(Number(rfq.estimated_total_aed))}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {rfq.message && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.375rem', fontSize: '0.8125rem', color: '#64748B', background: '#F8FAFC', padding: '0.625rem 0.875rem', borderRadius: '0.375rem', marginTop: '0.5rem' }}>

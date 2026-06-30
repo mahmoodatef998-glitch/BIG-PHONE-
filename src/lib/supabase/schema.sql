@@ -261,6 +261,8 @@ end $$;
 
 alter table rfqs add column if not exists items jsonb;
 
+alter table rfqs add column if not exists estimated_total_aed numeric(10,2);
+
 create table if not exists customers (
   id               uuid primary key default uuid_generate_v4(),
   email            text not null,

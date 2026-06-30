@@ -151,6 +151,7 @@ export type Translations = {
     emptyTitle: string; emptySub: string; browseInventory: string;
     itemsCount: string; totalUnits: string; clearAll: string; removeItem: string;
     submitAll: string; submitAllHint: string; emptySubmitError: string;
+    estimatedTotal: string; priceOnRequest: string; partialPricingNote: string;
   };
   meta: {
     siteDefault: string; siteDescription: string;
@@ -396,6 +397,9 @@ export const translations: Record<Lang, Translations> = {
       submitAll: 'Request Quote for All Items',
       submitAllHint: 'Review your selected products below, then submit one quotation request.',
       emptySubmitError: 'Add at least one product to your quote list before submitting.',
+      estimatedTotal: 'Estimated total',
+      priceOnRequest: 'Price on request',
+      partialPricingNote: 'Some items have no listed price',
     },
     meta: {
       siteDefault: "BIG PHONE — UAE's Trusted B2B Mobile Marketplace",
@@ -612,6 +616,9 @@ export const translations: Record<Lang, Translations> = {
       submitAll: 'اطلب عرض سعر لكل المنتجات',
       submitAllHint: 'راجع المنتجات المختارة ثم أرسل طلب عرض سعر واحد.',
       emptySubmitError: 'أضف منتجاً واحداً على الأقل قبل الإرسال.',
+      estimatedTotal: 'الإجمالي التقديري',
+      priceOnRequest: 'السعر عند الطلب',
+      partialPricingNote: 'بعض المنتجات بدون سعر معروض',
     },
     meta: {
       siteDefault: 'BIG PHONE — سوق الجملة الموثوق للموبايل في الإمارات',

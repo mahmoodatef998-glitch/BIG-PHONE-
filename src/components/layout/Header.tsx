@@ -80,7 +80,7 @@ export default function Header() {
           <div className="site-header-row" style={{ display: 'flex', alignItems: 'center', height: '64px', gap: '1.5rem' }}>
 
             {/* ── Logo ────────────────────────────── */}
-            <Link href="/" onClick={closeNav} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
+            <Link href="/" onClick={closeNav} className="site-logo-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', textDecoration: 'none', flexShrink: 0 }}>
               <CamelLogo size={72} />
               <div style={{ lineHeight: 1 }}>
                 <div className="site-logo-text" style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>BIG PHONE</div>
@@ -128,8 +128,10 @@ export default function Header() {
 
             {/* ── Right actions ───────────────────── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-              <QuoteCartLink />
-              <button onClick={toggle} className="hdr-icon-btn" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
+              <div className="hdr-cart-desktop">
+                <QuoteCartLink />
+              </div>
+              <button onClick={toggle} className="hdr-icon-btn hdr-lang-desktop" style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: 'auto', padding: '0 0.5rem', letterSpacing: '0.02em' }}>
                 {t.header.switchLang}
               </button>
               <button onClick={() => setSearchOpen(!searchOpen)} className="hdr-icon-btn" aria-label={t.common.search}>

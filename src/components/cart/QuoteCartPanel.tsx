@@ -8,10 +8,11 @@ import { fmt } from '@/lib/i18n';
 import { formatCartItemLabel, getCartLineTotal } from '@/lib/quote-cart';
 import { formatPriceAed } from '@/lib/pricing';
 import { openQuotePdf } from '@/lib/quote-pdf';
+import { getCompanyEmail, getWhatsAppNumber } from '@/lib/site-config';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
-const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? '';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+const WHATSAPP = getWhatsAppNumber();
+const COMPANY_EMAIL = getCompanyEmail();
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
 
 type Props = {
   compact?: boolean;
@@ -65,22 +66,25 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
       overflow: 'hidden',
       marginBottom: compact ? '1.25rem' : 0,
     }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '0.75rem',
-        padding: '0.875rem 1rem',
-        background: '#FFEDD5',
-        borderBottom: '1px solid #FED7AA',
-      }}>
+      <div
+        className="quote-cart-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          padding: '0.875rem 1rem',
+          background: '#FFEDD5',
+          borderBottom: '1px solid #FED7AA',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <ShoppingCart size={16} style={{ color: '#C2410C' }} />
           <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#9A3412' }}>
             {fmt(t.cart.itemsCount, { n: count })}
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="quote-cart-header-meta" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9A3412' }}>
             {fmt(t.cart.totalUnits, { n: totalUnits.toLocaleString('en-AE') })}
           </span>
@@ -109,11 +113,8 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
           return (
             <div
               key={item.slug}
+              className="quote-cart-row"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto auto',
-                gap: '0.625rem',
-                alignItems: 'center',
                 padding: '0.875rem 1rem',
                 borderBottom: '1px solid #FFEDD5',
                 background: '#fff',
@@ -153,47 +154,50 @@ export default function QuoteCartPanel({ compact = false, showEmptyHint = true }
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Package size={12} style={{ color: '#94A3B8', flexShrink: 0 }} />
-                <input
-                  type="number"
-                  min={item.moq}
-                  max={1000000}
-                  value={item.quantity}
-                  onChange={e => updateQuantity(item.slug, Number(e.target.value))}
-                  aria-label={`${t.rfq.quantity} — ${item.name}`}
-                  style={{
-                    width: '72px',
-                    padding: '0.375rem 0.5rem',
-                    border: '1px solid #E2E8F0',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.8125rem',
-                    fontWeight: 700,
-                    textAlign: 'center',
-                  }}
-                  dir="ltr"
-                />
-              </div>
+              <div className="quote-cart-row-actions">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <Package size={12} style={{ color: '#94A3B8', flexShrink: 0 }} />
+                  <input
+                    type="number"
+                    min={item.moq}
+                    max={1000000}
+                    value={item.quantity}
+                    onChange={e => updateQuantity(item.slug, Number(e.target.value))}
+                    aria-label={`${t.rfq.quantity} — ${item.name}`}
+                    style={{
+                      width: '72px',
+                      padding: '0.375rem 0.5rem',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                    }}
+                    dir="ltr"
+                  />
+                </div>
 
-              <button
-                type="button"
-                onClick={() => removeItem(item.slug)}
-                aria-label={t.cart.removeItem}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  border: '1px solid #FECACA',
-                  background: '#FEF2F2',
-                  color: '#DC2626',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Trash2 size={14} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.slug)}
+                  aria-label={t.cart.removeItem}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    border: '1px solid #FECACA',
+                    background: '#FEF2F2',
+                    color: '#DC2626',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           );
         })}

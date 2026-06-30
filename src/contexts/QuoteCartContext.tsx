@@ -51,8 +51,11 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setItems(parseStoredCart(localStorage.getItem(QUOTE_CART_STORAGE_KEY)));
-    setHydrated(true);
+    const stored = parseStoredCart(localStorage.getItem(QUOTE_CART_STORAGE_KEY));
+    queueMicrotask(() => {
+      setItems(stored);
+      setHydrated(true);
+    });
   }, []);
 
   useEffect(() => {

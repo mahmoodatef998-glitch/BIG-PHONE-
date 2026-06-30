@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
 import { ConditionBadge } from './Badge';
+import ProductPrice from './ProductPrice';
 import { productImageUrl } from '@/lib/cloudinary';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fmt } from '@/lib/i18n';
@@ -99,16 +100,12 @@ export default function ProductCard({ product }: { product: Product }) {
           </h3>
         </Link>
 
-        {(product.price_aed && product.show_price !== false) ? (
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.125rem' }}>
-            <span style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#FF6B00', letterSpacing: '-0.02em' }}>
-              AED {product.price_aed.toLocaleString()}
-            </span>
-            <span style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 500 }}>{t.common.perUnit}</span>
-          </div>
-        ) : (
-          <span style={{ fontSize: '0.8125rem', color: '#9CA3AF', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
-        )}
+        <ProductPrice
+          price_aed={product.price_aed}
+          sale_price_aed={product.sale_price_aed}
+          show_price={product.show_price}
+          size="card"
+        />
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.125rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>

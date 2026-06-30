@@ -12,6 +12,8 @@ export function formatCondition(condition: Condition | string): string {
     "refurbished-grade-a": "Grade A Refurbished",
     "refurbished-grade-b": "Grade B Refurbished",
     "certified-refurbished": "Certified Refurbished",
+    "big-deal": "Big Deal",
+    "super-sale": "Super Sale",
   };
   return map[condition] ?? condition;
 }
@@ -22,6 +24,8 @@ export function getConditionBadgeClass(condition: string): string {
     "refurbished-grade-a": "badge-grade-a",
     "refurbished-grade-b": "badge-grade-b",
     "certified-refurbished": "badge-certified",
+    "big-deal": "badge-big-deal",
+    "super-sale": "badge-super-sale",
   };
   return map[condition] ?? "badge-grade-a";
 }

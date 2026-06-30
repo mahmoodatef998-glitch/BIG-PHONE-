@@ -43,6 +43,7 @@ export type Translations = {
   };
   conditions: {
     brandNew: string; certified: string; gradeA: string; gradeB: string;
+    bigDeal: string; superSale: string;
     allConditions: string; allRefurbished: string;
   };
   home: {
@@ -235,6 +236,7 @@ export const translations: Record<Lang, Translations> = {
     },
     conditions: {
       brandNew: 'Brand New', certified: 'Certified Refurbished', gradeA: 'Grade A', gradeB: 'Grade B',
+      bigDeal: 'Big Deal', superSale: 'Super Sale',
       allConditions: 'All conditions', allRefurbished: 'All Refurbished',
     },
     home: {
@@ -434,6 +436,7 @@ export const translations: Record<Lang, Translations> = {
     },
     conditions: {
       brandNew: 'جديد', certified: 'مجدّد معتمد', gradeA: 'درجة A', gradeB: 'درجة B',
+      bigDeal: 'Big Deal', superSale: 'Super Sale',
       allConditions: 'جميع الحالات', allRefurbished: 'جميع المجدّدة',
     },
     home: {
@@ -609,6 +612,8 @@ const CONDITION_KEYS: Record<string, keyof Translations['conditions']> = {
   'refurbished-grade-a': 'gradeA',
   'refurbished-grade-b': 'gradeB',
   'certified-refurbished': 'certified',
+  'big-deal': 'bigDeal',
+  'super-sale': 'superSale',
 };
 
 export function conditionLabel(condition: string, t: Translations): string {

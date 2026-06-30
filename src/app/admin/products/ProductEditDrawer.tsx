@@ -12,6 +12,7 @@ import {
   getIphoneSubcategory,
   colorSwatchHex,
 } from '@/lib/iphone-catalog';
+import { formatPriceAed, parsePriceInput } from '@/lib/pricing';
 
 async function uploadImage(file: File): Promise<string | null> {
   const form = new FormData();
@@ -32,7 +33,7 @@ type FormState = {
   category: Category; condition: Condition; storage: string;
   battery_health: string; stock_quantity: string; moq: string;
   country_of_origin: string; warranty: string; description: string;
-  price_aed: string; show_price: boolean;
+  price_aed: string; sale_price_aed: string; show_price: boolean;
   collection_id: string;
   specifications: Record<string, string>;
   is_featured: boolean; is_active: boolean; images: string[];
@@ -47,7 +48,9 @@ function field(product: Product): FormState {
     stock_quantity: product.stock_quantity.toString(), moq: product.moq.toString(),
     country_of_origin: product.country_of_origin, warranty: product.warranty ?? '',
     description: product.description ?? '',
-    price_aed: product.price_aed?.toString() ?? '', show_price: product.show_price ?? true,
+    price_aed: product.price_aed?.toString() ?? '',
+    sale_price_aed: product.sale_price_aed?.toString() ?? '',
+    show_price: product.show_price ?? true,
     collection_id: (product as Product & { collection_id?: string | null }).collection_id ?? '',
     specifications: { ...(product.specifications ?? {}) },
     is_featured: product.is_featured,
@@ -183,6 +186,7 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
         color: form.color,
         stock_quantity: form.stock_quantity,
         price_aed: form.price_aed,
+        sale_price_aed: form.sale_price_aed,
         existingImages: [...form.images],
         newFiles: [],
       };
@@ -223,7 +227,8 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
             id: v.id,
             color: v.color.trim(),
             stock_quantity: parseInt(v.stock_quantity) || 0,
-            price_aed: v.price_aed ? parseFloat(v.price_aed) : null,
+            price_aed: parsePriceInput(v.price_aed),
+            sale_price_aed: parsePriceInput(v.sale_price_aed),
             images: imgs,
           });
         }
@@ -300,7 +305,8 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
       warranty: form.warranty || null,
       description: form.description || null,
       specifications: Object.keys(form.specifications).length ? form.specifications : null,
-      price_aed: form.price_aed ? parseFloat(form.price_aed) : null,
+      price_aed: parsePriceInput(form.price_aed),
+      sale_price_aed: parsePriceInput(form.sale_price_aed),
       show_price: form.show_price,
       collection_id: form.collection_id || null,
       is_featured: form.is_featured,
@@ -599,14 +605,23 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
               <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
                 Wholesale Pricing
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
                 <div>
-                  <label htmlFor="edit-price" style={labelStyle}>Unit Price (AED)</label>
+                  <label htmlFor="edit-price" style={labelStyle}>Original Price (AED)</label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '0.8125rem', fontWeight: 600, pointerEvents: 'none' }}>AED</span>
-                    <input id="edit-price" type="number" min="0" step="0.01" placeholder="0.00"
+                    <input id="edit-price" type="number" min="0" step="1" placeholder="2500"
                       style={{ ...inp, paddingLeft: '2.875rem' }}
                       value={form.price_aed} onChange={e => set('price_aed', e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="edit-sale-price" style={labelStyle}>Sale Price (AED)</label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '0.8125rem', fontWeight: 600, pointerEvents: 'none' }}>AED</span>
+                    <input id="edit-sale-price" type="number" min="0" step="1" placeholder="Optional"
+                      style={{ ...inp, paddingLeft: '2.875rem' }}
+                      value={form.sale_price_aed} onChange={e => set('sale_price_aed', e.target.value)} />
                   </div>
                 </div>
                 <div style={{ paddingBottom: '2px' }}>
@@ -628,7 +643,11 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                 </div>
               </div>
               <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#92400E' }}>
-                {form.price_aed ? `Shows as AED ${parseFloat(form.price_aed || '0').toLocaleString()}/unit on site` : 'Leave blank to show "Price on Request"'}
+                {form.price_aed
+                  ? form.sale_price_aed
+                    ? `Shows AED ${formatPriceAed(form.price_aed)} crossed out → AED ${formatPriceAed(form.sale_price_aed)}/unit`
+                    : `Shows as AED ${formatPriceAed(form.price_aed)}/unit on site`
+                  : 'Leave blank to show "Price on Request"'}
               </p>
             </div>
             )}
@@ -665,6 +684,8 @@ export default function ProductEditDrawer({ product, brands, collections, isNew,
                   <option value="refurbished-grade-a">Refurbished Grade A</option>
                   <option value="refurbished-grade-b">Refurbished Grade B</option>
                   <option value="certified-refurbished">Certified Refurbished</option>
+                  <option value="big-deal">Big Deal</option>
+                  <option value="super-sale">Super Sale</option>
                 </select>
               </div>
               <div>

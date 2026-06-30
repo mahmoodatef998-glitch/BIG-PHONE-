@@ -1,4 +1,5 @@
 import type { Product } from '@/types';
+import { coercePrice } from '@/lib/pricing';
 
 /** Single source of truth for product image URLs (mock data + Supabase seed). */
 const GH = 'https://raw.githubusercontent.com/littlebyteorg/apple-device-images/main/device';
@@ -195,9 +196,14 @@ export function imagesForProduct(slug: string): string[] {
 
 /** Prefer canonical catalog images over stale/empty Supabase values. */
 export function withCanonicalImages(product: Product): Product {
+  const normalized: Product = {
+    ...product,
+    price_aed: coercePrice(product.price_aed),
+    sale_price_aed: coercePrice(product.sale_price_aed),
+  };
   const canonical = PRODUCT_IMAGES[product.slug];
-  if (!canonical?.length) return product;
-  return { ...product, images: canonical };
+  if (!canonical?.length) return normalized;
+  return { ...normalized, images: canonical };
 }
 
 export function withCanonicalImagesList(products: Product[]): Product[] {

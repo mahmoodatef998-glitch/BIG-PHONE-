@@ -7,6 +7,7 @@ import type { RFQ } from '@/types';
 import { useAdminToast } from '@/components/admin/AdminToast';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { usePagination } from '@/lib/admin/pagination';
+import { formatDateTime } from '@/lib/admin/utils';
 
 const PAGE_SIZE = 10;
 
@@ -29,7 +30,7 @@ function exportToCSV(rfqs: RFQ[], filter: string) {
   const rows = rfqs.map(r => [
     r.id, r.company_name, r.contact_person, r.country, r.phone, r.email,
     r.product_interest, r.quantity, r.message ?? '', r.status,
-    new Date(r.created_at).toLocaleDateString(),
+    new Date(r.created_at).toLocaleString('en-AE', { dateStyle: 'medium', timeStyle: 'short' }),
   ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
   const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -134,7 +135,7 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Globe size={13} /> {rfq.country}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Phone size={13} /> {rfq.phone}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Mail size={13} /> {rfq.email}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Calendar size={13} /> {new Date(rfq.created_at).toLocaleDateString()}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Calendar size={13} /> {formatDateTime(rfq.created_at)}</span>
                   </div>
                 </div>
                 <div className="admin-rfq-actions" style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>

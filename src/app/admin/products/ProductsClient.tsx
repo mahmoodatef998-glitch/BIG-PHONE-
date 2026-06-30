@@ -24,6 +24,8 @@ const CONDITION_LABELS: Record<string, string> = {
   'refurbished-grade-a': 'Grade A',
   'refurbished-grade-b': 'Grade B',
   'certified-refurbished': 'Certified',
+  'big-deal': 'Big Deal',
+  'super-sale': 'Super Sale',
 };
 
 function makeEmpty(brands: Brand[]): Product {

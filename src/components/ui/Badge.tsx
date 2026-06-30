@@ -15,6 +15,8 @@ const BADGE_CLASS: Record<string, string> = {
   'refurbished-grade-a': 'badge-grade-a',
   'refurbished-grade-b': 'badge-grade-b',
   'certified-refurbished': 'badge-certified',
+  'big-deal': 'badge-big-deal',
+  'super-sale': 'badge-super-sale',
 };
 
 export function ConditionBadge({ condition, className }: BadgeProps) {

@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MessageCircle, MapPin, Shield } from 'lucide-react';
 import { ConditionBadge, StockBadge } from '@/components/ui/Badge';
+import ProductPrice from '@/components/ui/ProductPrice';
 import RFQForm from '@/components/rfq/RFQForm';
 import { conditionLabel } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
 import { colorSwatchHex } from '@/lib/iphone-catalog';
+import { getProductPricing } from '@/lib/pricing';
 import type { Product } from '@/types';
 import type { StorageVariant, ColorVariant } from '@/lib/product-variants';
 import { productToStorageVariant, productToColorVariant } from '@/lib/product-variants';
@@ -59,6 +61,7 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
     return {
       slug: product.slug,
       price_aed: product.price_aed ?? null,
+      sale_price_aed: product.sale_price_aed ?? null,
       show_price: product.show_price ?? true,
       stock_quantity: product.stock_quantity,
       moq: product.moq,
@@ -94,7 +97,12 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
     whatsappNumber,
   );
 
-  const showPrice = activeVariant.show_price !== false && activeVariant.price_aed != null && activeVariant.price_aed > 0;
+  const pricing = getProductPricing({
+    price_aed: activeVariant.price_aed,
+    sale_price_aed: activeVariant.sale_price_aed,
+    show_price: activeVariant.show_price,
+  });
+  const showPrice = pricing.showPrice;
   const isOutOfStock = activeVariant.stock_quantity === 0;
 
   const specRows = [
@@ -215,11 +223,16 @@ export default function ProductDetailPanel({ product, storageVariants, colorVari
         )}
 
         {showPrice ? (
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem', marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
-            <span style={{ fontSize: '1.625rem', fontWeight: 800, color: '#0066FF', letterSpacing: '-0.03em' }}>
-              AED {activeVariant.price_aed!.toLocaleString()}
+          <div style={{ marginBottom: '1.25rem', padding: '0.875rem 1rem', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px' }}>
+            <ProductPrice
+              price_aed={activeVariant.price_aed}
+              sale_price_aed={activeVariant.sale_price_aed}
+              show_price={activeVariant.show_price}
+              size="detail"
+            />
+            <span style={{ display: 'block', marginTop: '0.375rem', fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>
+              {t.product.moq} {activeVariant.moq}
             </span>
-            <span style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>{t.common.perUnit} · {t.product.moq} {activeVariant.moq}</span>
           </div>
         ) : (
           <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>

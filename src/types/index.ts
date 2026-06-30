@@ -1,4 +1,10 @@
-export type Condition = 'brand-new' | 'refurbished-grade-a' | 'refurbished-grade-b' | 'certified-refurbished';
+export type Condition =
+  | 'brand-new'
+  | 'refurbished-grade-a'
+  | 'refurbished-grade-b'
+  | 'certified-refurbished'
+  | 'big-deal'
+  | 'super-sale';
 export type Category = 'smartphone' | 'tablet' | 'accessory' | 'smartwatch' | 'airpods';
 export type StockStatus = 'in-stock' | 'low-stock' | 'out-of-stock';
 
@@ -49,6 +55,7 @@ export interface Product {
   specifications: Record<string, string> | null;
   images: string[];
   price_aed?: number | null;
+  sale_price_aed?: number | null;
   show_price?: boolean;
   is_featured: boolean;
   is_active: boolean;

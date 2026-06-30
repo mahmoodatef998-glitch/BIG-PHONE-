@@ -10,12 +10,13 @@ export type VariantRow = {
   color: string;
   stock_quantity: string;
   price_aed: string;
+  sale_price_aed: string;
   existingImages: string[];
   newFiles: File[];
 };
 
 export function emptyVariant(color = ''): VariantRow {
-  return { color, stock_quantity: '', price_aed: '', existingImages: [], newFiles: [] };
+  return { color, stock_quantity: '', price_aed: '', sale_price_aed: '', existingImages: [], newFiles: [] };
 }
 
 const labelStyle: React.CSSProperties = {
@@ -84,7 +85,7 @@ export default function ColorVariantsEditor({ variants, onChange, availableColor
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.625rem', marginBottom: '0.875rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.875rem' }}>
             <div>
               <label style={labelStyle}>Colour</label>
               {availableColors.length > 0 ? (
@@ -105,9 +106,14 @@ export default function ColorVariantsEditor({ variants, onChange, availableColor
                 onChange={e => update(idx, { stock_quantity: e.target.value })} placeholder="0" />
             </div>
             <div>
-              <label style={labelStyle}>Price (AED)</label>
-              <input type="number" min="0" step="0.01" style={inp} value={v.price_aed}
-                onChange={e => update(idx, { price_aed: e.target.value })} placeholder="0.00" />
+              <label style={labelStyle}>Original Price (AED)</label>
+              <input type="number" min="0" step="1" style={inp} value={v.price_aed}
+                onChange={e => update(idx, { price_aed: e.target.value })} placeholder="2500" />
+            </div>
+            <div>
+              <label style={labelStyle}>Sale Price (AED)</label>
+              <input type="number" min="0" step="1" style={inp} value={v.sale_price_aed}
+                onChange={e => update(idx, { sale_price_aed: e.target.value })} placeholder="Optional discount" />
             </div>
           </div>
 

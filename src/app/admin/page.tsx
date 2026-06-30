@@ -6,7 +6,8 @@ import {
   DollarSign, TrendingUp, MessageCircle,
 } from 'lucide-react';
 import { getProductsAdmin, getBrandsAdmin, getRFQs, getCollectionsAdmin } from '@/lib/data';
-import { timeAgo } from '@/lib/admin/utils';
+import { formatDateTime } from '@/lib/admin/utils';
+import { formatPriceAed, getProductPricing } from '@/lib/pricing';
 
 export const metadata: Metadata = { title: 'Admin Dashboard | BIG PHONE' };
 export const dynamic = 'force-dynamic';
@@ -257,7 +258,7 @@ export default async function AdminDashboard() {
                           {cfg.label}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#9CA3AF', whiteSpace: 'nowrap' }}>{timeAgo(rfq.created_at)}</td>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#9CA3AF', whiteSpace: 'nowrap' }}>{formatDateTime(rfq.created_at)}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <a href={waLink(rfq.phone, rfq.company_name, rfq.product_interest, rfq.quantity ?? null)}
                           target="_blank" rel="noopener noreferrer" title="Reply via WhatsApp"
@@ -354,7 +355,13 @@ export default async function AdminDashboard() {
                     </td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>{p.moq}</td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', fontWeight: 600, color: '#111827' }}>
-                      {p.show_price && p.price_aed ? `AED ${Number(p.price_aed).toLocaleString()}` : '—'}
+                      {(() => {
+                        const pricing = getProductPricing(p);
+                        if (!pricing.showPrice || pricing.display == null) return '—';
+                        return pricing.hasDiscount
+                          ? `AED ${formatPriceAed(pricing.display)} (${formatPriceAed(pricing.original)} was)`
+                          : `AED ${formatPriceAed(pricing.display)}`;
+                      })()}
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <span style={{ display: 'inline-block', fontSize: '0.6875rem', fontWeight: 700, padding: '0.2rem 0.625rem', borderRadius: '9999px', background: out ? '#FEE2E2' : low ? '#FEF9C3' : '#D1FAE5', color: out ? '#991B1B' : low ? '#92400E' : '#065F46' }}>

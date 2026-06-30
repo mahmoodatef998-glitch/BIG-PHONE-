@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { productImageUrl } from '@/lib/cloudinary';
+import ProductPrice from '@/components/ui/ProductPrice';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { conditionLabel } from '@/lib/i18n';
 import type { Product, Condition } from '@/types';
@@ -91,13 +92,13 @@ function MiniCard({ product }: { product: Product }) {
           </span>
         )}
         <h4 className="pop-card-name">{product.name}</h4>
-        {product.price_aed && product.show_price !== false ? (
-          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#FF6B00', letterSpacing: '-0.01em' }}>
-            AED {product.price_aed.toLocaleString()}
-          </span>
-        ) : (
-          <span style={{ fontSize: '0.6875rem', color: '#9CA3AF', fontStyle: 'italic' }}>{t.product.priceOnRequest}</span>
-        )}
+        <ProductPrice
+          price_aed={product.price_aed}
+          sale_price_aed={product.sale_price_aed}
+          show_price={product.show_price}
+          size="compact"
+          showPerUnit={false}
+        />
       </div>
     </Link>
   );

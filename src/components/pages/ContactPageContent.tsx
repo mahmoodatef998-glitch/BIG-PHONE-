@@ -5,7 +5,10 @@ import { MessageCircle, Mail, Phone, MapPin, Clock } from 'lucide-react';
 import RFQForm from '@/components/rfq/RFQForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+import { getCompanyEmail, getWhatsAppNumber, formatWhatsAppDisplay } from '@/lib/site-config';
+
+const WHATSAPP = getWhatsAppNumber();
+const COMPANY_EMAIL = getCompanyEmail();
 
 export default function ContactPageContent() {
   const { t } = useLanguage();
@@ -39,13 +42,13 @@ export default function ContactPageContent() {
                 <div>
                   <div style={{ fontWeight: 700, color: '#111827', fontSize: '0.9375rem' }}>{c.whatsappPreferred}</div>
                   <div style={{ fontSize: '0.875rem', color: '#16a34a', marginTop: '0.125rem' }}>{c.whatsappFast}</div>
-                  <div style={{ fontSize: '0.8125rem', color: '#6B7280', marginTop: '0.25rem' }}>+{WHATSAPP}</div>
+                  <div style={{ fontSize: '0.8125rem', color: '#6B7280', marginTop: '0.25rem' }}>{formatWhatsAppDisplay(WHATSAPP)}</div>
                 </div>
               </a>
 
               {[
-                { icon: Mail, label: c.email, value: 'info@bigphone.ae', href: 'mailto:info@bigphone.ae', color: '#FF6B00' },
-                { icon: Phone, label: c.phone, value: `+${WHATSAPP}`, href: `tel:+${WHATSAPP}`, color: '#8B5CF6' },
+                { icon: Mail, label: c.email, value: COMPANY_EMAIL, href: `mailto:${COMPANY_EMAIL}`, color: '#FF6B00' },
+                { icon: Phone, label: c.phone, value: formatWhatsAppDisplay(WHATSAPP), href: `tel:+${WHATSAPP}`, color: '#8B5CF6' },
                 { icon: MapPin, label: c.location, value: t.footer.location, href: null, color: '#F59E0B' },
                 { icon: Clock, label: c.hours, value: c.hoursValue, href: null, color: '#10B981' },
               ].map(({ icon: Icon, label, value, href, color }) => (

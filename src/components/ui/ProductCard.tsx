@@ -13,7 +13,9 @@ import { buildWhatsAppLink } from '@/lib/whatsapp';
 import AddToQuoteButton from '@/components/cart/AddToQuoteButton';
 import type { Product } from '@/types';
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
+import { getWhatsAppNumber } from '@/lib/site-config';
+
+const WHATSAPP = getWhatsAppNumber();
 
 const BRAND_GRADIENT: Record<string, [string, string]> = {
   apple:   ['#1C1C1E', '#3A3A3C'],

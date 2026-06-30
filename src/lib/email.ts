@@ -1,11 +1,10 @@
 import { Resend } from 'resend';
 import { formatPriceAed } from '@/lib/pricing';
 import { getCartLineTotal } from '@/lib/quote-cart';
+import { getCompanyEmail, getWhatsAppNumber } from '@/lib/site-config';
 
 const FROM = `BIG PHONE <${process.env.RESEND_FROM_EMAIL ?? 'noreply@bigphone.ae'}>`;
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? 'info@bigphone.ae';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bigphone.ae';
-const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '971500000000';
 
 export interface RFQEmailData {
   company_name: string;
@@ -86,7 +85,7 @@ function adminHtml(d: RFQEmailData): string {
     </div>
   </div>
   <div style="padding:14px 28px;background:#F8FAFC;border-top:1px solid #E2E8F0">
-    <p style="margin:0;font-size:11px;color:#9CA3AF">BIG PHONE · ${ADMIN_EMAIL}</p>
+    <p style="margin:0;font-size:11px;color:#9CA3AF">BIG PHONE · ${getCompanyEmail()}</p>
   </div>
 </div>
 </body></html>`;
@@ -118,23 +117,26 @@ function buyerHtml(d: RFQEmailData): string {
     <p style="margin:0 0 16px;font-size:13px;color:#64748B">Have questions? Reach us directly on WhatsApp or browse our catalog:</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <a href="${SITE_URL}/inventory" style="display:inline-block;background:#0066FF;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">Browse Inventory</a>
-      <a href="https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I just submitted an RFQ for ${d.product_interest}.`)}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">WhatsApp Us</a>
+      <a href="https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(`Hi, I just submitted an RFQ for ${d.product_interest}.`)}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">WhatsApp Us</a>
     </div>
   </div>
   <div style="padding:14px 28px;background:#F8FAFC;border-top:1px solid #E2E8F0">
-    <p style="margin:0;font-size:11px;color:#9CA3AF">BIG PHONE · ${ADMIN_EMAIL} · This is an automated confirmation — please do not reply.</p>
+    <p style="margin:0;font-size:11px;color:#9CA3AF">BIG PHONE · ${getCompanyEmail()} · This is an automated confirmation — please do not reply.</p>
   </div>
 </div>
 </body></html>`;
 }
 
-export async function sendAdminRFQNotification(data: RFQEmailData): Promise<void> {
+export async function sendAdminRFQNotification(
+  data: RFQEmailData,
+  adminEmail = getCompanyEmail(),
+): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: FROM,
-      to: ADMIN_EMAIL,
+      to: adminEmail,
       subject: `New RFQ: ${data.company_name} — ${data.product_interest}`,
       html: adminHtml(data),
     });

@@ -2,17 +2,20 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, Globe, Calendar, MessageCircle, Download, Search, X } from 'lucide-react';
-import type { RFQ } from '@/types';
+import { Mail, Phone, Globe, Calendar, MessageCircle, Download, Search, X, ShoppingBag } from 'lucide-react';
+import type { Product, RFQ } from '@/types';
 import { useAdminToast } from '@/components/admin/AdminToast';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { usePagination } from '@/lib/admin/pagination';
 import { formatDateTime } from '@/lib/admin/utils';
+import { formatPriceAed } from '@/lib/pricing';
+import SoldRfqModal from './SoldRfqModal';
 
 const PAGE_SIZE = 10;
 
 interface Props {
   rfqs: RFQ[];
+  products: Product[];
   initialEmail?: string;
 }
 
@@ -21,17 +24,23 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }
   contacted: { label: 'Contacted', bg: '#dbeafe', color: '#1e40af' },
   quoted:    { label: 'Quoted',    bg: '#f3e8ff', color: '#6b21a8' },
   closed:    { label: 'Closed',    bg: '#f0fdf4', color: '#166534' },
+  sold:      { label: 'Sold',      bg: '#dcfce7', color: '#15803d' },
 };
 
-const FILTER_OPTIONS = ['all', 'new', 'contacted', 'quoted', 'closed'];
+const FILTER_OPTIONS = ['all', 'new', 'contacted', 'quoted', 'closed', 'sold'];
 
 function exportToCSV(rfqs: RFQ[], filter: string) {
-  const headers = ['ID', 'Company', 'Contact', 'Country', 'Phone', 'Email', 'Product', 'Qty', 'Message', 'Status', 'Date'];
-  const rows = rfqs.map(r => [
-    r.id, r.company_name, r.contact_person, r.country, r.phone, r.email,
-    r.product_interest, r.quantity, r.message ?? '', r.status,
-    new Date(r.created_at).toLocaleString('en-AE', { dateStyle: 'medium', timeStyle: 'short' }),
-  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+  const headers = ['ID', 'Company', 'Contact', 'Country', 'Phone', 'Email', 'Product', 'Qty', 'Message', 'Status', 'Sold Total AED', 'Sold Qty', 'Sold At', 'Date'];
+  const rows = rfqs.map(r => {
+    const soldQty = r.sold_lines?.reduce((s, l) => s + l.quantity_sold, 0) ?? '';
+    return [
+      r.id, r.company_name, r.contact_person, r.country, r.phone, r.email,
+      r.product_interest, r.quantity, r.message ?? '', r.status,
+      r.sold_total_aed ?? '', soldQty,
+      r.sold_at ? new Date(r.sold_at).toLocaleString('en-AE', { dateStyle: 'medium', timeStyle: 'short' }) : '',
+      new Date(r.created_at).toLocaleString('en-AE', { dateStyle: 'medium', timeStyle: 'short' }),
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+  });
   const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -42,11 +51,12 @@ function exportToCSV(rfqs: RFQ[], filter: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
+export default function RFQsClient({ rfqs, products, initialEmail = '' }: Props) {
   const router = useRouter();
   const { error: toastError, success: toastSuccess } = useAdminToast();
   const [activeFilter, setActiveFilter] = useState('all');
   const [emailSearch, setEmailSearch] = useState(initialEmail);
+  const [soldModalRfq, setSoldModalRfq] = useState<RFQ | null>(null);
 
   const filtered = useMemo(() => {
     const q = emailSearch.trim().toLowerCase();
@@ -60,8 +70,61 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
   const paginationKey = `${activeFilter}|${emailSearch}`;
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(filtered, PAGE_SIZE, paginationKey);
 
+  async function updateStatus(rfq: RFQ, status: RFQ['status']) {
+    if (status === 'sold') {
+      setSoldModalRfq(rfq);
+      return;
+    }
+
+    const res = await fetch('/api/admin/rfqs/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: rfq.id, status }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      toastError('Status update failed: ' + (j.error ?? 'Unknown error'));
+      return;
+    }
+    toastSuccess('RFQ status updated');
+    router.refresh();
+  }
+
+  async function confirmSale(data: { sold_lines: RFQ['sold_lines']; sold_total_aed: number }) {
+    if (!soldModalRfq) return;
+
+    const res = await fetch('/api/admin/rfqs/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: soldModalRfq.id,
+        status: 'sold',
+        sold_lines: data.sold_lines,
+        sold_total_aed: data.sold_total_aed,
+      }),
+    });
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error ?? 'Unknown error');
+    }
+
+    toastSuccess('Sale recorded — stock updated');
+    setSoldModalRfq(null);
+    router.refresh();
+  }
+
   return (
     <div className="admin-page-content">
+      {soldModalRfq && (
+        <SoldRfqModal
+          rfq={soldModalRfq}
+          products={products}
+          onClose={() => setSoldModalRfq(null)}
+          onConfirm={confirmSale}
+        />
+      )}
+
       <div className="admin-page-header">
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A' }}>RFQ Requests</h1>
@@ -123,6 +186,7 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
           <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', padding: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>No RFQs match this filter.</div>
         ) : paginated.map(rfq => {
           const statusCfg = STATUS_CONFIG[rfq.status];
+          const soldUnits = rfq.sold_lines?.reduce((s, l) => s + l.quantity_sold, 0);
           return (
             <div key={rfq.id} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '0.75rem', padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -139,28 +203,25 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                   </div>
                 </div>
                 <div className="admin-rfq-actions" style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
-                  <select value={rfq.status}
-                    onChange={async e => {
-                      const s = e.target.value as RFQ['status'];
-                      const res = await fetch('/api/admin/rfqs/update', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: rfq.id, status: s }),
-                      });
-                      if (!res.ok) {
-                        const j = await res.json().catch(() => ({}));
-                        toastError('Status update failed: ' + (j.error ?? 'Unknown error'));
-                        return;
-                      }
-                      toastSuccess('RFQ status updated');
-                      router.refresh();
-                    }}
-                    style={{ padding: '0.25rem 0.5rem', border: '1px solid #E2E8F0', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', background: '#fff', color: '#374151' }}>
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="quoted">Quoted</option>
-                    <option value="closed">Closed</option>
-                  </select>
+                  {rfq.status === 'sold' ? (
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: '0.375rem',
+                      padding: '0.375rem 0.625rem', background: '#ECFDF5', color: '#15803d',
+                      borderRadius: '0.375rem', fontSize: '0.75rem', fontWeight: 700,
+                    }}>
+                      <ShoppingBag size={13} /> Sold
+                    </span>
+                  ) : (
+                    <select value={rfq.status}
+                      onChange={e => updateStatus(rfq, e.target.value as RFQ['status'])}
+                      style={{ padding: '0.25rem 0.5rem', border: '1px solid #E2E8F0', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', background: '#fff', color: '#374151' }}>
+                      <option value="new">New</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="quoted">Quoted</option>
+                      <option value="closed">Closed</option>
+                      <option value="sold">Sold</option>
+                    </select>
+                  )}
                   <a href={`mailto:${rfq.email}?subject=Re: Your Wholesale Quotation Request&body=Dear ${rfq.contact_person},%0D%0A%0D%0AThank you for your inquiry.`}
                     style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 0.75rem', background: '#FFF3E8', color: '#FF6B00', border: '1px solid #FFE4CC', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
                     <Mail size={14} /> Email
@@ -201,6 +262,20 @@ export default function RFQsClient({ rfqs, initialEmail = '' }: Props) {
                       {rfq.quantity != null ? `${rfq.quantity.toLocaleString()} units` : '—'}
                     </p>
                   </div>
+                  {rfq.status === 'sold' && rfq.sold_total_aed != null && (
+                    <div>
+                      <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sale</span>
+                      <p style={{ fontSize: '0.875rem', color: '#15803d', fontWeight: 700, marginTop: '0.125rem' }}>
+                        AED {formatPriceAed(Number(rfq.sold_total_aed))}
+                        {soldUnits ? ` · ${soldUnits.toLocaleString()} sold` : ''}
+                      </p>
+                      {rfq.sold_at && (
+                        <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.125rem' }}>
+                          {formatDateTime(rfq.sold_at)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {rfq.message && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.375rem', fontSize: '0.8125rem', color: '#64748B', background: '#F8FAFC', padding: '0.625rem 0.875rem', borderRadius: '0.375rem', marginTop: '0.5rem' }}>

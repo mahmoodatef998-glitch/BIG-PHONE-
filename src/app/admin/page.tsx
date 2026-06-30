@@ -18,6 +18,7 @@ const STATUS: Record<string, { label: string; bg: string; color: string; dot: st
   contacted: { label: 'Contacted', bg: '#DBEAFE', color: '#1E40AF', dot: '#3B82F6' },
   quoted:    { label: 'Quoted',    bg: '#D1FAE5', color: '#065F46', dot: '#10B981' },
   closed:    { label: 'Closed',    bg: '#F1F5F9', color: '#475569', dot: '#9CA3AF' },
+  sold:      { label: 'Sold',      bg: '#DCFCE7', color: '#15803D', dot: '#16A34A' },
 };
 
 function waLink(phone: string, company: string, product: string | null, qty: number | null) {
@@ -45,14 +46,22 @@ export default async function AdminDashboard() {
   const pricedCount = products.filter(p => p.price_aed && p.show_price).length;
 
   // RFQ Funnel
+  const soldRfqs = rfqs.filter(r => r.status === 'sold');
+  const totalSalesRevenue = soldRfqs.reduce((sum, r) => sum + Number(r.sold_total_aed ?? 0), 0);
+  const totalUnitsSold = soldRfqs.reduce(
+    (sum, r) => sum + (r.sold_lines?.reduce((s, l) => s + l.quantity_sold, 0) ?? 0),
+    0,
+  );
   const funnelStages = [
     { label: 'New',       count: rfqs.filter(r => r.status === 'new').length,       color: '#F59E0B' },
     { label: 'Contacted', count: rfqs.filter(r => r.status === 'contacted').length, color: '#3B82F6' },
     { label: 'Quoted',    count: rfqs.filter(r => r.status === 'quoted').length,    color: '#10B981' },
     { label: 'Closed',    count: rfqs.filter(r => r.status === 'closed').length,    color: '#6B7280' },
+    { label: 'Sold',      count: soldRfqs.length,                                   color: '#16A34A' },
   ];
   const totalRFQs = rfqs.length || 1;
   const conversionRate = rfqs.length > 0 ? Math.round((rfqs.filter(r => r.status === 'closed').length / totalRFQs) * 100) : 0;
+  const soldRate = rfqs.length > 0 ? Math.round((soldRfqs.length / totalRFQs) * 100) : 0;
 
   // Top requested from RFQ text
   const KEYWORDS = ['iPhone', 'iPad', 'AirPods', 'Galaxy', 'Xiaomi', 'Huawei', 'OPPO', 'Vivo', 'Redmi'];
@@ -178,9 +187,29 @@ export default async function AdminDashboard() {
               );
             })}
           </div>
-          <div style={{ marginTop: '1rem', paddingTop: '0.875rem', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>Close rate</span>
-            <span style={{ fontSize: '1rem', fontWeight: 800, color: conversionRate > 30 ? '#10B981' : '#FF6B00' }}>{conversionRate}%</span>
+          <div style={{ marginTop: '1rem', paddingTop: '0.875rem', borderTop: '1px solid #F3F4F6', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>Close rate</span>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: conversionRate > 30 ? '#10B981' : '#FF6B00' }}>{conversionRate}%</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>Sold rate</span>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: soldRate > 0 ? '#16A34A' : '#9CA3AF' }}>{soldRate}%</span>
+            </div>
+            {totalSalesRevenue > 0 && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>Sales revenue</span>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#16A34A' }}>
+                    AED {totalSalesRevenue >= 1000 ? `${(totalSalesRevenue / 1000).toFixed(1)}K` : formatPriceAed(totalSalesRevenue)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>Units sold</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#374151' }}>{totalUnitsSold.toLocaleString()}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

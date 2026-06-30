@@ -91,6 +91,13 @@ export interface QuoteCartItem extends RFQItem {
   moq: number;
 }
 
+export interface RFQSoldLine {
+  slug: string;
+  name: string;
+  quantity_sold: number;
+  line_total_aed?: number | null;
+}
+
 export interface RFQ {
   id: string;
   company_name: string;
@@ -102,7 +109,10 @@ export interface RFQ {
   quantity: number | null;
   items?: RFQItem[] | null;
   message: string | null;
-  status: 'new' | 'contacted' | 'quoted' | 'closed';
+  status: 'new' | 'contacted' | 'quoted' | 'closed' | 'sold';
+  sold_at?: string | null;
+  sold_total_aed?: number | null;
+  sold_lines?: RFQSoldLine[] | null;
   created_at: string;
 }
 

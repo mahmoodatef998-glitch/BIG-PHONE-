@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Serve modern formats (better quality per byte) and allow the high-quality
+    // level used for product imagery. minimumCacheTTL keeps optimized variants
+    // cached longer on the CDN.
+    formats: ['image/avif', 'image/webp'],
+    qualities: [75, 90],
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       { protocol: 'https', hostname: 'placehold.co' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },

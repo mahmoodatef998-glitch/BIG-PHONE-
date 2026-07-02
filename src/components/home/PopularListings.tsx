@@ -41,7 +41,7 @@ function MiniCard({ product }: { product: Product }) {
   const [useDirectUrl, setUseDirectUrl] = useState(false);
   const rawSrc = product.images[0] ?? '';
   const imgSrc = rawSrc
-    ? productImageUrl(rawSrc, { width: 220, quality: 80 }, useDirectUrl)
+    ? productImageUrl(rawSrc, { width: 440, quality: 90 }, useDirectUrl)
     : null;
   const brandColor = BRAND_COLORS[product.brand?.slug ?? ''] ?? '#FF6B00';
   const isRefurb = REFURB_CONDITIONS.includes(product.condition);
@@ -55,6 +55,7 @@ function MiniCard({ product }: { product: Product }) {
             src={imgSrc}
             alt={product.name}
             fill
+            quality={90}
             sizes="180px"
             style={{ objectFit: 'contain', padding: '8px' }}
             onError={() => {

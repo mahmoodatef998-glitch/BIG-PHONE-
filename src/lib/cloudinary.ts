@@ -13,7 +13,7 @@ export function cloudinaryUrl(
   if (!isCloudinaryConfigured()) return src;
   if (src.startsWith('https://res.cloudinary.com')) return src;
 
-  const { width = 600, height, quality = 80 } = opts;
+  const { width = 900, height, quality = 90 } = opts;
   const t: string[] = ['f_auto', `q_${quality}`];
   if (width) t.push(`w_${width}`);
   if (height) t.push(`h_${height}`);

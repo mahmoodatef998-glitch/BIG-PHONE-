@@ -54,7 +54,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const waLink = buildWhatsAppLink(lang, 'productInquiry', { name: product.name }, WHATSAPP);
   const rawSrc = product.images[0] ?? '';
   const imgSrc = rawSrc
-    ? productImageUrl(rawSrc, { width: 400, quality: 85 }, useDirectUrl)
+    ? productImageUrl(rawSrc, { width: 800, quality: 90 }, useDirectUrl)
     : null;
   const isInStock  = product.stock_quantity > 0;
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 15;
@@ -68,6 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
               src={imgSrc}
               alt={product.name}
               fill
+              quality={90}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               style={{ objectFit: 'contain', padding: '0.75rem' }}
               onError={() => {

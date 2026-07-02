@@ -60,7 +60,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
 
   const mainSrc = productImageUrl(
     slides[activeIndex],
-    { width: 900, quality: 85 },
+    { width: 1400, quality: 90 },
     directSrcs.has(slides[activeIndex]),
   );
   const mainFailed = failedSrcs.has(slides[activeIndex]);
@@ -84,6 +84,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
             src={mainSrc}
             alt={`${alt}${hasMultiple ? ` — image ${activeIndex + 1} of ${count}` : ''}`}
             fill
+            quality={90}
             sizes="(max-width: 768px) 100vw, 50vw"
             priority={activeIndex === 0}
             className="product-gallery-image"
@@ -141,7 +142,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
 
           <div className="product-gallery-thumbs">
             {slides.map((src, i) => {
-              const thumbSrc = productImageUrl(src, { width: 120, quality: 75 }, directSrcs.has(src));
+              const thumbSrc = productImageUrl(src, { width: 240, quality: 90 }, directSrcs.has(src));
               const thumbFailed = failedSrcs.has(src);
               return (
                 <button
@@ -159,6 +160,7 @@ export default function ProductImageGallery({ images, alt, fallback }: Props) {
                       src={thumbSrc}
                       alt=""
                       fill
+                      quality={90}
                       sizes="72px"
                       className="product-gallery-thumb-img"
                       onError={() => {
